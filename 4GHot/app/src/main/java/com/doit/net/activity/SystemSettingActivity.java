@@ -35,17 +35,9 @@ public class SystemSettingActivity extends BaseActivity {
     public static String LOC_PREF_KEY = "LOC_PREF_KEY";
 
     private LSettingItem tvOnOffLocation;
-    private LSettingItem tvIfAutoOpenRF;
     private LSettingItem tvGeneralAdmin;
     //private SettingItemClickEvent settingItemLocSwitch = new SettingItemClickEvent();
 
-    private BootstrapButton btSetFan;
-    private BootstrapEditText etMaxWindSpeed;
-    private BootstrapEditText etMinWindSpeed;
-    private BootstrapEditText etTempThreshold;
-
-    private BootstrapButton btResetFreqScanFcn;
-    private BootstrapButton btRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,24 +48,14 @@ public class SystemSettingActivity extends BaseActivity {
         tvOnOffLocation.setOnLSettingCheckedChange(settingItemLocSwitch);
         tvOnOffLocation.setmOnLSettingItemClick(settingItemLocSwitch);  //点击该行开关以外地方也会切换开关，故覆盖其回调
 
-        tvIfAutoOpenRF = findViewById(R.id.tvIfAutoOpenRF);
-        tvIfAutoOpenRF.setOnLSettingCheckedChange(settingItemAutoRFSwitch);
-        tvIfAutoOpenRF.setmOnLSettingItemClick(settingItemAutoRFSwitch);
+//        tvIfAutoOpenRF = findViewById(R.id.tvIfAutoOpenRF);
+//        tvIfAutoOpenRF.setOnLSettingCheckedChange(settingItemAutoRFSwitch);
+//        tvIfAutoOpenRF.setmOnLSettingItemClick(settingItemAutoRFSwitch);
 
         tvGeneralAdmin = findViewById(R.id.tvGeneralAdmin);
         tvGeneralAdmin.setmOnLSettingItemClick(generalAdminAccount);
 
-        etMaxWindSpeed = findViewById(R.id.etMaxWindSpeed);
-        etMinWindSpeed = findViewById(R.id.etMinWindSpeed);
-        etTempThreshold = findViewById(R.id.etTempThreshold);
-        btSetFan = findViewById(R.id.btSetFan);
-        btSetFan.setOnClickListener(setFanClikListen);
 
-        btResetFreqScanFcn = findViewById(R.id.btResetFreqScanFcn);
-        btResetFreqScanFcn.setOnClickListener(resetFreqScanFcnClikListener);
-
-        btRefresh = findViewById(R.id.btRefresh);
-        btRefresh.setOnClickListener(refreshClikListen);
 
         if (PrefManage.getBoolean(LOC_PREF_KEY, true)){
             tvOnOffLocation.setChecked(true);
@@ -81,15 +63,7 @@ public class SystemSettingActivity extends BaseActivity {
             tvOnOffLocation.setChecked(false);
         }
 
-        if (CacheManager.checkDevice(activity)){
-            etMaxWindSpeed.setText(CacheManager.getLteEquipConfig().getMaxFanSpeed());
-            etMinWindSpeed.setText(CacheManager.getLteEquipConfig().getMinFanSpeed());
-            etTempThreshold.setText(CacheManager.getLteEquipConfig().getTempThreshold());
 
-            tvIfAutoOpenRF.setChecked(CacheManager.getChannels().get(0).getAutoOpen().equals("1"));
-        }else{
-            ToastUtils.showMessageLong(activity,"设备未连接，当前展示的设置都不准确，请等待设备连接后重新进入该界面");
-        }
 
     }
 
@@ -106,19 +80,19 @@ public class SystemSettingActivity extends BaseActivity {
         }
     };
 
-    private LSettingItem.OnLSettingItemClick settingItemAutoRFSwitch = new LSettingItem.OnLSettingItemClick(){
-        @Override
-        public void click(LSettingItem item) {
-            if(!CacheManager.checkDevice(activity)){
-                tvIfAutoOpenRF.setChecked(!tvIfAutoOpenRF.isChecked());
-                return;
-            }
-
-            ProtocolManager.setAutoRF(tvIfAutoOpenRF.isChecked());
-
-            ToastUtils.showMessage(activity, "下次开机生效");
-        }
-    };
+//    private LSettingItem.OnLSettingItemClick settingItemAutoRFSwitch = new LSettingItem.OnLSettingItemClick(){
+//        @Override
+//        public void click(LSettingItem item) {
+//            if(!CacheManager.checkDevice(activity)){
+//                tvIfAutoOpenRF.setChecked(!tvIfAutoOpenRF.isChecked());
+//                return;
+//            }
+//
+//            ProtocolManager.setAutoRF(tvIfAutoOpenRF.isChecked());
+//
+//            ToastUtils.showMessage(activity, "下次开机生效");
+//        }
+//    };
 
 
     private LSettingItem.OnLSettingItemClick generalAdminAccount = new LSettingItem.OnLSettingItemClick(){
@@ -129,58 +103,49 @@ public class SystemSettingActivity extends BaseActivity {
     };
 
     private void generalAdmin() {
-        final String accountFullPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/4GHotspot/FtpAccount/";
-        final String accountFileName = "account";
+//        final String accountFullPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/4GHotspot/FtpAccount/";
+//        final String accountFileName = "account";
+//
+//
+//        File namelistFile = new File(accountFullPath+accountFileName);
+//        if (namelistFile.exists()){
+//            namelistFile.delete();
+//        }
+//
+//        BufferedWriter bufferedWriter = null;
+//        try {
+//                bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(accountFullPath+accountFileName,true)));
+//                bufferedWriter.write("admin"+","+"admin"+ "," + AccountManage.getAdminRemark()+"\n");
+//                bufferedWriter.flush();
+//        } catch (IOException e){
+//            e.printStackTrace();
+//        } finally {
+//            if(bufferedWriter != null){
+//                try {
+//                    bufferedWriter.close();
+//                } catch (IOException e) {}
+//            }
+//        }
 
-
-        File namelistFile = new File(accountFullPath+accountFileName);
-        if (namelistFile.exists()){
-            namelistFile.delete();
-        }
-
-        BufferedWriter bufferedWriter = null;
-        try {
-                bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(accountFullPath+accountFileName,true)));
-                bufferedWriter.write("admin"+","+"admin"+ "," + AccountManage.getAdminRemark()+"\n");
-                bufferedWriter.flush();
-        } catch (IOException e){
-            e.printStackTrace();
-        } finally {
-            if(bufferedWriter != null){
-                try {
-                    bufferedWriter.close();
-                } catch (IOException e) {}
-            }
-        }
-
-        new Thread() {
-            public void run() {
-                try {
-                    FTPManager.getInstance().connect();
-                    if (FTPManager.getInstance().uploadFile(accountFullPath, accountFileName)){
-                        ToastUtils.showMessage(getBaseContext(), "生成管理员账号成功");
-                    }else {
-                        ToastUtils.showMessage(getBaseContext(), "生成管理员账号出错");
-                    }
-                    AccountManage.deleteAccountFile();
-                } catch (Exception e) {
-                    ToastUtils.showMessage(getBaseContext(), "生成管理员账号出错");
-                    e.printStackTrace();
-                }
-            }
-        }.start();
+//        new Thread() {
+//            public void run() {
+//                try {
+//                    FTPManager.getInstance().connect();
+//                    if (FTPManager.getInstance().uploadFile(accountFullPath, accountFileName)){
+//                        ToastUtils.showMessage(getBaseContext(), "生成管理员账号成功");
+//                    }else {
+//                        ToastUtils.showMessage(getBaseContext(), "生成管理员账号出错");
+//                    }
+//                    AccountManage.deleteAccountFile();
+//                } catch (Exception e) {
+//                    ToastUtils.showMessage(getBaseContext(), "生成管理员账号出错");
+//                    e.printStackTrace();
+//                }
+//            }
+//        }.start();
     }
 
-    View.OnClickListener setFanClikListen = new View.OnClickListener(){
-        @Override
-        public void onClick(View v) {
-            if(!CacheManager.checkDevice(activity))
-                return;
 
-            ProtocolManager.setFancontrol(etMaxWindSpeed.getText().toString(), etMinWindSpeed.getText().toString()
-                    ,etTempThreshold.getText().toString());
-        }
-    };
 
 
     View.OnClickListener resetFreqScanFcnClikListener = new View.OnClickListener(){
@@ -243,25 +208,6 @@ public class SystemSettingActivity extends BaseActivity {
         }
     }
 
-    View.OnClickListener refreshClikListen = new View.OnClickListener(){
-        @Override
-        public void onClick(View v) {
-            if(!CacheManager.checkDevice(activity))
-                return;
-
-            etMaxWindSpeed.setText(CacheManager.getLteEquipConfig().getMaxFanSpeed());
-            etMinWindSpeed.setText(CacheManager.getLteEquipConfig().getMinFanSpeed());
-            etTempThreshold.setText(CacheManager.getLteEquipConfig().getTempThreshold());
-
-            tvIfAutoOpenRF.setChecked(CacheManager.getChannels().get(0).getAutoOpen().equals("1"));
-
-            if (PrefManage.getBoolean(LOC_PREF_KEY, true)){
-                tvOnOffLocation.setChecked(true);
-            }else{
-                tvOnOffLocation.setChecked(false);
-            }
-        }
-    };
 
 
     @Override
@@ -270,13 +216,6 @@ public class SystemSettingActivity extends BaseActivity {
         * 否则会出现在子activity点击返回直接将app切到后台(为防止mainActivity重复加载，已将其设置为singleTop启动) */
         switch (item.getItemId()) {
             case android.R.id.home:
-                // 点击返回按钮，退回上一层Activity
-                // UtilBaseLog.printLog("home");
-//                if (NavUtils.getParentActivityName(activity) != null) {
-//                    // 启动父Activity
-//                    NavUtils.navigateUpFromSameTask(activity);
-//                }
-
                 finish();
                 startActivity(new Intent(this, MainActivity.class));
                 return true;

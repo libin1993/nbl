@@ -8,7 +8,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.doit.net.Model.CacheManager;
+import com.doit.net.Model.PrefManage;
 import com.doit.net.Protocol.ProtocolManager;
+import com.doit.net.Utils.FTPServer;
+import com.doit.net.Utils.NetWorkUtils;
 import com.doit.net.base.BaseActivity;
 import com.doit.net.Event.EventAdapter;
 import com.doit.net.Protocol.LTE_PT_SYSTEM;
@@ -27,6 +30,7 @@ public class JustForTest extends BaseActivity implements EventAdapter.EventCall 
     private Button test5;
     private Button test6;
     private Button test7;
+    private Button btnFallback;
     private Button btGetDeviceLog;
     private TextView tvTemperature;
     private TextView tvArfcns;
@@ -45,6 +49,7 @@ public class JustForTest extends BaseActivity implements EventAdapter.EventCall 
         test5 = findViewById(R.id.test5);
         test6 = findViewById(R.id.test6);
         test7 = findViewById(R.id.test7);
+        btnFallback = findViewById(R.id.btn_fallback);
         btGetDeviceLog = findViewById(R.id.btGetDeviceLog);
         tvTemperature = findViewById(R.id.tvTemperature);
         tvArfcns = findViewById(R.id.tvArfcns);
@@ -122,9 +127,16 @@ public class JustForTest extends BaseActivity implements EventAdapter.EventCall 
 
             }
         });
+
+        btnFallback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (CacheManager.channels.size()>0){
+                    ProtocolManager.systemFallback();
+                }
+            }
+        });
     }
-
-
 
 
 

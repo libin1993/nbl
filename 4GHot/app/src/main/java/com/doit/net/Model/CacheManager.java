@@ -11,6 +11,7 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 
 import com.doit.net.application.MyApplication;
+import com.doit.net.bean.DeviceInfo;
 import com.doit.net.bean.DeviceState;
 import com.doit.net.bean.LocationBean;
 import com.doit.net.bean.LocationRptBean;
@@ -74,9 +75,13 @@ public class CacheManager {
 
     public static boolean checkLicense = false; //连接成功后校验证书
 
+    private static LteCellConfig cellConfig;
+    private static LteEquipConfig equipConfig;
+    public static List<LteChannelCfg> channels = new ArrayList<>();
+    public static List<DeviceInfo>  deviceList = new ArrayList<>();
 
     public static byte[] magic;   //协议默认字段 00 FF FF 00
-    public static byte[] deviceName;  //设备编号
+
 
     public static boolean getLocMode() {
         return loc_mode;
@@ -173,12 +178,10 @@ public class CacheManager {
     }
 
     /**
-     * @param imsi  切换imsi
+     * @param imsi 切换imsi
      */
     public static void changeLocTarget(String imsi) {
         ProtocolManager.setLocImsi(imsi);
-
-
 
 
 //        ProtocolManager.clearImsi();
@@ -359,11 +362,32 @@ public class CacheManager {
         LogUtils.log("reset state.");
         //deviceInfo = null;
         channels.clear();
+        deviceList.clear();
+
     }
 
-    private static LteCellConfig cellConfig;
-    private static LteEquipConfig equipConfig;
-    public static List<LteChannelCfg> channels = new ArrayList<>();
+    /**
+     * socket断开,删除设备信息
+     */
+    public static void removeEquip(String ip) {
+        LogUtils.log("断开连接ip:" + ip);
+        //deviceInfo = null;
+        for (int i = 0; i < channels.size(); i++) {
+            if (channels.get(i).getIp().equals(ip)) {
+                channels.remove(i);
+                break;
+            }
+        }
+
+        for (int i = 0; i < deviceList.size(); i++) {
+            if (deviceList.get(i).getIp().equals(ip)){
+                deviceList.remove(i);
+                break;
+            }
+        }
+
+    }
+
 
 
     public static LteCellConfig getCellConfig() {
@@ -419,13 +443,30 @@ public class CacheManager {
         });
     }
 
+    public synchronized static void addDevice(String ip,byte[] deviceName,String fw) {
+        for (DeviceInfo deviceInfo : deviceList) {
+            if (deviceInfo.getIp().equals(ip)){
+                deviceInfo.setDeviceName(deviceName);
+                deviceInfo.setFw(fw);
+                return;
+            }
+        }
+
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.setIp(ip);
+        deviceInfo.setDeviceName(deviceName);
+        deviceInfo.setFw(fw);
+        deviceList.add(deviceInfo);
+
+    }
+
     //将RF状态更新到内存
     public synchronized static void updateRFState(String band, boolean rf) {
         //UtilBaseLog.printLog(idx + "    size:" + channels.size() + "    " + rf);
         for (LteChannelCfg channel : channels) {
             if (channel.getBand().equals(band)) {
                 channel.setRFState(rf);
-                return;
+                break;
             }
         }
     }
@@ -493,15 +534,11 @@ public class CacheManager {
     public static void setHighGa(boolean on_off) {
         if (on_off) {
             for (LteChannelCfg channel : channels) {
-                if (Integer.parseInt(channel.getGa()) <= 10) {
-                    ProtocolManager.setChannelConfig(channel.getIdx(), "", "", "", String.valueOf(Integer.parseInt(channel.getGa()) * 5), "", "", "");
-                }
+                ProtocolManager.setPa(channel.getIp(), "40");
             }
         } else {
             for (LteChannelCfg channel : channels) {
-                if (Integer.parseInt(channel.getGa()) > 10) {
-                    ProtocolManager.setChannelConfig(channel.getIdx(), "", "", "", String.valueOf(Integer.parseInt(channel.getGa()) / 5), "", "", "");
-                }
+                ProtocolManager.setPa(channel.getIp(), "10");
             }
         }
     }

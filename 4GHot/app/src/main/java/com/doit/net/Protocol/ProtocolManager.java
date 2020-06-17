@@ -99,7 +99,7 @@ public class ProtocolManager {
      */
     public static void getNameList() {
         LogUtils.log("获取白名单");
-        LTE_PT_PARAM.queryCommonParam(LTE_PT_PARAM.PARAM_GET_NAMELIST);
+//        LTE_PT_PARAM.queryCommonParam(LTE_PT_PARAM.PARAM_GET_NAMELIST);
     }
 
     public static void setNowTime() {
@@ -158,8 +158,7 @@ public class ProtocolManager {
         if (!CacheManager.isDeviceOk()) {
             return;
         }
-
-        LTE_PT_SYSTEM.commonSystemMsg(LTE_PT_SYSTEM.SYSTEM_REBOOT);
+        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.REBOOT, null);
         EventAdapter.call(EventAdapter.ADD_BLACKBOX, BlackBoxManger.REBOOT_DEVICE);
     }
 
@@ -189,71 +188,6 @@ public class ProtocolManager {
         for (LteChannelCfg channel : CacheManager.getChannels()) {
             setChannelConfig(channel.getIdx(), "", plnmValue, "", "", "", "", "");
         }
-    }
-
-    public static void setChannel1(String ip, String plmn, String tac, String dlarfcn, String ularfcn, String pci,
-                                   String band, String ci, String period, String rxgain,
-                                   String start, String range, String accmin) {
-        if (!CacheManager.isDeviceOk()) {
-            return;
-        }
-
-        String content = "";
-        if (!TextUtils.isEmpty(plmn)) {
-            content += "PLMN:" + plmn + "\t";
-        }
-        if (!TextUtils.isEmpty(tac)) {
-            content += "TAC:" + tac + "\t";
-        }
-
-        if (!TextUtils.isEmpty(dlarfcn)) {
-            content += "DLARFCN:" + dlarfcn + "\t";
-        }
-
-        if (!TextUtils.isEmpty(ularfcn)) {
-            content += "ULARFCN:" + ularfcn + "\t";
-        }
-
-        if (!TextUtils.isEmpty(pci)) {
-            content += "PCI:" + pci + "\t";
-        }
-
-        if (!TextUtils.isEmpty(band)) {
-            content += "BAND:" + band + "\t";
-        }
-
-        if (!TextUtils.isEmpty(ci)) {
-            content += "CI:" + ci + "\t";
-        }
-
-        if (!TextUtils.isEmpty(period)) {
-            content += "PERIOD:" + period + "\t";
-        }
-
-        if (!TextUtils.isEmpty(rxgain)) {
-            content += "RXGAIN:" + rxgain + "\t";
-        }
-
-        if (!TextUtils.isEmpty(start)) {
-            content += "START:" + start + "\t";
-        }
-
-        if (!TextUtils.isEmpty(range)) {
-            content += "RANGE:" + range + "\t";
-        }
-
-        if (!TextUtils.isEmpty(accmin)) {
-            content += "ACCMIN:" + accmin + "\t";
-        }
-
-        if (TextUtils.isEmpty(content)) {
-            return;
-        }
-
-        content = content.substring(0, content.length() - 2) + "\r\n";
-
-        LogUtils.log("通道设置：" + content);
-        LTESendManager.sendData(ip, LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_PARAM, content);
     }
 
 
@@ -581,7 +515,7 @@ public class ProtocolManager {
      */
     public static void setFTPConfig() {
 
-        String configContent = NetWorkUtils.getWIFILocalIpAddress(MyApplication.mContext)
+        String configContent = NetWorkUtils.getWIFILocalIpAddress()
                 + "#"
                 + FtpConfig.ftpUser
                 + "#"
@@ -899,11 +833,66 @@ public class ProtocolManager {
         LTE_PT_PARAM.setCommonParam(LTE_PT_PARAM.PARAM_SET_SCAN_FREQ, "");
     }
 
-    public static void systemUpgrade(String upgradeCommand) {
+    /**
+     * @param ftpIP
+     * @param ftpPort
+     * @param username
+     * @param password
+     * @param fileName
+     * 固件版本升级
+     */
+    public static void systemUpgrade(String ftpIP,String ftpPort,String username,String password,String fileName) {
         if (!CacheManager.isDeviceOk()) {
             return;
         }
 
-        LTE_PT_SYSTEM.setSystemParam(LTE_PT_SYSTEM.SYSTEM_UPGRADE, upgradeCommand);
+        List<String> params = new ArrayList<>();
+
+
+        if (!TextUtils.isEmpty(ftpIP)) {
+            params.add("FTPIP:" + ftpIP);
+        }
+
+        if (!TextUtils.isEmpty(ftpPort)) {
+            params.add("PORT:" + ftpPort);
+        }
+
+        if (!TextUtils.isEmpty(username)) {
+            params.add("USERNAME:" + username);
+        }
+
+
+        if (!TextUtils.isEmpty(password)) {
+            params.add("PASSWD:" + password);
+        }
+
+        if (!TextUtils.isEmpty(fileName)) {
+            params.add("FWNAME:" + fileName);
+        }
+
+
+
+        String content = UtilDataFormatChange.encode(params);
+        if (TextUtils.isEmpty(content)) {
+            return;
+        }
+
+        LogUtils.log("版本更新：" + content);
+        LTESendManager.sendData( LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_UPGRADE, content);
     }
+
+
+    /**
+     * 版本回退
+     */
+    public static void systemFallback() {
+        if (!CacheManager.isDeviceOk()) {
+            return;
+        }
+
+        LogUtils.log("版本回退");
+        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT,LTEMsgCode.SendCode.SET_FALLBACK,null);
+
+    }
+
 }

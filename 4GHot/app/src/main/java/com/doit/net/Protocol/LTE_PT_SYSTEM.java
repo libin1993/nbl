@@ -2,7 +2,6 @@ package com.doit.net.Protocol;
 
 
 import com.doit.net.application.MyApplication;
-import com.doit.net.Data.LTESendManager;
 import com.doit.net.Utils.LogUtils;
 import com.doit.net.Utils.UtilDataFormatChange;
 import com.doit.net.Utils.ToastUtils;
@@ -22,50 +21,50 @@ public class LTE_PT_SYSTEM {
     public static final byte SYSTEM_SET_DATETIME = 0x0d;  //设置时间
     public static final byte SYSTEM_SET_DATETIME_ASK = 0x0e;
 
-    public static boolean commonSystemMsg(byte sysSubType) {
-        com.doit.net.Protocol.LTESendPackage sendPackage = new com.doit.net.Protocol.LTESendPackage();
-        //设置Sequence ID
-        sendPackage.setPackageSequence(com.doit.net.Protocol.LTEProtocol.getSequenceID());
-        //设置Session ID
-        sendPackage.setPackageSessionID(com.doit.net.Protocol.LTEProtocol.getSessionID());
-        //设置EquipType
-        sendPackage.setPackageEquipType(com.doit.net.Protocol.LTEProtocol.equipType);
-        //设置预留
-        sendPackage.setPackageReserve((byte)0xFF);
-        //设置主类型
-        sendPackage.setPackageMainType(PT_SYSTEM);
-        //设置子类型
-        sendPackage.setPackageSubType(sysSubType);
-        //设置校验位
-        sendPackage.setPackageCheckNum(sendPackage.getCheckNum());
-
-        //获取整体的包
-        byte[] tempSendBytes=sendPackage.getPackageContent();
-        return LTESendManager.sendData(tempSendBytes);
+    public static void commonSystemMsg(byte sysSubType) {
+//        com.doit.net.Protocol.LTESendPackage sendPackage = new com.doit.net.Protocol.LTESendPackage();
+//        //设置Sequence ID
+//        sendPackage.setPackageSequence(com.doit.net.Protocol.LTEProtocol.getSequenceID());
+//        //设置Session ID
+//        sendPackage.setPackageSessionID(com.doit.net.Protocol.LTEProtocol.getSessionID());
+//        //设置EquipType
+//        sendPackage.setPackageEquipType(com.doit.net.Protocol.LTEProtocol.equipType);
+//        //设置预留
+//        sendPackage.setPackageReserve((byte)0xFF);
+//        //设置主类型
+//        sendPackage.setPackageMainType(PT_SYSTEM);
+//        //设置子类型
+//        sendPackage.setPackageSubType(sysSubType);
+//        //设置校验位
+//        sendPackage.setPackageCheckNum(sendPackage.getCheckNum());
+//
+//        //获取整体的包
+//        byte[] tempSendBytes=sendPackage.getPackageContent();
+//        return LTESendManager.sendData(tempSendBytes);
     }
 
-    public static boolean setSystemParam(byte sysSubType, String paramContent) {
-        LTESendPackage sendPackage=new LTESendPackage();
-        //设置Sequence ID
-        sendPackage.setPackageSequence(LTEProtocol.getSequenceID());
-        //设置Session ID
-        sendPackage.setPackageSessionID(LTEProtocol.getSessionID());
-        //设置EquipType
-        sendPackage.setPackageEquipType(LTEProtocol.equipType);
-        //设置预留
-        sendPackage.setPackageReserve((byte)0xFF);
-        //设置主类型
-        sendPackage.setPackageMainType(PT_SYSTEM);
-        //设置子类型
-        sendPackage.setPackageSubType(sysSubType);
-        sendPackage.setByteSubContent(UtilDataFormatChange.stringtoBytesForASCII(paramContent));
-
-        //设置校验位
-        sendPackage.setPackageCheckNum(sendPackage.getCheckNum());
-
-        //获取整体的包
-        byte[] tempSendBytes=sendPackage.getPackageContent();
-        return LTESendManager.sendData(tempSendBytes);
+    public static void setSystemParam(byte sysSubType, String paramContent) {
+//        LTESendPackage sendPackage=new LTESendPackage();
+//        //设置Sequence ID
+//        sendPackage.setPackageSequence(LTEProtocol.getSequenceID());
+//        //设置Session ID
+//        sendPackage.setPackageSessionID(LTEProtocol.getSessionID());
+//        //设置EquipType
+//        sendPackage.setPackageEquipType(LTEProtocol.equipType);
+//        //设置预留
+//        sendPackage.setPackageReserve((byte)0xFF);
+//        //设置主类型
+//        sendPackage.setPackageMainType(PT_SYSTEM);
+//        //设置子类型
+//        sendPackage.setPackageSubType(sysSubType);
+//        sendPackage.setByteSubContent(UtilDataFormatChange.stringtoBytesForASCII(paramContent));
+//
+//        //设置校验位
+//        sendPackage.setPackageCheckNum(sendPackage.getCheckNum());
+//
+//        //获取整体的包
+//        byte[] tempSendBytes=sendPackage.getPackageContent();
+//        return LTESendManager.sendData(tempSendBytes);
     }
 
 

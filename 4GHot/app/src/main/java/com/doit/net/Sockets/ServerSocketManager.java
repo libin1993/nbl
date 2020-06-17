@@ -5,7 +5,6 @@
 package com.doit.net.Sockets;
 
 import com.doit.net.Data.DataCenterManager;
-import com.doit.net.Data.LTESendManager;
 import com.doit.net.Model.CacheManager;
 import com.doit.net.Utils.LogUtils;
 import com.doit.net.bean.DeviceState;
@@ -148,7 +147,6 @@ public class ServerSocketManager {
             @Override
             public void onClientStopLink(String remoteIP, String remotePort) {
                 //UtilBaseLog.printLog("onClientStopLink... ...x");
-                LTESendManager.currentLocalAddress = "";
                 removeSubSocket(remoteIP, remotePort);
                 DataCenterManager.clearDataBuffer(remoteIP);
                 CacheManager.deviceState.setDeviceState(DeviceState.ON_INIT);

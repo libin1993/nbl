@@ -188,7 +188,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <View
                 android:layout_width="48dp"
@@ -208,7 +208,7 @@
             android:layout_height="42dp"
             app:leftIcon="@drawable/ic_custom_fcn"
             app:leftText="@string/custom_fcn"
-            android:visibility="visible"/>
+            android:visibility="gone" />
 
         <View
             android:layout_width="match_parent"
@@ -232,7 +232,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="gone">
             <View
                 android:layout_width="8dp"
                 android:layout_height="0.6dp"
@@ -255,7 +256,8 @@
             android:layout_height="42dp"
             app:isShowLeftIcon="false"
             app:isShowRightText="false"
-            app:leftText="授权管理" />
+            app:leftText="授权管理"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:layout_width="match_parent"

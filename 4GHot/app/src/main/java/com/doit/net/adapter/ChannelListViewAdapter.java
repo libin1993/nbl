@@ -126,25 +126,10 @@ public class ChannelListViewAdapter extends BaseAdapter {
 
 
                 ToastUtils.showMessage(mContext, R.string.tip_15);
-                EventAdapter.call(EventAdapter.SHOW_PROGRESS);
-
 
                 ProtocolManager.setPa(cfg.getIp(), pa);
-
-                new Timer().schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-
-                        ProtocolManager.setFcn(cfg.getIp(), fcn, pollTmr);
-                    }
-                }, 1000);
-
-                new Timer().schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        ProtocolManager.setChannel(cfg.getIp(), null, null, rxGain, null, null, null);
-                    }
-                }, 2000);
+                ProtocolManager.setFcn(cfg.getIp(), fcn, pollTmr);
+                ProtocolManager.setChannel(cfg.getIp(), null, null, rxGain, null, null, null);
 
 
             }

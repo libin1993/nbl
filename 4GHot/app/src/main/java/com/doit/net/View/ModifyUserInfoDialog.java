@@ -101,23 +101,28 @@ public class ModifyUserInfoDialog extends Dialog {
                 tmpUserInfo.setRemake(etRemake.getText().toString());
                 tmpUserInfo.setPassword(etPassword.getText().toString());
                 UCSIDBManager.getDbManager().update(tmpUserInfo, "account", "password", "remake");
-                if (AccountManage.UpdateAccountToDevice()){
-                    ToastUtils.showMessage(getContext(),R.string.modify_user_success);
+                ToastUtils.showMessage(getContext(),R.string.modify_user_success);
+                EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.MODIFY_USER+"修改账户"+modifyName+
+                        "为:"+etUserName.getText().toString() + "+" + etPassword.getText().toString() +
+                        ("".equals(etRemake.getText().toString())?"":("+"+etRemake.getText().toString())));
 
-                    EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.MODIFY_USER+"修改账户"+modifyName+
-                            "为:"+etUserName.getText().toString() + "+" + etPassword.getText().toString() +
-                            ("".equals(etRemake.getText().toString())?"":("+"+etRemake.getText().toString())));
-                }else{
-                    tmpUserInfo.setAccount(modifyName);
-                    tmpUserInfo.setRemake(modifyRemake);
-                    tmpUserInfo.setPassword(modifyPassword);
-                    UCSIDBManager.getDbManager().update(tmpUserInfo, "account", "password", "remake");
-
-                    new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
-                            .setTitleText(getContext().getString(R.string.modify_user_fail))
-                            .setContentText(getContext().getString(R.string.modify_user_fail_ftp))
-                            .show();
-                }
+//                if (AccountManage.UpdateAccountToDevice()){
+//                    ToastUtils.showMessage(getContext(),R.string.modify_user_success);
+//
+//                    EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.MODIFY_USER+"修改账户"+modifyName+
+//                            "为:"+etUserName.getText().toString() + "+" + etPassword.getText().toString() +
+//                            ("".equals(etRemake.getText().toString())?"":("+"+etRemake.getText().toString())));
+//                }else{
+//                    tmpUserInfo.setAccount(modifyName);
+//                    tmpUserInfo.setRemake(modifyRemake);
+//                    tmpUserInfo.setPassword(modifyPassword);
+//                    UCSIDBManager.getDbManager().update(tmpUserInfo, "account", "password", "remake");
+//
+//                    new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
+//                            .setTitleText(getContext().getString(R.string.modify_user_fail))
+//                            .setContentText(getContext().getString(R.string.modify_user_fail_ftp))
+//                            .show();
+//                }
 
 
             } catch (DbException e) {

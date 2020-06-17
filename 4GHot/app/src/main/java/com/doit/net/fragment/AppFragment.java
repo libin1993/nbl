@@ -1,5 +1,10 @@
 package com.doit.net.fragment;
 
+import com.doit.net.Data.LTEDataParse;
+import com.doit.net.Event.EventAdapter;
+import com.doit.net.Utils.FTPServer;
+import com.doit.net.Utils.FormatUtils;
+import com.doit.net.Utils.NetWorkUtils;
 import com.doit.net.View.ClearHistoryTimeDialog;
 import com.doit.net.activity.CustomFcnActivity;
 import com.doit.net.activity.DeviceParamActivity;
@@ -13,17 +18,19 @@ import com.doit.net.activity.BlackBoxActivity;
 import com.doit.net.Model.VersionManage;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,12 +39,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.doit.net.base.BaseFragment;
-import com.doit.net.Event.IHandlerFinish;
 import com.doit.net.Protocol.ProtocolManager;
-import com.doit.net.Event.UIEventManager;
 import com.doit.net.Model.AccountManage;
 import com.doit.net.Model.CacheManager;
 import com.doit.net.Model.PrefManage;
@@ -47,6 +53,7 @@ import com.doit.net.Utils.LogUtils;
 import com.doit.net.Utils.StringUtils;
 import com.doit.net.Utils.ToastUtils;
 import com.doit.net.Utils.LSettingItem;
+import com.doit.net.bean.DeviceInfo;
 import com.doit.net.ucsi.R;
 
 import org.xutils.view.annotation.ViewInject;
@@ -59,12 +66,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
-public class AppFragment extends BaseFragment implements IHandlerFinish {
+public class AppFragment extends BaseFragment implements EventAdapter.EventCall {
 
-    private MySweetAlertDialog mProgressDialog;
 
     @ViewInject(R.id.tvLoginAccount)
     private TextView tvLoginAccount;
@@ -116,16 +123,25 @@ public class AppFragment extends BaseFragment implements IHandlerFinish {
     private LSettingItem just4Test;
 
     private ListView lvPackageList;
-    private ArrayAdapter upgradePackageAdapter;
     private LinearLayout layoutUpgradePackage;
+    private PopupWindow mPopupWindow;
+//    private PopupWindow mPwProgress;
+//    private ProgressBar pbFirstEquip;
+//    private TextView tvFirstIp;
+//    private TextView tvFirstProgress;
+//    private ProgressBar pbSecondEquip;
+//    private TextView tvSecondIp;
+//    private TextView tvSecondProgress;
 
-    private View rootView;
-    private String[] playTypes;
+//    private long fileSize; //升级包大小
+
+    private MySweetAlertDialog mProgressDialog;
+
 
     //handler消息
     private final int EXPORT_SUCCESS = 0;
     private final int EXPORT_ERROR = -1;
-    private final int UPGRADE_STATUS_RPT = 1;
+    private final int SYSTEM_UPDATE = 1;
 
     public AppFragment() {
     }
@@ -133,17 +149,10 @@ public class AppFragment extends BaseFragment implements IHandlerFinish {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-//        if (null != rootView) {
-//            ViewGroup parent = (ViewGroup) rootView.getParent();
-//            if (null != parent) {
-//                parent.removeView(rootView);
-//            }
-//            return rootView;
-//        }
 
-        rootView = inflater.inflate(R.layout.doit_layout_app, container, false);
+        View rootView = inflater.inflate(R.layout.doit_layout_app, container, false);
 
-        UIEventManager.register(UIEventManager.RPT_UPGRADE_STATUS, this);
+        EventAdapter.setEvent(EventAdapter.SYSTEM_UPDATE, this);
 
         return rootView;
     }
@@ -151,7 +160,6 @@ public class AppFragment extends BaseFragment implements IHandlerFinish {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        playTypes = getResources().getStringArray(R.array.play_list);
 
         tvLoginAccount.setText(AccountManage.getCurrentLoginAccount());
 
@@ -272,8 +280,9 @@ public class AppFragment extends BaseFragment implements IHandlerFinish {
             tvSupportVoice.setRightText("不支持");
         }
 
-        tvVersion.setRightText(VersionManage.getVersionName(getContext()));
+
         initProgressDialog();
+        tvVersion.setRightText(VersionManage.getVersionName(getContext()));
 
         if (AccountManage.getCurrentPerLevel() >= AccountManage.PERMISSION_LEVEL2) {
             btUserManage.setVisibility(View.VISIBLE);
@@ -284,7 +293,7 @@ public class AppFragment extends BaseFragment implements IHandlerFinish {
         }
 
         if (AccountManage.getCurrentPerLevel() >= AccountManage.PERMISSION_LEVEL3) {
-            just4Test.setVisibility(View.VISIBLE);
+            just4Test.setVisibility(View.GONE);
             tvSystemSetting.setVisibility(View.VISIBLE);
         }
     }
@@ -299,23 +308,34 @@ public class AppFragment extends BaseFragment implements IHandlerFinish {
         if (!CacheManager.checkDevice(getContext()))
             return;
 
-        final View dialogView = LayoutInflater.from(getContext())
-                .inflate(R.layout.layout_device_info, null);
+        StringBuilder ips = new StringBuilder();
+        StringBuilder fws = new StringBuilder();
+
+        for (DeviceInfo deviceInfo : CacheManager.deviceList) {
+            ips.append(deviceInfo.getIp()).append("\r\n");
+            fws.append(deviceInfo.getFw()).append("\r\n");
+        }
+
+
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.layout_device_info, null);
+        mPopupWindow = new PopupWindow(dialogView, FormatUtils.getInstance().dip2px(300), ViewGroup.LayoutParams.WRAP_CONTENT);
+
         TextView tvDeviceIP = dialogView.findViewById(R.id.tvDeviceIP);
-        tvDeviceIP.setText(CacheManager.DEVICE_IP);
-        TextView tvHwVersion = dialogView.findViewById(R.id.tvHwVersion);
-        tvHwVersion.setText(CacheManager.getLteEquipConfig().getHw());
+        tvDeviceIP.setText(ips.toString());
         TextView tvSwVersion = dialogView.findViewById(R.id.tvSwVersion);
-        tvSwVersion.setText(CacheManager.getLteEquipConfig().getSw());
+        tvSwVersion.setText(fws.toString());
         Button btDeviceUpgrade = dialogView.findViewById(R.id.btDeviceUpgrade);
-        btDeviceUpgrade.setOnClickListener(upgradeListner);
+        btDeviceUpgrade.setOnClickListener(upgradeListener);
         lvPackageList = dialogView.findViewById(R.id.lvPackageList);
         layoutUpgradePackage = dialogView.findViewById(R.id.layoutUpgradePackage);
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-        dialog.setView(dialogView);
-        dialog.setCancelable(true);
-        dialog.show();
+        //设置Popup具体参数
+        mPopupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
+        mPopupWindow.setFocusable(true);//点击空白，popup不自动消失
+        mPopupWindow.setTouchable(true);//popup区域可触摸
+        mPopupWindow.setOutsideTouchable(true);//非popup区域可触摸
+        mPopupWindow.showAtLocation(getActivity().getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+
     }
 
     @SuppressLint("MissingPermission")
@@ -362,21 +382,20 @@ public class AppFragment extends BaseFragment implements IHandlerFinish {
         return bi.toString(16);
     }
 
-    View.OnClickListener upgradeListner = new View.OnClickListener() {
+    View.OnClickListener upgradeListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            final String FTP_SERVER_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/4GHotspot";
-            final String UPGRADE_PACKAGE_PATH = "/upgrade/";
+            String FTP_SERVER_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/4GHotspot";
 
-            File file = new File(FTP_SERVER_PATH + UPGRADE_PACKAGE_PATH);
+            File file = new File(FTP_SERVER_PATH);
             if (!file.exists()) {
-                ToastUtils.showMessageLong(getContext(), "未找到升级包，请确认已将升级包放在\"手机存储/4GHotspot/upgrade\"目录下");
+                ToastUtils.showMessageLong(getContext(), "未找到升级包，请确认已将升级包放在\"手机存储/4GHotspot\"目录下");
                 return;
             }
 
             File[] files = file.listFiles();
             if (files == null || files.length == 0) {
-                ToastUtils.showMessageLong(getContext(), "未找到升级包，请确认已将升级包放在\"手机存储/4GHotspot/upgrade\"目录下");
+                ToastUtils.showMessageLong(getContext(), "未找到升级包，请确认已将升级包放在\"手机存储/4GHotspot\"目录下");
                 return;
             }
 
@@ -385,21 +404,21 @@ public class AppFragment extends BaseFragment implements IHandlerFinish {
             for (int i = 0; i < files.length; i++) {
                 tmpFileName = files[i].getName();
                 //UtilBaseLog.printLog("获取升级包：" + tmpFileName);
-                if (tmpFileName.endsWith(".tgz"))
+                if (tmpFileName.endsWith(".img"))
                     fileList.add(tmpFileName);
             }
             if (fileList.size() == 0) {
-                ToastUtils.showMessageLong(getContext(), "文件错误，升级包必须是以\".tgz\"为后缀的文件");
+                ToastUtils.showMessageLong(getContext(), "文件错误，升级包必须是以\".img\"为后缀的文件");
                 return;
             }
 
             layoutUpgradePackage.setVisibility(View.VISIBLE);
-            upgradePackageAdapter = new ArrayAdapter<String>(getContext(), R.layout.comman_listview_text, fileList);
+            ArrayAdapter upgradePackageAdapter = new ArrayAdapter<String>(getContext(), R.layout.comman_listview_text, fileList);
             lvPackageList.setAdapter(upgradePackageAdapter);
             lvPackageList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    final String choosePackage = fileList.get(position);
+                    String choosePackage = fileList.get(position);
                     LogUtils.log("选择升级包：" + choosePackage);
 
                     new MySweetAlertDialog(getContext(), MySweetAlertDialog.WARNING_TYPE)
@@ -411,18 +430,18 @@ public class AppFragment extends BaseFragment implements IHandlerFinish {
                             .setConfirmClickListener(new MySweetAlertDialog.OnSweetClickListener() {
                                 @Override
                                 public void onClick(MySweetAlertDialog sweetAlertDialog) {
-                                    String md5 = getPackageMD5(FTP_SERVER_PATH + UPGRADE_PACKAGE_PATH + choosePackage);
-                                    if ("".equals(md5)) {
-                                        ToastUtils.showMessage(getContext(), "文件校验失败，升级取消！");
-                                        sweetAlertDialog.dismiss();
-                                    } else {
-                                        LogUtils.log("MD5：" + md5);
-                                        String command = UPGRADE_PACKAGE_PATH + choosePackage + "#" + md5;
-                                        LogUtils.log(command);
-                                        ProtocolManager.systemUpgrade(command);
-                                        mProgressDialog.show();
-                                        sweetAlertDialog.dismiss();
+
+                                    if (mPopupWindow != null && mPopupWindow.isShowing()) {
+                                        mPopupWindow.dismiss();
                                     }
+                                    ProtocolManager.systemUpgrade(NetWorkUtils.getWIFILocalIpAddress(), FTPServer.FTP_PORT + "",
+                                            FTPServer.USERNAME, FTPServer.PASSWORD, choosePackage);
+
+//                                    getFileSize(FTP_SERVER_PATH + "/" + choosePackage);
+//                                    updateProgress();
+
+                                    sweetAlertDialog.dismiss();
+                                    mProgressDialog.show();
                                 }
                             }).show();
 
@@ -430,6 +449,50 @@ public class AppFragment extends BaseFragment implements IHandlerFinish {
             });
         }
     };
+
+    /**
+     * 获取文件大小
+     */
+//    private void getFileSize(String filePath) {
+//
+//        try {
+//            File file = new File(filePath);
+//            FileInputStream fis = new FileInputStream(file);
+//            fileSize = fis.available();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//    }
+
+    /**
+     * 升级进度
+     */
+//    private void updateProgress() {
+//        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.layout_popup_update, null);
+//        mPwProgress = new PopupWindow(dialogView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+//
+//        //设置Popup具体参数
+//        mPwProgress.setOutsideTouchable(false);//非popup区域可触摸
+//        mPwProgress.setTouchable(true);//popup区域可触摸
+//        mPwProgress.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
+//        mPwProgress.showAtLocation(getActivity().getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+//
+//        pbFirstEquip = dialogView.findViewById(R.id.pb_first_equip);
+//        tvFirstIp = dialogView.findViewById(R.id.tv_first_ip);
+//        tvFirstProgress = dialogView.findViewById(R.id.tv_first_progress);
+//
+//        pbSecondEquip = dialogView.findViewById(R.id.pb_second_equip);
+//        tvSecondIp = dialogView.findViewById(R.id.tv_second_ip);
+//        tvSecondProgress = dialogView.findViewById(R.id.tv_second_progress);
+//
+//
+//        List<String> ipList = new ArrayList<>(LTEDataParse.set.keySet());
+//
+//        tvFirstIp.setText(ipList.get(0));
+//        tvSecondIp.setText(ipList.get(1));
+//    }
 
     Handler mHandler = new Handler() {
         @Override
@@ -444,25 +507,38 @@ public class AppFragment extends BaseFragment implements IHandlerFinish {
                         .setTitleText("导出失败")
                         .setContentText("失败原因：" + msg.obj)
                         .show();
-            } else if (msg.what == UPGRADE_STATUS_RPT) {
-                if (mProgressDialog != null)
+            } else if (msg.what == SYSTEM_UPDATE) {
+//                if (mPwProgress == null || !mPwProgress.isShowing()) {
+//                    return;
+//                }
+//                String content = (String) msg.obj;
+//                String ip = content.split(",")[0];
+//                int progress = (int) (Long.parseLong(content.split(",")[1]) * 100 / fileSize);
+//                String firstIp = tvFirstIp.getText().toString().trim();
+//                String secondIp = tvSecondIp.getText().toString().trim();
+//
+//                if (ip.equals(firstIp)) {
+//                    pbFirstEquip.setProgress(progress);
+//                    tvFirstProgress.setText(progress + "%");
+//                } else {
+//                    pbSecondEquip.setProgress(progress);
+//                    tvSecondProgress.setText(progress + "%");
+//                }
+
+                if (mProgressDialog != null) {
                     mProgressDialog.dismiss();
+                }
             }
         }
     };
 
-    private void createExportError(String obj) {
-        Message msg = new Message();
-        msg.what = UPGRADE_STATUS_RPT;
-        msg.obj = obj;
-        mHandler.sendMessage(msg);
-    }
 
     @Override
-    public void handlerFinish(String key) {
-        if (key.equals(UIEventManager.RPT_UPGRADE_STATUS)) {
+    public void call(String key, Object val) {
+        if (key.equals(EventAdapter.SYSTEM_UPDATE)) {
             Message msg = new Message();
-            msg.what = UPGRADE_STATUS_RPT;
+            msg.what = SYSTEM_UPDATE;
+            msg.obj = val;
             mHandler.sendMessage(msg);
         }
     }

@@ -31,23 +31,23 @@ android {
             abortOnError false
         }
 
-//        applicationVariants.all {
-//            variant ->
-//                variant.outputs.all {
-//                    output ->
-//                        def outputFile = output.outputFile
-//                        def fileName
-//                        if (outputFile != null && outputFile.name.endsWith('.apk')) {
-//                            if (variant.buildType.name.equals('release')) {
-//                                fileName = "lte-hotspot-${versionName}-${"release"}.apk"
-//                            } else if (variant.buildType.name.equals('debug')) {
-//                                fileName = "lte-hotspot-${versionName}-${"debug"}.apk"
-//                            }
-//                            outputFileName = fileName
-//                            //output.outputFile = new File(outputFile.parenrt, fileName)
-//                        }
-//                }
-//        }
+        applicationVariants.all {
+            variant ->
+                variant.outputs.all {
+                    output ->
+                        def outputFile = output.outputFile
+                        def fileName
+                        if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                            if (variant.buildType.name.equals('release')) {
+                                fileName = "lte-hotspot-${versionName}-${"release"}.apk"
+                            } else if (variant.buildType.name.equals('debug')) {
+                                fileName = "lte-hotspot-${versionName}-${"debug"}.apk"
+                            }
+                            outputFileName = fileName
+                            //output.outputFile = new File(outputFile.parenrt, fileName)
+                        }
+                }
+        }
 
         applicationVariants.all { variant ->
             variant.outputs.all {
@@ -137,6 +137,10 @@ android {
 //        }
 
 
+    }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
     }
 }
 

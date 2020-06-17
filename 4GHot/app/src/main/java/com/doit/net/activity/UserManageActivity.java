@@ -146,11 +146,11 @@ public class UserManageActivity extends BaseActivity implements IHandlerFinish {
         super.onDestroy();
     }
 
-    @Override
-    protected void onResume() {
-        ToastUtils.showMessageLong(activity, "请在已连接到设备Wifi的情况下管理账户，否则不生效！");
-        super.onResume();
-    }
+//    @Override
+//    protected void onResume() {
+//        ToastUtils.showMessageLong(activity, "请在已连接到设备Wifi的情况下管理账户，否则不生效！");
+//        super.onResume();
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

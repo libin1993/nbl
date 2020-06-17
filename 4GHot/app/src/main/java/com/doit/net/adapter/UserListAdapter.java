@@ -121,13 +121,15 @@ public class UserListAdapter extends BaseSwipeAdapter {
                 //listUserInfo.remove(position);
 
                 UCSIDBManager.getDbManager().delete(resp);
-                if (AccountManage.UpdateAccountToDevice()){
-                    UIEventManager.call(UIEventManager.KEY_REFRESH_USER_LIST);
-                    EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.DELTE_USER+resp.getAccount());
-                }else{
-                    UCSIDBManager.getDbManager().save(resp);
-                    ToastUtils.showMessageLong(mContext, R.string.del_user_fail_ftp_error);
-                }
+                UIEventManager.call(UIEventManager.KEY_REFRESH_USER_LIST);
+                EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.DELTE_USER+resp.getAccount());
+//                if (AccountManage.UpdateAccountToDevice()){
+//                    UIEventManager.call(UIEventManager.KEY_REFRESH_USER_LIST);
+//                    EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.DELTE_USER+resp.getAccount());
+//                }else{
+//                    UCSIDBManager.getDbManager().save(resp);
+//                    ToastUtils.showMessageLong(mContext, R.string.del_user_fail_ftp_error);
+//                }
 
             } catch (DbException e) {
                 new SweetAlertDialog(mContext, SweetAlertDialog.ERROR_TYPE)

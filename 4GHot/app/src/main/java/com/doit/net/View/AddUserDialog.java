@@ -107,17 +107,19 @@ public class AddUserDialog extends Dialog {
             info.setRemake(remake);
             info.setPassword(password);
             dbManager.save(info);
+            ToastUtils.showMessage(getContext(),R.string.add_success);
 
-            if (AccountManage.UpdateAccountToDevice()){
-                ToastUtils.showMessage(getContext(),R.string.add_success);
-                return 0;
-            }else{
-                dbManager.delete(info);
-                new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
-                        .setTitleText(getContext().getString(R.string.add_user_fail))
-                        .setContentText(getContext().getString(R.string.add_user_fail_ftp))
-                        .show();
-            }
+
+//            if (AccountManage.UpdateAccountToDevice()){
+//                ToastUtils.showMessage(getContext(),R.string.add_success);
+//                return 0;
+//            }else{
+//                dbManager.delete(info);
+//                new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
+//                        .setTitleText(getContext().getString(R.string.add_user_fail))
+//                        .setContentText(getContext().getString(R.string.add_user_fail_ftp))
+//                        .show();
+//            }
 
         } catch (DbException e) {
             new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)

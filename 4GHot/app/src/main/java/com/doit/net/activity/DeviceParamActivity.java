@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 
+import com.doit.net.Protocol.LTESendManager;
 import com.doit.net.View.ChannelsDialog;
 import com.doit.net.View.CheckStateRunnable;
 import com.doit.net.View.SystemSetupDialog;
@@ -57,7 +58,7 @@ public class DeviceParamActivity extends BaseActivity implements IHandlerFinish 
     private final Activity activity = this;
     private LinearLayout layoutChannelList;
 
-    private Button btSetCellParam;
+
     private Button btSetChannelCfg;
     private Button btUpdateTac;
     private Button btRebootDevice;
@@ -68,9 +69,9 @@ public class DeviceParamActivity extends BaseActivity implements IHandlerFinish 
     private RadioButton rbPowerHigh;
     private RadioButton rbPowerMedium;
     private RadioButton rbPowerLow;
-    private final int POWER_LEVEL_HIGH = 0; //功率等级乘-5+Pmax作为功率设置下去
-    private final int POWER_LEVEL_MEDIUM = 3;
-    private final int POWER_LEVEL_LOW = 6;
+    private final int POWER_LEVEL_HIGH = 40;
+    private final int POWER_LEVEL_MEDIUM = 25;
+    private final int POWER_LEVEL_LOW = 10;
     private RadioButton lastPowerPress;
 
     private RadioGroup rgDetectCarrierOperate;
@@ -108,8 +109,7 @@ public class DeviceParamActivity extends BaseActivity implements IHandlerFinish 
     }
 
     private void intView() {
-        btSetCellParam = findViewById(R.id.btSetCellParam);
-        btSetCellParam.setOnClickListener(setCellParamClick);
+
         btSetChannelCfg = findViewById(R.id.btSetChannelCfg);
         btSetChannelCfg.setOnClickListener(setChannelCfgClick);
         btUpdateTac = findViewById(R.id.btUpdateTac);
@@ -171,7 +171,7 @@ public class DeviceParamActivity extends BaseActivity implements IHandlerFinish 
             if (!CacheManager.checkDevice(activity)) {
                 return;
             }
-            if (CacheManager.channels.size() == 0){
+            if (CacheManager.channels.size() == 0) {
                 return;
             }
             for (LteChannelCfg channel : CacheManager.channels) {
@@ -180,9 +180,9 @@ public class DeviceParamActivity extends BaseActivity implements IHandlerFinish 
                 if (tac < 65535) {
                     tac++;
                 } else {
-                    tac=1;
+                    tac = 1;
                 }
-                ProtocolManager.setChannel(channel.getIp(), null, null, null, null, String.valueOf(tac),null);
+                ProtocolManager.setChannel(channel.getIp(), null, null, null, null, String.valueOf(tac), null);
             }
 
             //ToastUtils.showMessage(GameApplication.appContext,"下发更新TAC成功");
@@ -209,6 +209,7 @@ public class DeviceParamActivity extends BaseActivity implements IHandlerFinish 
                         public void onClick(MySweetAlertDialog sweetAlertDialog) {
                             sweetAlertDialog.dismiss();
                             ProtocolManager.reboot();
+                            ToastUtils.showMessage("设备即将重启");
                         }
                     })
                     .show();
@@ -425,18 +426,10 @@ public class DeviceParamActivity extends BaseActivity implements IHandlerFinish 
             return;
         }
 
-        int powerAtt = powerLevel * -5;
-
-        String gaConfig = "";
-        String tmpGa = "";
         for (LteChannelCfg channel : CacheManager.getChannels()) {
-            tmpGa = String.valueOf(Integer.parseInt(channel.getPMax()) + powerAtt);
-            gaConfig = tmpGa + ",";
-            gaConfig += gaConfig;
-            gaConfig += tmpGa;
-            LogUtils.log("下发功率设置：" + "IDX:" + channel.getIdx() + "@" + "PA:" + gaConfig);
-            LTE_PT_PARAM.setCommonParam(LTE_PT_PARAM.PARAM_SET_CHANNEL_CONFIG,
-                    "IDX:" + channel.getIdx() + "@" + "PA:" + gaConfig);
+
+            LogUtils.log("下发功率设置：" + "ip:" + channel.getIp() + ";PA:" + powerLevel);
+            ProtocolManager.setPa(channel.getIp(), "" + powerLevel);
         }
     }
 
@@ -444,7 +437,7 @@ public class DeviceParamActivity extends BaseActivity implements IHandlerFinish 
         if (!refreshViewEnable)
             return;
 
-        refreshDetectOperation();
+//        refreshDetectOperation();
         refreshPowerLevel();
         refreshRFSwitch();
         refreshChannels();
@@ -482,20 +475,18 @@ public class DeviceParamActivity extends BaseActivity implements IHandlerFinish 
 
     private void refreshPowerLevel() {
         //定位下有不同频点的功率变动，故不刷新&& !CacheManager.getLocState()
-//        if(CacheManager.isDeviceOk()){
-//            int powerLevel = (Integer.parseInt(CacheManager.getChannels().get(0).getPa().split(",")[0]) -
-//                    Integer.parseInt(CacheManager.getChannels().get(0).getPMax()))/-5;
-//
-//
-//            //-1  -16 -31
-//            //1    3   6
-//            if (powerLevel <= 1)
-//                rbPowerHigh.setChecked(true);
-//            else if ((powerLevel >= 2) && (powerLevel < 5))
-//                rbPowerMedium.setChecked(true);
-//            else if(powerLevel >= 5)
-//                rbPowerLow.setChecked(true);
-//        }
+        if (CacheManager.isDeviceOk()) {
+            int powerLevel = Integer.parseInt(CacheManager.getChannels().get(0).getPa());
+
+            if (powerLevel <= 10) {
+                rbPowerLow.setChecked(true);
+            } else if (powerLevel <= 25) {
+                rbPowerMedium.setChecked(true);
+            } else {
+                rbPowerHigh.setChecked(true);
+            }
+
+        }
 
     }
 

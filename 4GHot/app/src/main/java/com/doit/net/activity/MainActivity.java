@@ -35,17 +35,13 @@ import android.widget.Toast;
 import com.doit.net.Data.LTEDataParse;
 import com.doit.net.Protocol.GSMSendPackage;
 import com.doit.net.Protocol.GSMSubPackage;
-import com.doit.net.Protocol.LTEMsgCode;
-import com.doit.net.Protocol.LTESendManager;
 import com.doit.net.Sockets.NetConfig;
 import com.doit.net.Sockets.OnSocketChangedListener;
-import com.doit.net.Sockets.ServerSocketManager;
 import com.doit.net.Sockets.ServerSocketUtils;
 import com.doit.net.Sockets.DatagramSocketUtils;
 import com.doit.net.Sockets.UDPSocketUtils;
 import com.doit.net.Utils.PermissionUtils;
 import com.doit.net.adapter.MainTabLayoutAdapter;
-import com.doit.net.application.MyApplication;
 import com.doit.net.base.BaseActivity;
 import com.doit.net.base.BaseFragment;
 import com.doit.net.bean.DeviceState;
@@ -178,7 +174,6 @@ public class MainActivity extends BaseActivity implements IHandlerFinish, TextTo
                 initFTP();
                 initBlackBox();
 
-
             }
         }.start();
     }
@@ -209,19 +204,11 @@ public class MainActivity extends BaseActivity implements IHandlerFinish, TextTo
     }
 
     private void initNetWork() {
-//        ServerSocketManager.getInstance().setUIServerSocketListener(new ServerSocketChange());
-//        ServerSocketManager.getInstance().newServerSocket(Integer.parseInt(NetConfig.MONITOR_PORT));
-//        ServerSocketManager.getInstance().startMainListener(NetConfig.MONITOR_PORT);
 
         ServerSocketUtils.getInstance().startTCP(new OnSocketChangedListener() {
             @Override
             public void onConnect() {
-//                CacheManager.deviceState.setDeviceState(DeviceState.ON_INIT);
 
-//                heartbeatCount = 0;    //一旦发现是连接就重置此标志以设置所有配置
-//                //设备重启（重连）后需要重新检查设置默认参数
-//                hasSetDefaultParam = false;
-//                CacheManager.resetState();
             }
 
             @Override
@@ -456,6 +443,11 @@ public class MainActivity extends BaseActivity implements IHandlerFinish, TextTo
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             new MySweetAlertDialog(this, MySweetAlertDialog.WARNING_TYPE)
@@ -660,16 +652,12 @@ public class MainActivity extends BaseActivity implements IHandlerFinish, TextTo
 //            initUDP();  //重连wifi后udp发送ip、端口
 
 
-//            initGSM();
-
-            LTEDataParse.set.clear();
-
-
         } else {
             CacheManager.isWifiConnected = false;
             LogUtils.log("wifi state change——disconnected");
             CacheManager.deviceState.setDeviceState(DeviceState.WIFI_DISCONNECT);
             CacheManager.resetState();
+
         }
     }
 
@@ -736,7 +724,7 @@ public class MainActivity extends BaseActivity implements IHandlerFinish, TextTo
     public void sendData() {
         try {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("ip", NetWorkUtils.getWIFILocalIpAddress(MyApplication.mContext));
+            jsonObject.put("ip", NetWorkUtils.getWIFILocalIpAddress());
             jsonObject.put("port", NetConfig.LOCAL_PORT);
             jsonObject.put("id", DatagramSocketUtils.SEND_LOCAL_IP);
             jsonObject.put("ok", true);
@@ -956,7 +944,7 @@ public class MainActivity extends BaseActivity implements IHandlerFinish, TextTo
 //            }
 
 
-            if (!hasSetDefaultParam && LTEDataParse.set.size() > 1) {
+            if (!hasSetDefaultParam && CacheManager.deviceList.size() > 1) {
                 hasSetDefaultParam = true;
                 ProtocolManager.setActiveMode();
                 ProtocolManager.clearImsi();

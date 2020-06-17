@@ -30,6 +30,7 @@ public final class LTEMsgCode {
         public static final String SET_SYNC_PARAM = "16";
         public static final String SET_TIME = "17";
         public static final String GET_CUSTOM_PA_PARAM = "18";
+        public static final String SET_FALLBACK = "19";
         public static final String REBOOT_CELL = "20";
         public static final String SET_LOCATION_MODE = "26"; //设置定位模式
         public static final String SET_POLL_EARFCN = "31";  //频点设置

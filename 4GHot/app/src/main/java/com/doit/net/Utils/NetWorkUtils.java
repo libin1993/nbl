@@ -21,6 +21,8 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 
+import com.doit.net.application.MyApplication;
+
 import static android.content.Context.WIFI_SERVICE;
 
 
@@ -219,14 +221,13 @@ public class NetWorkUtils {
 
     /***
      * 使用WIFI时，获取本机IP地址
-     *
-     * @param mContext
+
      * @return
      */
-    public static String getWIFILocalIpAddress(Context mContext) {
+    public static String getWIFILocalIpAddress() {
 
         //获取wifi服务  
-        WifiManager wifiManager = (WifiManager) mContext.getSystemService(WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) MyApplication.mContext.getSystemService(WIFI_SERVICE);
         //判断wifi是否开启  
         if (!wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(true);

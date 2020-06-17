@@ -19,7 +19,8 @@
         android:layout_width="match_parent"
         android:layout_height="38dp"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:visibility="gone">
 
         <TextView
             android:layout_height="wrap_content"
@@ -92,7 +93,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="gone">
         <View
             android:layout_width="60dp"
             android:layout_height="0.6dp"
@@ -241,76 +243,75 @@
         android:background="@color/dimgrey"
         />
 
-    <RelativeLayout
-        android:orientation="horizontal"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:layout_gravity="bottom"
-        android:gravity="center">
+        android:orientation="vertical"
+        android:layout_gravity="bottom">
 
-        <Button
-            android:id="@+id/btSetCellParam"
-            android:layout_height="34dp"
-            android:layout_width="wrap_content"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textSize="14sp"
-            android:textColor="@color/darkorange"
-            android:background="@drawable/common_button_bkg"
-            android:text="@string/lable_set_cell" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp">
+            <Button
+                android:id="@+id/btSetChannelCfg"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:textColor="@color/darkorange"
+                android:background="@drawable/common_button_bkg"
+                android:text="@string/lable_set_channel"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"/>
 
-        <Button
-            android:id="@+id/btSetChannelCfg"
-            android:layout_height="34dp"
-            android:layout_width="wrap_content"
-            android:layout_toEndOf="@id/btSetCellParam"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textSize="14sp"
-            android:layout_marginStart="20dp"
-            android:textColor="@color/darkorange"
-            android:background="@drawable/common_button_bkg"
-            android:text="@string/lable_set_channel" />
 
-        <Button
-            android:id="@+id/btUpdateTac"
-            android:layout_height="34dp"
-            android:layout_width="wrap_content"
-            android:layout_toEndOf="@id/btSetChannelCfg"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textSize="14sp"
-            android:layout_marginStart="20dp"
-            android:textColor="@color/darkorange"
-            android:background="@drawable/common_button_bkg"
-            android:text="@string/change_tac" />
+            <Button
+                android:id="@+id/btUpdateTac"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:textColor="@color/darkorange"
+                android:background="@drawable/common_button_bkg"
+                android:text="@string/change_tac"
+                android:layout_marginRight="40dp"/>
 
-        <Button
-            android:id="@+id/btRebootDevice"
-            android:layout_height="34dp"
-            android:layout_width="wrap_content"
-            android:layout_below="@id/btSetCellParam"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textSize="14sp"
-            android:textColor="@color/darkorange"
-            android:background="@drawable/common_button_bkg"
-            android:layout_marginTop="8dp"
-            android:text="@string/lable_reboot" />
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/btRefreshParam"
-            android:layout_height="34dp"
-            android:layout_width="wrap_content"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:layout_toEndOf="@id/btRebootDevice"
-            android:layout_below="@id/btSetChannelCfg"
-            android:textSize="14sp"
-            android:textColor="@color/darkorange"
-            android:background="@drawable/common_button_bkg"
-            android:layout_marginTop="8dp"
-            android:layout_marginStart="20dp"
-            android:text="@string/lable_refresh_param" />
-    </RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp">
+            <Button
+                android:id="@+id/btRebootDevice"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:textColor="@color/darkorange"
+                android:background="@drawable/common_button_bkg"
+                android:text="@string/lable_reboot"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"/>
+
+            <Button
+                android:id="@+id/btRefreshParam"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:textColor="@color/darkorange"
+                android:background="@drawable/common_button_bkg"
+                android:text="@string/lable_refresh_param"
+                android:layout_marginRight="40dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
 </LinearLayout>

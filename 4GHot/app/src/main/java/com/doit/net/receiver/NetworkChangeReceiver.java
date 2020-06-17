@@ -23,7 +23,6 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         ConnectivityManager connectivityManager=(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo  mobNetInfo=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         NetworkInfo wifiNetInfo=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
         if (!wifiNetInfo.isConnected() && !isShow) {
@@ -41,10 +40,6 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
             isShow = true;
             EventAdapter.call(EventAdapter.STOP_LOC);
             CacheManager.resetState();
-            //G4UDPServerManager.stop();
-//            CacheManager.deviceState.setDeviceState(DeviceState.WIFI_DISCONNECT);
-            //UIEventManager.call(UIEventManager.KEY_WIFI_DISCONNECTED);
-            //改变背景或者 处理网络的全局变量
         }
 
         EventAdapter.call(EventAdapter.WIFI_CHANGE);

@@ -36,9 +36,10 @@ import java.util.List;
  * Created by Zxc on 2018/10/22.
  */
 public class FTPServer extends DefaultFtplet {
-    private final int FTP_PORT = 2221;
+    public final static int FTP_PORT = 2221;
     private final String DEFAULT_LISTENER = "default";
-    // private final Logger LOG = LoggerFactory.getLogger(FTPServer.class);
+    public final static String USERNAME = "sanhui";
+    public final static String PASSWORD = "123456";
     private static final List<Authority> ADMIN_AUTHORITIES;
     private static final int BYTES_PER_KB = 1024;
     public static String FTP_DIR = Environment.getExternalStorageDirectory().getAbsolutePath()+"/4GHotspot/";
@@ -65,15 +66,10 @@ public class FTPServer extends DefaultFtplet {
         mListenerFactor = new ListenerFactory();
         mListenerFactor.setPort(FTP_PORT);
 
-        //anonymous login
-        //seems no need
-        //ConnectionConfigFactory connectionConfigFactory = new ConnectionConfigFactory();
-        //connectionConfigFactory.setAnonymousLoginEnabled(true);
-        //mFTPServerFactory.setConnectionConfig(connectionConfigFactory.createConnectionConfig());
+
 
         mFTPServerFactory.addListener(DEFAULT_LISTENER, mListenerFactor.createListener());
         mFTPServerFactory.getFtplets().put(DefaultFtplet.class.getName(), this);
-        //mFTPServerFactory.getFtplets().put(FTPLetImpl.class.getAccount(), new FTPLetImpl());
 
         PropertiesUserManagerFactory userManagerFactory = new PropertiesUserManagerFactory();
         userManagerFactory.setFile(new File(FTP_DIR + "users.properties"));
@@ -82,8 +78,8 @@ public class FTPServer extends DefaultFtplet {
         mFTPServerFactory.setUserManager(mUserManager);
 
         try {
-            this.createAdminUser();
-            FTPServer.addUser("sanhui", "123456", 100000, 100000);
+            createAdminUser();
+            FTPServer.addUser(USERNAME, PASSWORD, 100000, 100000);
         } catch (FtpException e) {
             e.printStackTrace();
         }
@@ -94,8 +90,9 @@ public class FTPServer extends DefaultFtplet {
     public void startFTPServer(){
         try {
             mFTPServer.start();
-        } catch (FtpException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            LogUtils.log("FTP开启失败："+e.getMessage());
         }
     }
 
@@ -125,9 +122,6 @@ public class FTPServer extends DefaultFtplet {
         user.setHomeDirectory(DEFAULT_USER_DIR);
         user.setEnabled(true);
 
-        //BaseUser anonuser = new BaseUser();
-        //anonuser = new BaseUser(user);
-        //anonuser.setAccount("anonymous");
 
         List<Authority> list = new ArrayList<Authority>();
         list.add(new TransferRatePermission(downloadRateKB * BYTES_PER_KB, uploadRateKB * BYTES_PER_KB)); // 20KB

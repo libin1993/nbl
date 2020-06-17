@@ -45,11 +45,11 @@ public class ModifyAdminAccountDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(mView);
-        x.view().inject(this,mView);
+        x.view().inject(this, mView);
     }
 
-    private void initView(){
-        LayoutInflater inflater= LayoutInflater.from(getContext());
+    private void initView() {
+        LayoutInflater inflater = LayoutInflater.from(getContext());
         mView = inflater.inflate(R.layout.layout_modify_admin_account, null);
         setCancelable(false);
 
@@ -58,28 +58,31 @@ public class ModifyAdminAccountDialog extends Dialog {
         etPassword = mView.findViewById(R.id.etPassword);
         etPassword.setText(modifyPassword);
         btSave = mView.findViewById(R.id.btSave);
-        btSave.setOnClickListener(new View.OnClickListener(){
+        btSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AccountManage.saveAccoutToPref(etAccount.getText().toString(), etPassword.getText().toString());
-                if (AccountManage.UpdateAccountToDevice()){
-                    ToastUtils.showMessage(getContext(),R.string.modify_admin_success);
-                }else{
-                    new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
-                            .setTitleText(getContext().getString(R.string.modify_admin_fail))
-                            .setContentText(getContext().getString(R.string.modify_admin_fail_ftp))
-                            .show();
-                }
+                ToastUtils.showMessage(getContext(), R.string.modify_admin_success);
+                ToastUtils.showMessage(getContext(), R.string.modify_admin_success);
+//                if (AccountManage.UpdateAccountToDevice()){
+//                    ToastUtils.showMessage(getContext(),R.string.modify_admin_success);
+//                }else{
+//                    new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
+//                            .setTitleText(getContext().getString(R.string.modify_admin_fail))
+//                            .setContentText(getContext().getString(R.string.modify_admin_fail_ftp))
+//                            .show();
+//                }
+
 
                 dismiss();
 
-                EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.MODIFY_ADMIN_ACCOUNT+etAccount.getText().toString()+"+"+etPassword.getText().toString());
+                EventAdapter.call(EventAdapter.ADD_BLACKBOX, BlackBoxManger.MODIFY_ADMIN_ACCOUNT + etAccount.getText().toString() + "+" + etPassword.getText().toString());
             }
         });
 
 
         btCancel = mView.findViewById(R.id.btCancel);
-        btCancel.setOnClickListener(new View.OnClickListener(){
+        btCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dismiss();

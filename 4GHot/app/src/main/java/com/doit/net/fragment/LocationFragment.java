@@ -450,26 +450,23 @@ public class LocationFragment extends BaseFragment implements View.OnClickListen
             case UIEventManager.KEY_RF_STATUS:
                 isRFOpen();
                 break;
+            case UIEventManager.KEY_REFRESH_DEVICE:
+                if (CacheManager.channels !=null && CacheManager.channels.size() > 0){
+                    cbGainSwitch.setOnCheckedChangeListener(null);
+                    boolean isHighPa = true;
+                    for (LteChannelCfg channel : CacheManager.channels) {
+                        int pa = Integer.parseInt(channel.getPa());
+                        if (pa <=10){
+                            isHighPa = false;
+                            break;
+                        }
+                    }
+                    cbGainSwitch.setChecked(isHighPa);
+                    cbGainSwitch.setOnCheckedChangeListener(gainSwitchListener);
+                }
+                break;
 
         }
-
-
-        //ga <= 10为低增益,11-50为高增益
-//        if (UIEventManager.KEY_REFRESH_DEVICE.equals(key)) {
-//          if (CacheManager.channels !=null && CacheManager.channels.size() > 0){
-//              cbGainSwitch.setOnCheckedChangeListener(null);
-//              for (LteChannelCfg channel : CacheManager.channels) {
-//                  int ga = Integer.parseInt(channel.getGa());
-//                  if (ga <=10){
-//                      cbGainSwitch.setChecked(false);
-//                      break;
-//                  }
-//              }
-//              cbGainSwitch.setOnCheckedChangeListener(gainSwitchListener);
-//          }
-//
-//        }
-
 
     }
 

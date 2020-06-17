@@ -1,8 +1,5 @@
 package com.doit.net.Sockets;
 
-import com.doit.net.Data.LTESendManager;
-import com.doit.net.Utils.LogUtils;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -124,7 +121,6 @@ public class UtilServerSocket {
 
                     //将这个新的连接放入列表中
                     htSubSocket.put(remoteIP + ":" + remotePort, utilSocket);
-                    LTESendManager.currentLocalAddress = remoteIP + ":" + remotePort;
                     //UtilBaseLog.printLog("add socket:"+ remoteIP+":"+remotePort + ", size = "+htSubSocket.size());
                 }
             } catch (IOException ex) {

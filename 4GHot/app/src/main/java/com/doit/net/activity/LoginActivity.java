@@ -25,6 +25,7 @@ import com.doit.net.Utils.LogUtils;
 import com.doit.net.ucsi.R;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Date;
 
 import static com.doit.net.activity.SystemSettingActivity.LOC_PREF_KEY;
@@ -210,13 +211,6 @@ public class LoginActivity extends BaseActivity {
                 }
 
                 AccountManage.getAdminAccoutFromPref();
-                if (!userName.equals(AccountManage.getSuperAccount()) && !userName.equals(AccountManage.getAdminAcount())){
-                    //clearLocalUserInfo();
-                    getAccountInfoFormDevice();
-                    if (!AccountManage.hasGetAccountFromDev()){
-                        return;
-                    }
-                }
 
                 if (AccountManage.checkAccount(userName, password)) {
                     if (ckRememberPass.isChecked()) { // 检查复选框是否被选中

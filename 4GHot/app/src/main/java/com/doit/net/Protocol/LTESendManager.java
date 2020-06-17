@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import com.doit.net.Model.CacheManager;
 import com.doit.net.Sockets.ServerSocketUtils;
 import com.doit.net.Utils.UtilDataFormatChange;
+import com.doit.net.bean.DeviceInfo;
+import com.doit.net.bean.LteChannelCfg;
 
 import org.apache.http.util.ByteArrayBuffer;
 
@@ -19,12 +21,14 @@ public class LTESendManager {
 
 
     public static void sendData(String msgType, String msgCode, String packageContent) {
-        sendData(null, msgType, msgCode, packageContent);
+        for (DeviceInfo deviceInfo : CacheManager.deviceList) {
+            sendData(deviceInfo.getIp(), msgType, msgCode, packageContent);
+        }
     }
 
 
     public static void sendData(String ip,String msgType, String msgCode, String packageContent) {
-        int length = LTEPackage.HEAD_SIZE;
+        int length = 4;  //消息内容长度
         byte[] magic = CacheManager.magic;
         byte[] msgId = UtilDataFormatChange.intToByteArray(LTEProtocol.getId());
 
@@ -36,7 +40,17 @@ public class LTESendManager {
         byte[] dataLength = UtilDataFormatChange.intToByteArray(length);
         byte[] cipherLength = new byte[4];
         byte[] crc = new byte[4];
-        byte[] deviceName = CacheManager.deviceName;
+
+        //设备编号
+        byte[] deviceName = new byte[16];
+
+        for (DeviceInfo deviceInfo : CacheManager.deviceList) {
+            if (ip.equals(deviceInfo.getIp())){
+                System.arraycopy(deviceInfo.getDeviceName(),0,deviceName,0,16);
+                break;
+            }
+        }
+
         byte[] timestamp = UtilDataFormatChange.intToByteArray((int) (System.currentTimeMillis() / 1000));
         byte[] reserve = new byte[8];
         byte[] type = msgType.getBytes(StandardCharsets.US_ASCII);
@@ -60,11 +74,8 @@ public class LTESendManager {
         }
 
         byte[] bytes = byteArray.toByteArray();
-        if (TextUtils.isEmpty(ip)){
-            ServerSocketUtils.getInstance().sendData(bytes);
-        }else {
-            ServerSocketUtils.getInstance().sendData(ip,bytes);
-        }
+
+        ServerSocketUtils.getInstance().sendData(ip,bytes);
 
     }
 

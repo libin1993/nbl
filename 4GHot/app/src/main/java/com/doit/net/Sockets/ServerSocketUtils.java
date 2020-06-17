@@ -1,22 +1,17 @@
 package com.doit.net.Sockets;
 
-import com.doit.net.Data.DataCenterManager;
 import com.doit.net.Data.LTEDataParse;
 import com.doit.net.Model.CacheManager;
 import com.doit.net.Utils.LogUtils;
-
-import org.apache.commons.net.SocketClient;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -63,12 +58,13 @@ public class ServerSocketUtils {
             public void run() {
                 while (true) {
                     try {
-
+                        if (mServerSocket ==null){
+                            mServerSocket = new ServerSocket(NetConfig.LOCAL_PORT);
+                        }
                         Socket socket = mServerSocket.accept();  //获取socket
                         socket.setSoTimeout(READ_TIME_OUT);      //设置超时
                         String remoteIP = socket.getInetAddress().getHostAddress();  //远程ip
                         map.put(remoteIP, socket);   //存储socket
-                        CacheManager.DEVICE_IP = remoteIP;  //当前设备ip
 
                         if (onSocketChangedListener != null) {
                             onSocketChangedListener.onConnect();
@@ -130,33 +126,31 @@ public class ServerSocketUtils {
                     if (receiveCount <= -1) {
                         LogUtils.log("break read!");
 
-                        onSocketChangedListener.onDisconnect();
                         closeSocket(remoteIP);  //关闭socket
+                        CacheManager.removeEquip(remoteIP);
                         lteDataParse.clearReceiveBuffer();
+                        onSocketChangedListener.onDisconnect();
                         break;
                     }
 
-                    lteDataParse.parseData(remoteIP ,bytesReceived, receiveCount);
-                    //将数据交给数据中心管理员处理
-//                    DataCenterManager.parseData(remoteIP, String.valueOf(remotePort),
-//                            bytesReceived, receiveCount);
                     //收到数据
+                    lteDataParse.parseData(remoteIP ,bytesReceived, receiveCount);
+
                 }
             } catch (IOException ex) {
                 LogUtils.log("读取错误:" + ex.toString());
-                onSocketChangedListener.onDisconnect();
+
                 closeSocket(remoteIP);  //关闭socket
-//                DataCenterManager.clearDataBuffer(remoteIP);
+                CacheManager.removeEquip(remoteIP);
                 lteDataParse.clearReceiveBuffer();
+                onSocketChangedListener.onDisconnect();
+
             }
         }
     }
 
     //关闭socket
     public void closeSocket(String ip) {
-        if (LTEDataParse.set !=null){
-            LTEDataParse.set.remove(ip);
-        }
 
         Socket socket = map.get(ip);
 
