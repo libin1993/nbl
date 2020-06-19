@@ -8,10 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.doit.net.Model.CacheManager;
-import com.doit.net.Model.PrefManage;
 import com.doit.net.Protocol.ProtocolManager;
-import com.doit.net.Utils.FTPServer;
-import com.doit.net.Utils.NetWorkUtils;
 import com.doit.net.base.BaseActivity;
 import com.doit.net.Event.EventAdapter;
 import com.doit.net.Protocol.LTE_PT_SYSTEM;
@@ -57,8 +54,8 @@ public class JustForTest extends BaseActivity implements EventAdapter.EventCall 
 
         initView();
 
-        EventAdapter.setEvent(UPDATE_TMEPRATURE,this);
-        EventAdapter.setEvent(EventAdapter.GET_NAME_LIST,this);
+        EventAdapter.register(UPDATE_TMEPRATURE,this);
+        EventAdapter.register(EventAdapter.GET_NAME_LIST,this);
         //EventAdapter.setEvent(EventAdapter.SPEAK,this);
     }
 
@@ -91,7 +88,7 @@ public class JustForTest extends BaseActivity implements EventAdapter.EventCall 
         btGetDeviceLog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtils.showMessage(getBaseContext(), "获取设备命令已下发，请等待上传成功");
+                ToastUtils.showMessage("获取设备命令已下发，请等待上传成功");
                 LTE_PT_SYSTEM.commonSystemMsg(LTE_PT_SYSTEM.SYSTEM_GET_LOG);
             }
         });

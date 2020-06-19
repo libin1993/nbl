@@ -3,7 +3,6 @@ package com.doit.net.Data;
 import android.text.TextUtils;
 
 import com.doit.net.Event.EventAdapter;
-import com.doit.net.Event.UIEventManager;
 import com.doit.net.Model.CacheManager;
 import com.doit.net.Protocol.LTEMsgCode;
 import com.doit.net.Protocol.LTEPackage;
@@ -19,8 +18,6 @@ import com.doit.net.bean.LteChannelCfg;
  */
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class LTEDataParse {
     //将字节数暂存
@@ -354,8 +351,8 @@ public class LTEDataParse {
 
         CacheManager.addChannel(lteChannelCfg);
 
-        UIEventManager.call(UIEventManager.KEY_REFRESH_DEVICE);
-        UIEventManager.call(UIEventManager.KEY_RF_STATUS);
+        EventAdapter.call(EventAdapter.REFRESH_DEVICE);
+        EventAdapter.call(EventAdapter.RF_STATUS);
     }
 
 
@@ -445,8 +442,8 @@ public class LTEDataParse {
         }
 
         LTESendManager.sendData(ltePackage.getIp(), LTEMsgCode.Type.APP_ACK, LTEMsgCode.RptCode.RPT_HEART_BEAT, null); //心跳回复
-        UIEventManager.call(UIEventManager.KEY_HEARTBEAT_RPT);
-
+        EventAdapter.call(EventAdapter.HEARTBEAT_RPT);
+        EventAdapter.call(EventAdapter.RF_STATUS);
     }
 
 
@@ -481,7 +478,7 @@ public class LTEDataParse {
 
         LogUtils.log("更新进度："+content);
 
-        EventAdapter.call(EventAdapter.SYSTEM_UPDATE,ltePackage.getIp()+","+content);
+        EventAdapter.call(EventAdapter.UPGRADE_STATUS,ltePackage.getIp()+","+content);
     }
 
 

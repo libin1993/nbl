@@ -125,7 +125,7 @@ public class ChannelListViewAdapter extends BaseAdapter {
 //                }
 
 
-                ToastUtils.showMessage(mContext, R.string.tip_15);
+                ToastUtils.showMessage( R.string.tip_15);
 
                 ProtocolManager.setPa(cfg.getIp(), pa);
                 ProtocolManager.setFcn(cfg.getIp(), fcn, pollTmr);

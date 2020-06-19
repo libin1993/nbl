@@ -69,14 +69,6 @@ public class DatagramSocketUtils {
                     String remoteIP = dp.getAddress().getHostAddress();
                     int remotePort = dp.getPort();
                     String receiveData = new String(dp.getData(), 0, dp.getLength());
-                    JSONObject jsonReceive = new JSONObject(receiveData);
-                    String id = jsonReceive.getString("id");
-//                        if (NetConfig.BOALINK_LTE_IP.equals(remoteIP) && remotePort == UDP_PORT
-//                                && SEND_LOCAL_IP_ACK.equals(id)) {
-//
-//                            isSend = false;
-//                            socket.close();
-//                        }
 
                     //tcp有设备连接,关闭socket
                     LogUtils.log("udp来自ip为：" + remoteIP + " 端口为：" + remotePort + "的信息为：" + receiveData);

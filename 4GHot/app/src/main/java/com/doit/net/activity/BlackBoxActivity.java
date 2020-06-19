@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.doit.net.Utils.FileUtils;
 import com.doit.net.base.BaseActivity;
 import com.doit.net.Model.BlackBoxManger;
 import com.doit.net.Event.EventAdapter;
@@ -102,10 +103,10 @@ public class BlackBoxActivity extends BaseActivity {
                 if (blackBoxListAdapter != null) {
                     blackBoxListAdapter.updateView();
                 }
-            }else if(msg.what == EXPORT_ERROR){
+            } else if (msg.what == EXPORT_ERROR) {
                 new SweetAlertDialog(activity, SweetAlertDialog.ERROR_TYPE)
                         .setTitleText("导出失败")
-                        .setContentText("失败原因："+msg.obj)
+                        .setContentText("失败原因：" + msg.obj)
                         .show();
             }
         }
@@ -121,17 +122,17 @@ public class BlackBoxActivity extends BaseActivity {
 
             clearBlackboxList();
 
-            if (("".equals(startTime) && !"".equals(endTime)) || ((!"".equals(startTime) && "".equals(endTime)))){
-                ToastUtils.showMessage(activity, "未设置开始时间及结束时间！");
+            if (("".equals(startTime) && !"".equals(endTime)) || ((!"".equals(startTime) && "".equals(endTime)))) {
+                ToastUtils.showMessage("未设置开始时间及结束时间！");
                 return;
-            } else if (!"".equals(startTime) && startTime.equals(endTime)){
-                ToastUtils.showMessage(activity, "开始时间和结束时间一样，请重新设置！");
+            } else if (!"".equals(startTime) && startTime.equals(endTime)) {
+                ToastUtils.showMessage("开始时间和结束时间一样，请重新设置！");
                 return;
-            } else if (!"".equals(startTime) && !"".equals(endTime) && !isStartEndTimeOrderRight(startTime, endTime)){
-                ToastUtils.showMessage(activity, "开始时间比结束时间晚，请重新设置！");
+            } else if (!"".equals(startTime) && !"".equals(endTime) && !isStartEndTimeOrderRight(startTime, endTime)) {
+                ToastUtils.showMessage("开始时间比结束时间晚，请重新设置！");
                 return;
-            }else if (!CacheManager.isWifiConnected){
-                ToastUtils.showMessage(activity, "Wifi未连接到设备，黑匣子获取失败");
+            } else if (!CacheManager.isWifiConnected) {
+                ToastUtils.showMessage("Wifi未连接到设备，黑匣子获取失败");
                 return;
             }
 
@@ -139,7 +140,7 @@ public class BlackBoxActivity extends BaseActivity {
 
             List<BlackBoxBean> searchBlackBox = new ArrayList<>();
 
-            if ("".equals(startTime)){
+            if ("".equals(startTime)) {
                 try {
                     searchBlackBox = dbManager.selector(BlackBoxBean.class).findAll();
                     //UtilBaseLog.printLog("所有大小："+searchBlackBox.size());
@@ -152,7 +153,7 @@ public class BlackBoxActivity extends BaseActivity {
                 } catch (DbException e) {
                     e.printStackTrace();
                 }
-            }else{
+            } else {
                 try {
                     /* 这是一个错误的示范 */
 //                    searchBlackBox = dbManager.selector(BlackBoxBean.class)
@@ -174,7 +175,7 @@ public class BlackBoxActivity extends BaseActivity {
             }
 
             if (searchBlackBox == null || searchBlackBox.size() <= 0) {
-                ToastUtils.showMessage(BlackBoxActivity.this, R.string.search_not_found);
+                ToastUtils.showMessage(R.string.search_not_found);
                 return;
             }
 
@@ -229,33 +230,33 @@ public class BlackBoxActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
             if (listBlackBox == null || listBlackBox.size() <= 0) {
-                ToastUtils.showMessage(BlackBoxActivity.this, R.string.can_not_export_search);
+                ToastUtils.showMessage(R.string.can_not_export_search);
                 return;
             }
 
-            String fileName = "BLACKBOX_"+ DateUtils.getStrOfDate()+".csv";
-            String fullPath = BlackBoxManger.EXPORT_FILE_PATH + fileName;
+            String fileName = "BLACKBOX_" + DateUtils.getStrOfDate() + ".csv";
+            String fullPath = FileUtils.ROOT_PATH + fileName;
             BufferedWriter bufferedWriter = null;
             try {
-                bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fullPath,true)));
-                bufferedWriter.write("用户,操作,时间"+"\r\n");
-                for (BlackBoxBean info: listBlackBox) {
-                    bufferedWriter.write(info.getAccount()+",");
-                    bufferedWriter.write(info.getOperation()+",");
+                bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fullPath, true)));
+                bufferedWriter.write("用户,操作,时间" + "\r\n");
+                for (BlackBoxBean info : listBlackBox) {
+                    bufferedWriter.write(info.getAccount() + ",");
+                    bufferedWriter.write(info.getOperation() + ",");
                     bufferedWriter.write(DateUtils.convert2String(info.getTime(), DateUtils.LOCAL_DATE));
                     bufferedWriter.write("\r\n");
                 }
             } catch (DbException e) {
                 //log.error("Export SELECT ERROR",e);
                 createExportError("数据查询错误");
-            } catch (FileNotFoundException e){
+            } catch (FileNotFoundException e) {
                 //log.error("File Error",e);
                 createExportError("文件未创建成功");
-            } catch (IOException e){
+            } catch (IOException e) {
                 //log.error("File Error",e);
                 createExportError("写入文件错误");
             } finally {
-                if(bufferedWriter != null){
+                if (bufferedWriter != null) {
                     try {
                         bufferedWriter.close();
                     } catch (IOException e) {
@@ -266,10 +267,10 @@ public class BlackBoxActivity extends BaseActivity {
             EventAdapter.call(EventAdapter.UPDATE_FILE_SYS, fullPath);
             new SweetAlertDialog(activity, SweetAlertDialog.SUCCESS_TYPE)
                     .setTitleText("导出成功")
-                    .setContentText("文件导出在：手机存储/4GHotspot/"+fileName)
+                    .setContentText("文件导出在：手机存储/" + FileUtils.ROOT_DIRECTORY + "/" + fileName)
                     .show();
 
-            EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.EXPORT_BLACKBOX+fullPath);
+            EventAdapter.call(EventAdapter.ADD_BLACKBOX, BlackBoxManger.EXPORT_BLACKBOX + fullPath);
         }
     };
 
@@ -287,27 +288,31 @@ public class BlackBoxActivity extends BaseActivity {
     }
 
 
-    public boolean isStartEndTimeOrderRight(String startTime, String endTime){
+    public boolean isStartEndTimeOrderRight(String startTime, String endTime) {
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         Date dataStartTime = null;
         try {
             dataStartTime = simpleDateFormat.parse(startTime);
-        } catch (ParseException e) {e.printStackTrace();}
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
         Date dateEndTime = null;
         try {
             dateEndTime = simpleDateFormat.parse(endTime);
-        } catch (ParseException e) {e.printStackTrace();}
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
         return dataStartTime.before(dateEndTime);
     }
 
-    private void createExportError(String obj){
+    private void createExportError(String obj) {
         Message msg = new Message();
         msg.what = EXPORT_ERROR;
-        msg.obj=obj;
+        msg.obj = obj;
         mHandler.sendMessage(msg);
     }
 }

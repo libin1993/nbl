@@ -4,6 +4,7 @@ import android.os.Environment;
 
 import com.doit.net.Utils.DateUtils;
 import com.doit.net.Utils.FTPManager;
+import com.doit.net.Utils.FileUtils;
 import com.doit.net.Utils.LogUtils;
 
 import org.apache.commons.net.ftp.FTPFile;
@@ -65,8 +66,7 @@ public class BlackBoxManger {
     public final static String EXPORT_BLACKBOX = "导出黑匣子信息，文件为:";
 
     private static String currentAccount = "";
-    public final static String EXPORT_FILE_PATH = Environment.getExternalStorageDirectory()+"/4GHotspot/";
-    private static final String LOCAL_FTP_BLX_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()+"/4GHotspot/FtpBlx/";
+    private static final String LOCAL_FTP_BLX_PATH = FileUtils.ROOT_PATH+"FtpBlx/";
     private static String currentBlxFileName;
 
     public static void setCurrentAccount(String account){

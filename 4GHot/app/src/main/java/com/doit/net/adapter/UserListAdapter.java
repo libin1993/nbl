@@ -11,11 +11,8 @@ import android.widget.TextView;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.doit.net.Model.BlackBoxManger;
 import com.doit.net.Event.EventAdapter;
-import com.doit.net.Event.UIEventManager;
-import com.doit.net.Model.AccountManage;
 import com.doit.net.Model.UCSIDBManager;
 import com.doit.net.Model.UserInfo;
-import com.doit.net.Utils.ToastUtils;
 import com.doit.net.View.ModifyUserInfoDialog;
 import com.doit.net.ucsi.R;
 
@@ -80,7 +77,7 @@ public class UserListAdapter extends BaseSwipeAdapter {
                 modifyUserInfoDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialog) {
-                        UIEventManager.call(UIEventManager.KEY_REFRESH_USER_LIST);
+                        EventAdapter.call(EventAdapter.REFRESH_USER_LIST);
                     }
                 });
                 modifyUserInfoDialog.show();
@@ -121,7 +118,7 @@ public class UserListAdapter extends BaseSwipeAdapter {
                 //listUserInfo.remove(position);
 
                 UCSIDBManager.getDbManager().delete(resp);
-                UIEventManager.call(UIEventManager.KEY_REFRESH_USER_LIST);
+                EventAdapter.call(EventAdapter.REFRESH_USER_LIST);
                 EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.DELTE_USER+resp.getAccount());
 //                if (AccountManage.UpdateAccountToDevice()){
 //                    UIEventManager.call(UIEventManager.KEY_REFRESH_USER_LIST);

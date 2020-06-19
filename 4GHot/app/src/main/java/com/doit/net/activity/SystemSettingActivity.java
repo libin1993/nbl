@@ -9,6 +9,7 @@ import android.view.View;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.beardedhen.androidbootstrap.BootstrapEditText;
+import com.doit.net.Utils.FileUtils;
 import com.doit.net.base.BaseActivity;
 import com.doit.net.Model.AccountManage;
 import com.doit.net.bean.LteChannelCfg;
@@ -76,7 +77,7 @@ public class SystemSettingActivity extends BaseActivity {
                 PrefManage.setBoolean(LOC_PREF_KEY, false);
             }
 
-            ToastUtils.showMessage(activity, "设置成功，重新登陆生效。");
+            ToastUtils.showMessage("设置成功，重新登陆生效。");
         }
     };
 
@@ -103,7 +104,7 @@ public class SystemSettingActivity extends BaseActivity {
     };
 
     private void generalAdmin() {
-//        final String accountFullPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/4GHotspot/FtpAccount/";
+//        final String accountFullPath = FileUtils.ROOT_PATH+"FtpAccount/";
 //        final String accountFileName = "account";
 //
 //

@@ -3,6 +3,7 @@ package com.doit.net.Model;
 import android.os.Environment;
 
 import com.doit.net.Utils.FTPManager;
+import com.doit.net.Utils.FileUtils;
 import com.doit.net.Utils.LogUtils;
 
 import org.xutils.DbManager;
@@ -30,7 +31,7 @@ public class AccountManage {
     private static final String ADMIN_REMARK = "administrator88861158";  //存储在账号文件用于鉴定管理员账户
     private static String currentLoginAccount = "";
 
-    private static String LOCAL_FTP_ACCOUNT_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()+"/4GHotspot/FtpAccount/";
+    private static String LOCAL_FTP_ACCOUNT_PATH = FileUtils.ROOT_PATH+"FtpAccount/";
     private static String ACCOUNT_FILE_NAME = "account";
 
     private static DbManager dbManager = UCSIDBManager.getDbManager();

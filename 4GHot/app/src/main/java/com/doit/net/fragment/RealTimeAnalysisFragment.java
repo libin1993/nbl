@@ -173,7 +173,7 @@ public class RealTimeAnalysisFragment extends BaseFragment {
         @Override
         public synchronized void onClick(View v) {
             if(threadRealtimeCollide == null){
-                ToastUtils.showMessage(getContext(), "跟踪未开始");
+                ToastUtils.showMessage("跟踪未开始");
                 return;
             }else {
                 new SweetAlertDialog(getActivity(), WARNING_TYPE)
@@ -213,7 +213,7 @@ public class RealTimeAnalysisFragment extends BaseFragment {
                             UpdateCollideResultToList();
                             ProtocolManager.changeTac();
                             mHandler.sendEmptyMessage(UPDATE_COLLIDE_RESULT);
-                            ToastUtils.showMessage(getContext(), "跟踪结果已刷新");
+                            ToastUtils.showMessage("跟踪结果已刷新");
                             UtilDelay.delayMilis(COLLIED_TIME_PERIOD - 5000);
                         }
                         UtilDelay.delayMilis(5000);

@@ -1,12 +1,8 @@
 package com.doit.net.fragment;
 
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.telephony.SubscriptionManager;
-import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +15,7 @@ import com.doit.net.View.LocateCircle;
 import com.doit.net.base.BaseFragment;
 import com.doit.net.bean.LteChannelCfg;
 import com.doit.net.Event.EventAdapter;
-import com.doit.net.Event.IHandlerFinish;
 import com.doit.net.Protocol.ProtocolManager;
-import com.doit.net.Event.UIEventManager;
 import com.doit.net.Model.BlackBoxManger;
 import com.doit.net.Model.CacheManager;
 import com.doit.net.Model.VersionManage;
@@ -31,8 +25,6 @@ import com.doit.net.Utils.UtilOperator;
 import com.doit.net.ucsi.R;
 import com.doit.net.Utils.ToastUtils;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -41,7 +33,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class LocationFragment extends BaseFragment implements View.OnClickListener, IHandlerFinish, EventAdapter.EventCall {
+public class LocationFragment extends BaseFragment implements EventAdapter.EventCall {
     private TextView tvLocatingImsi;
     private LocateChart vLocateChart;
     private LocateCircle vLocateCircle;
@@ -70,7 +62,8 @@ public class LocationFragment extends BaseFragment implements View.OnClickListen
     private final int UPDATE_VIEW = 0;
     private final int LOC_REPORT = 1;
     private final int STOP_LOC = 3;
-    private final int FR_CLOSED = 5;
+    private final int REFRESH_DEVICE = 4;
+    private final int FR_STATUS = 5;
     private final int ADD_LOCATION = 6;
 
     public LocationFragment() {
@@ -102,15 +95,11 @@ public class LocationFragment extends BaseFragment implements View.OnClickListen
 
 
     private void initEvent() {
-        UIEventManager.register(UIEventManager.KEY_SET_LOC_RESP, this);
-        UIEventManager.register(UIEventManager.KEY_LOC_RPT, this);
-        UIEventManager.register(UIEventManager.KEY_REFRESH_DEVICE,this);
-        UIEventManager.register(UIEventManager.KEY_RF_STATUS, this);
-
-        EventAdapter.setEvent(EventAdapter.LOCATION_RPT, this);
-        EventAdapter.setEvent(EventAdapter.RF_ALL_CLOSE, this);
-        EventAdapter.setEvent(EventAdapter.ADD_LOCATION, this);
-        EventAdapter.setEvent(EventAdapter.STOP_LOC, this);
+        EventAdapter.register(EventAdapter.REFRESH_DEVICE,this);
+        EventAdapter.register(EventAdapter.RF_STATUS, this);
+        EventAdapter.register(EventAdapter.LOCATION_RPT, this);
+        EventAdapter.register(EventAdapter.ADD_LOCATION, this);
+        EventAdapter.register(EventAdapter.STOP_LOC, this);
 
     }
 
@@ -289,7 +278,7 @@ public class LocationFragment extends BaseFragment implements View.OnClickListen
                 CacheManager.setHighGa(false);
             }
 
-            ToastUtils.showMessageLong(getActivity(), "增益设置已下发，请等待其生效");
+            ToastUtils.showMessageLong("增益设置已下发，请等待其生效");
             EventAdapter.call(EventAdapter.SHOW_PROGRESS, 8000);
         }
     };
@@ -400,7 +389,7 @@ public class LocationFragment extends BaseFragment implements View.OnClickListen
                 }
             } else {
                 if (CacheManager.currentLoction == null || CacheManager.currentLoction.getImsi().equals("")) {
-                    ToastUtils.showMessage(getActivity(), getString(R.string.button_loc_unstart));
+                    ToastUtils.showMessage( R.string.button_loc_unstart);
                 } else {
                     ProtocolManager.openAllRf();
                     startLoc();
@@ -445,50 +434,11 @@ public class LocationFragment extends BaseFragment implements View.OnClickListen
     }
 
     @Override
-    public void handlerFinish(String key) {
-        switch (key) {
-            case UIEventManager.KEY_RF_STATUS:
-                isRFOpen();
-                break;
-            case UIEventManager.KEY_REFRESH_DEVICE:
-                if (CacheManager.channels !=null && CacheManager.channels.size() > 0){
-                    cbGainSwitch.setOnCheckedChangeListener(null);
-                    boolean isHighPa = true;
-                    for (LteChannelCfg channel : CacheManager.channels) {
-                        int pa = Integer.parseInt(channel.getPa());
-                        if (pa <=10){
-                            isHighPa = false;
-                            break;
-                        }
-                    }
-                    cbGainSwitch.setChecked(isHighPa);
-                    cbGainSwitch.setOnCheckedChangeListener(gainSwitchListener);
-                }
-                break;
-
-        }
-
-    }
-
-    @Override
-    public void onClick(View v) {
-    }
-
-    @Override
     public void call(String key, Object val) {
         if (key.equals(EventAdapter.LOCATION_RPT)) {
             try {
                 Message msg = new Message();
                 msg.what = LOC_REPORT;
-                msg.obj = val;
-                mHandler.sendMessage(msg);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (key.equals(EventAdapter.RF_ALL_CLOSE)) {
-            try {
-                Message msg = new Message();
-                msg.what = FR_CLOSED;
                 msg.obj = val;
                 mHandler.sendMessage(msg);
             } catch (Exception e) {
@@ -512,6 +462,10 @@ public class LocationFragment extends BaseFragment implements View.OnClickListen
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }else if (key.equals(EventAdapter.REFRESH_DEVICE)){
+            mHandler.sendEmptyMessage(REFRESH_DEVICE);
+        }else if (key.equals(EventAdapter.RF_STATUS)){
+            mHandler.sendEmptyMessage(FR_STATUS);
         }
     }
 
@@ -548,6 +502,23 @@ public class LocationFragment extends BaseFragment implements View.OnClickListen
             } else if (msg.what == ADD_LOCATION) {
                 //restartLoc();
                 addLocation((String) msg.obj);
+            }else if (msg.what == REFRESH_DEVICE){
+                if (CacheManager.channels !=null && CacheManager.channels.size() > 0){
+
+                    cbGainSwitch.setOnCheckedChangeListener(null);
+                    boolean isHighPa = true;
+                    for (LteChannelCfg channel : CacheManager.channels) {
+                        int pa = Integer.parseInt(channel.getPa());
+                        if (pa <=10){
+                            isHighPa = false;
+                            break;
+                        }
+                    }
+                    cbGainSwitch.setChecked(isHighPa);
+                    cbGainSwitch.setOnCheckedChangeListener(gainSwitchListener);
+                }
+            }else if (msg.what == FR_STATUS){
+                isRFOpen();
             }
         }
     };

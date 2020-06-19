@@ -6,21 +6,22 @@ import android.support.multidex.MultiDex;
 
 import com.doit.net.Model.PrefManage;
 import com.doit.net.Utils.CipherUtils;
+import com.doit.net.Utils.MyExceptionHandler;
 
 import org.xutils.x;
 
 /**
  * 全局应用程序类：用于保存和调用全局应用配置及访问网络数据
- * 
+ *
  * @author liux (http://my.oschina.net/liux)
  * @version 1.0
  * @created 2012-3-21
  */
 public class MyApplication extends Application {
-    
+
 
     public static Context mContext;
-    
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -32,6 +33,8 @@ public class MyApplication extends Application {
         PrefManage.init(this);
         CipherUtils.init("");
 
+        //异常捕获
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler());
 
     }
 

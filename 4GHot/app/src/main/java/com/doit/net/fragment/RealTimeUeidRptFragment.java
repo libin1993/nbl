@@ -1,12 +1,12 @@
 package com.doit.net.fragment;
 
+import android.annotation.SuppressLint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -20,16 +20,12 @@ import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
-import com.doit.net.Protocol.LTEMsgCode;
-import com.doit.net.Protocol.LTESendManager;
 import com.doit.net.adapter.UeidListViewAdapter;
 import com.doit.net.base.BaseFragment;
 import com.doit.net.bean.LteChannelCfg;
 import com.doit.net.bean.UeidBean;
 import com.doit.net.Event.EventAdapter;
-import com.doit.net.Event.IHandlerFinish;
 import com.doit.net.Protocol.ProtocolManager;
-import com.doit.net.Event.UIEventManager;
 import com.doit.net.Model.BlackBoxManger;
 import com.doit.net.Model.CacheManager;
 import com.doit.net.Model.ImsiMsisdnConvert;
@@ -50,7 +46,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-public class RealTimeUeidRptFragment extends BaseFragment implements IHandlerFinish, EventAdapter.EventCall {
+public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapter.EventCall {
     private ListView mListView;
     private UeidListViewAdapter mAdapter;
     private Button btClearRealtimeUeid;
@@ -72,8 +68,8 @@ public class RealTimeUeidRptFragment extends BaseFragment implements IHandlerFin
 
     //handler消息
     private final int UEID_RPT = 1;
-    private final int UPDATE_VIEW = 0;
     private final int SHIELD_RPT = 2;
+    private final int RF_STATUS = 3;
 
 
     public RealTimeUeidRptFragment() {
@@ -95,11 +91,9 @@ public class RealTimeUeidRptFragment extends BaseFragment implements IHandlerFin
         cbDetectSwitch = rootView.findViewById(R.id.cbDetectSwitch);
         initView();
 
-        UIEventManager.register(UIEventManager.KEY_UEID_RPT, this);
-        UIEventManager.register(UIEventManager.KEY_REFRESH_REALTIME_UEID_LIST, this);
-        UIEventManager.register(UIEventManager.KEY_RF_STATUS, this);
-        EventAdapter.setEvent(EventAdapter.UEID_RPT, this);
-        EventAdapter.setEvent(EventAdapter.SHIELD_RPT, this);
+        EventAdapter.register(EventAdapter.RF_STATUS, this);
+        EventAdapter.register(EventAdapter.UEID_RPT, this);
+        EventAdapter.register(EventAdapter.SHIELD_RPT, this);
 
         return rootView;
     }
@@ -136,7 +130,7 @@ public class RealTimeUeidRptFragment extends BaseFragment implements IHandlerFin
             public void onClick(View v) {
                 LogUtils.log("点击了：" + selectedUeidItem.getImsi());
                 if (!ImsiMsisdnConvert.isAuthenticated()) {
-                    ToastUtils.showMessageLong(getContext(), "尚未通过认证，请先进入“号码翻译设置”进行认证");
+                    ToastUtils.showMessageLong("尚未通过认证，请先进入“号码翻译设置”进行认证");
                     return;
                 }
 
@@ -175,7 +169,7 @@ public class RealTimeUeidRptFragment extends BaseFragment implements IHandlerFin
 
             if (isChecked) {
                 ProtocolManager.openAllRf();
-                ToastUtils.showMessageLong(getContext(), R.string.all_rf_open);
+                ToastUtils.showMessageLong( R.string.all_rf_open);
                 EventAdapter.call(EventAdapter.ADD_BLACKBOX, BlackBoxManger.OPEN_ALL_RF);
                 EventAdapter.call(EventAdapter.SHOW_PROGRESS, 6000);
             } else {
@@ -192,7 +186,7 @@ public class RealTimeUeidRptFragment extends BaseFragment implements IHandlerFin
                                 public void onClick(MySweetAlertDialog sweetAlertDialog) {
                                     sweetAlertDialog.dismiss();
                                     ProtocolManager.closeAllRf();
-                                    ToastUtils.showMessage(getContext(), R.string.all_rf_close);
+                                    ToastUtils.showMessage(R.string.all_rf_close);
                                     EventAdapter.call(EventAdapter.SHOW_PROGRESS, 6000);
                                     EventAdapter.call(EventAdapter.ADD_BLACKBOX, BlackBoxManger.CLOSE_ALL_RF);
                                 }
@@ -200,7 +194,7 @@ public class RealTimeUeidRptFragment extends BaseFragment implements IHandlerFin
                             .show();
                 } else {
                     ProtocolManager.closeAllRf();
-                    ToastUtils.showMessageLong(getContext(), R.string.all_rf_close);
+                    ToastUtils.showMessageLong( R.string.all_rf_close);
                     EventAdapter.call(EventAdapter.SHOW_PROGRESS, 6000);
                     EventAdapter.call(EventAdapter.ADD_BLACKBOX, BlackBoxManger.CLOSE_ALL_RF);
                 }
@@ -333,38 +327,38 @@ public class RealTimeUeidRptFragment extends BaseFragment implements IHandlerFin
     }
 
 
+    @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (msg.what == UPDATE_VIEW) {
-                updateView();
-            } else if (msg.what == UEID_RPT) {
-                if (CacheManager.currentWorkMode.equals("2"))  //管控模式忽略ftp上报的
-                    return;
+            switch (msg.what) {
+                case UEID_RPT:
+                    if (CacheManager.currentWorkMode.equals("2"))  //管控模式忽略ftp上报的
+                        return;
 
-                //确保到达这里的采集数据已经去过重，并存到数据库了
-                List<UeidBean> listUeid = (List<UeidBean>) msg.obj;
-                CacheManager.addRealtimeUeidList(listUeid);
+                    //确保到达这里的采集数据已经去过重，并存到数据库了
+                    List<UeidBean> listUeid = (List<UeidBean>) msg.obj;
+                    CacheManager.addRealtimeUeidList(listUeid);
 
-                /* 对于同步完成之前的上传数据，保存数据库但不显示 */
-                if (!CacheManager.isDeviceOk())
-                    return;
+                    /* 对于同步完成之前的上传数据，保存数据库但不显示 */
+                    if (!CacheManager.isDeviceOk())
+                        return;
 
-                updateView();
-            } else if (msg.what == SHIELD_RPT) {
-                //460016181275342:1204
-//                if (!CacheManager.isDeviceOk())
-//                    return;
+                    updateView();
+                    break;
+                case SHIELD_RPT:
+                    String content = (String) msg.obj;
+                    if (!content.contains(":"))
+                        return;
 
-                String content = (String) msg.obj;
-                if (!content.contains(":"))
-                    return;
+                    addShildRptList(content.split(":")[0], content.split(":")[1]);
+                    sortRealtimeRpt();
+                    updateView();
+                    break;
+                case RF_STATUS:
+                    isRFOpen();
+                    break;
 
-                addShildRptList(content.split(":")[0], content.split(":")[1]);
-                sortRealtimeRpt();
-
-
-                updateView();
             }
         }
     };
@@ -414,48 +408,34 @@ public class RealTimeUeidRptFragment extends BaseFragment implements IHandlerFin
         cbDetectSwitch.setOnCheckedChangeListener(rfDetectSwichtListener);
     }
 
-    @Override
-    public void handlerFinish(String key) {
-        switch (key) {
-            case UIEventManager.KEY_RF_STATUS:
-                isRFOpen();
-                break;
-            default:
-                mHandler.sendEmptyMessage(UPDATE_VIEW);
-                break;
-        }
-
-    }
 
     View.OnClickListener clearListener = new View.OnClickListener() {
         @Override
         public synchronized void onClick(View v) {
             CacheManager.realtimeUeidList.clear();
             lastSortTime = new Date().getTime();
-            mHandler.sendEmptyMessage(UPDATE_VIEW);
+            updateView();
         }
     };
 
     @Override
     public void call(String key, Object val) {
-        if (key.equals(EventAdapter.SHIELD_RPT)) {
-            try {
+        switch (key) {
+            case EventAdapter.SHIELD_RPT:
                 Message msg = new Message();
                 msg.what = SHIELD_RPT;
                 msg.obj = val;
                 mHandler.sendMessage(msg);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                Message msg = new Message();
-                msg.what = UEID_RPT;
-                msg.obj = val;
-                mHandler.sendMessage(msg);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                break;
+            case EventAdapter.UEID_RPT:
+                Message message = new Message();
+                message.what = UEID_RPT;
+                message.obj = val;
+                mHandler.sendMessage(message);
+                break;
+            case EventAdapter.RF_STATUS:
+                mHandler.sendEmptyMessage(RF_STATUS);
+                break;
         }
     }
 }

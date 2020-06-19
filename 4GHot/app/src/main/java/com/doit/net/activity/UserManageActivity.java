@@ -15,16 +15,14 @@ import android.widget.ListView;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
+import com.doit.net.Event.EventAdapter;
 import com.doit.net.View.AddUserDialog;
 import com.doit.net.View.ModifyAdminAccountDialog;
 import com.doit.net.adapter.UserListAdapter;
 import com.doit.net.base.BaseActivity;
 import com.doit.net.Model.AccountManage;
-import com.doit.net.Event.IHandlerFinish;
-import com.doit.net.Event.UIEventManager;
 import com.doit.net.Model.UCSIDBManager;
 import com.doit.net.Model.UserInfo;
-import com.doit.net.Utils.ToastUtils;
 import com.doit.net.ucsi.R;
 
 import org.xutils.ex.DbException;
@@ -35,7 +33,7 @@ import java.util.List;
 /**
  * 用户管理
  */
-public class UserManageActivity extends BaseActivity implements IHandlerFinish {
+public class UserManageActivity extends BaseActivity implements EventAdapter.EventCall {
     private final Activity activity = this;
     private ListView lvUserInfo;
     private UserListAdapter mAdapter;
@@ -77,7 +75,7 @@ public class UserManageActivity extends BaseActivity implements IHandlerFinish {
         });
 
         updateListFromDatabase();
-        UIEventManager.register(UIEventManager.KEY_REFRESH_USER_LIST,this);
+        EventAdapter.register(EventAdapter.REFRESH_USER_LIST,this);
 
     }
 
@@ -140,11 +138,6 @@ public class UserManageActivity extends BaseActivity implements IHandlerFinish {
     }
 
 
-    @Override
-    protected void onDestroy() {
-        UIEventManager.unRegister(UIEventManager.KEY_REFRESH_USER_LIST, this);
-        super.onDestroy();
-    }
 
 //    @Override
 //    protected void onResume() {
@@ -180,9 +173,10 @@ public class UserManageActivity extends BaseActivity implements IHandlerFinish {
         }
     };
 
+
     @Override
-    public void handlerFinish(String key) {
-        if (key.equals(UIEventManager.KEY_REFRESH_USER_LIST)){
+    public void call(String key, Object val) {
+        if (key.equals(EventAdapter.REFRESH_USER_LIST)){
             mHandler.sendEmptyMessage(UPDATE_LIST);
         }
     }

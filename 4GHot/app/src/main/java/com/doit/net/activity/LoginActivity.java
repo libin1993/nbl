@@ -13,6 +13,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.doit.net.Utils.FileUtils;
 import com.doit.net.base.BaseActivity;
 import com.doit.net.Model.AccountManage;
 import com.doit.net.Model.BlackBoxManger;
@@ -91,7 +92,7 @@ public class LoginActivity extends BaseActivity {
 //    }
 
     private void checkLocalDir() {
-        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/4GHotspot/");
+        File dir = new File(FileUtils.ROOT_PATH);
         if (!dir.exists() && !dir.isDirectory()) {
             dir.mkdir();
         }
@@ -115,15 +116,15 @@ public class LoginActivity extends BaseActivity {
                             //AccountManage.getAdminAccoutFromPref();
                             AccountManage.setGetAccountFromDevFlag(true);
                         }else{
-                            ToastUtils.showMessageLong(getBaseContext(), "从设备获取用户信息失败");
+                            ToastUtils.showMessageLong("从设备获取用户信息失败");
                             AccountManage.setGetAccountFromDevFlag(false);
                         }
                         AccountManage.deleteAccountFile();
                     }else{
-                        ToastUtils.showMessageLong(getBaseContext(), "从设备获取用户信息失败");
+                        ToastUtils.showMessageLong("从设备获取用户信息失败");
                     }
                 } catch (Exception e) {
-                    ToastUtils.showMessageLong(getBaseContext(), "从设备获取用户信息失败，请确保与设备网络连接畅通");
+                    ToastUtils.showMessageLong("从设备获取用户信息失败，请确保与设备网络连接畅通");
                     e.printStackTrace();
                 }
             }};
@@ -206,7 +207,7 @@ public class LoginActivity extends BaseActivity {
                 String password = etPassword.getText().toString();
 
                 if ("".equals(userName) || "".equals(password)){
-                    ToastUtils.showMessage(LoginActivity.this, "密码或账号为空，请重新输入");
+                    ToastUtils.showMessage("密码或账号为空，请重新输入");
                     return;
                 }
 
@@ -230,7 +231,7 @@ public class LoginActivity extends BaseActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    ToastUtils.showMessage(LoginActivity.this, "密码或账号错误,请联系管理员！");
+                    ToastUtils.showMessage("密码或账号错误,请联系管理员！");
                 }
             }
         });

@@ -1,8 +1,8 @@
 package com.doit.net.fragment;
 
-import com.doit.net.Data.LTEDataParse;
 import com.doit.net.Event.EventAdapter;
 import com.doit.net.Utils.FTPServer;
+import com.doit.net.Utils.FileUtils;
 import com.doit.net.Utils.FormatUtils;
 import com.doit.net.Utils.NetWorkUtils;
 import com.doit.net.View.ClearHistoryTimeDialog;
@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.telephony.TelephonyManager;
@@ -66,7 +65,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -152,7 +150,7 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
 
         View rootView = inflater.inflate(R.layout.doit_layout_app, container, false);
 
-        EventAdapter.setEvent(EventAdapter.SYSTEM_UPDATE, this);
+        EventAdapter.register(EventAdapter.UPGRADE_STATUS, this);
 
         return rootView;
     }
@@ -247,7 +245,7 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
                     LicenceDialog licenceDialog = new LicenceDialog(getActivity());
                     licenceDialog.show();
                 } else {
-                    ToastUtils.showMessage(getActivity(), "获取机器码中，请稍等");
+                    ToastUtils.showMessage("获取机器码中，请稍等");
                 }
 
             }
@@ -385,17 +383,17 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
     View.OnClickListener upgradeListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            String FTP_SERVER_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/4GHotspot";
 
-            File file = new File(FTP_SERVER_PATH);
+
+            File file = new File(FileUtils.ROOT_PATH);
             if (!file.exists()) {
-                ToastUtils.showMessageLong(getContext(), "未找到升级包，请确认已将升级包放在\"手机存储/4GHotspot\"目录下");
+                ToastUtils.showMessageLong("未找到升级包，请确认已将升级包放在\"手机存储/"+FileUtils.ROOT_DIRECTORY+"/\"目录下");
                 return;
             }
 
             File[] files = file.listFiles();
             if (files == null || files.length == 0) {
-                ToastUtils.showMessageLong(getContext(), "未找到升级包，请确认已将升级包放在\"手机存储/4GHotspot\"目录下");
+                ToastUtils.showMessageLong("未找到升级包，请确认已将升级包放在\"手机存储/"+FileUtils.ROOT_DIRECTORY+"\"目录下");
                 return;
             }
 
@@ -408,7 +406,7 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
                     fileList.add(tmpFileName);
             }
             if (fileList.size() == 0) {
-                ToastUtils.showMessageLong(getContext(), "文件错误，升级包必须是以\".img\"为后缀的文件");
+                ToastUtils.showMessageLong("文件错误，升级包必须是以\".img\"为后缀的文件");
                 return;
             }
 
@@ -535,7 +533,7 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
 
     @Override
     public void call(String key, Object val) {
-        if (key.equals(EventAdapter.SYSTEM_UPDATE)) {
+        if (key.equals(EventAdapter.UPGRADE_STATUS)) {
             Message msg = new Message();
             msg.what = SYSTEM_UPDATE;
             msg.obj = val;

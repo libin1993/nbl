@@ -62,8 +62,8 @@ public class ModifyAdminAccountDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 AccountManage.saveAccoutToPref(etAccount.getText().toString(), etPassword.getText().toString());
-                ToastUtils.showMessage(getContext(), R.string.modify_admin_success);
-                ToastUtils.showMessage(getContext(), R.string.modify_admin_success);
+                ToastUtils.showMessage(R.string.modify_admin_success);
+                ToastUtils.showMessage( R.string.modify_admin_success);
 //                if (AccountManage.UpdateAccountToDevice()){
 //                    ToastUtils.showMessage(getContext(),R.string.modify_admin_success);
 //                }else{
