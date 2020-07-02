@@ -2,6 +2,7 @@ package com.doit.net.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -11,6 +12,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
+import com.doit.net.Event.AddToWhitelistListner;
+import com.doit.net.View.AddWhitelistDialog;
+import com.doit.net.View.ModifyWhitelistDialog;
 import com.doit.net.application.MyApplication;
 import com.doit.net.bean.UeidBean;
 import com.doit.net.Event.AddToLocalBlackListener;
@@ -85,11 +89,40 @@ public class UeidListViewAdapter extends BaseSwipeAdapter {
         if (VersionManage.isPoliceVer()) {
             convertView.findViewById(R.id.add_to_black).setOnClickListener(new AddToLocalBlackListener(mContext, resp.getImsi()));
         } else if (VersionManage.isArmyVer()) {
-            convertView.findViewById(R.id.add_to_black).setVisibility(View.GONE);
+            convertView.findViewById(R.id.add_to_black).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        WhiteListInfo info = dbManager.selector(WhiteListInfo.class).where("imsi", "=", resp.getImsi()).findFirst();
+                        if (info != null) {
+                            ModifyWhitelistDialog modifyWhitelistDialog = new ModifyWhitelistDialog(mContext,
+                                    resp.getImsi(), info.getMsisdn(), info.getRemark(),false);
+                            modifyWhitelistDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                @Override
+                                public void onDismiss(DialogInterface dialog) {
+                                    notifyDataSetChanged();
+                                }
+                            });
+                            modifyWhitelistDialog.show();
+                        }else {
+                            AddWhitelistDialog addWhitelistDialog = new AddWhitelistDialog(mContext, resp.getImsi());
+                            addWhitelistDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                @Override
+                                public void onDismiss(DialogInterface dialog) {
+                                    notifyDataSetChanged();
+                                }
+                            });
+                            addWhitelistDialog.show();
+                        }
+                    } catch (DbException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
 
         if (CacheManager.getLocMode()) {
-            convertView.findViewById(R.id.add_to_localtion).setOnClickListener(new AddToLocationListener(position, mContext, resp.getImsi(), resp.getTmsi()));
+            convertView.findViewById(R.id.add_to_localtion).setOnClickListener(new AddToLocationListener(position, mContext, resp.getImsi(), resp.getTmsi(),resp.getIp()));
         } else {
             convertView.findViewById(R.id.add_to_localtion).setVisibility(View.GONE);
         }

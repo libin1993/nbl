@@ -161,6 +161,11 @@ public class LSettingItem extends RelativeLayout {
         mTvLeftText.setText(text);
     }
 
+    public void setMaxLines(int lines){
+        mTvLeftText.setMaxLines(lines);
+        mTvLeftText.setEllipsize(TextUtils.TruncateAt.END);
+    }
+
     public void setLeftIconVisible(int visible){
         mIvLeftIcon.setVisibility(visible);
     }

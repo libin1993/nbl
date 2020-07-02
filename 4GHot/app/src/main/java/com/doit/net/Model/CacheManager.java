@@ -133,12 +133,13 @@ public class CacheManager {
         hasPressStartButton = flag;
     }
 
-    public static void updateLoc(String imsi) {
+    public static void updateLoc(String imsi,String ip) {
         if (currentLoction == null) {
             currentLoction = new LocationBean();
         }
         PrefManage.setImsi(imsi);
         currentLoction.setImsi(imsi);
+        currentLoction.setIp(ip);
     }
 
     public static void setCurrentBlackList() {
@@ -163,16 +164,8 @@ public class CacheManager {
 
 
     public static void startLoc(String imsi) {
-//        if (VersionManage.isPoliceVer()) {
-//            clearCurrentBlackList(); //从黑名单里删除防止不断上报
-//        }
 
         ProtocolManager.setLocImsi(imsi);
-
-
-//        if (VersionManage.isPoliceVer()) {
-//            setLocalWhiteList("off");
-//        }
 
         CacheManager.getCurrentLoction().setLocateStart(true);
     }
@@ -302,7 +295,7 @@ public class CacheManager {
     }
 
     public static void stopCurrentLoc() {
-//        ProtocolManager.closeAllRf();
+
         ProtocolManager.clearImsi();
 
         if (CacheManager.getCurrentLoction() != null)

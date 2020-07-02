@@ -8,16 +8,20 @@ import com.doit.net.Protocol.LTEMsgCode;
 import com.doit.net.Protocol.LTEPackage;
 import com.doit.net.Protocol.LTESendManager;
 import com.doit.net.Protocol.ProtocolManager;
+import com.doit.net.Sockets.NetConfig;
 import com.doit.net.Utils.LogUtils;
 import com.doit.net.Utils.UtilDataFormatChange;
 import com.doit.net.bean.DeviceState;
 import com.doit.net.bean.LteChannelCfg;
+import com.doit.net.bean.ReportBean;
 
 /**
  * Created by Zxc on 2018/10/18.
  */
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class LTEDataParse {
     //将字节数暂存
@@ -33,7 +37,7 @@ public class LTEDataParse {
             listReceiveBuffer.add(bytesReceived[i]);
         }
 
-        while (true){
+        while (true) {
             //得到当前缓存中的长度
             int listReceiveCount = listReceiveBuffer.size();
 
@@ -167,7 +171,7 @@ public class LTEDataParse {
             case LTEMsgCode.Type.STATION_ACK:   //设备回复
                 switch (ltePackage.getMsgCode()) {
                     case LTEMsgCode.SendCode.SET_RF:
-                        commonAck(ltePackage,"设置射频");
+                        commonAck(ltePackage, "设置射频");
                         break;
                     case LTEMsgCode.SendCode.GET_PARAM:
                         processGetParam(ltePackage);
@@ -176,28 +180,34 @@ public class LTEDataParse {
                         processSetParam(ltePackage);
                         break;
                     case LTEMsgCode.SendCode.SET_POWER:
-                        commonAck(ltePackage,"设置功率");
+                        commonAck(ltePackage, "设置功率");
                         break;
                     case LTEMsgCode.SendCode.SET_POLL_EARFCN:
-                        commonAck(ltePackage,"设置频点");
+                        commonAck(ltePackage, "设置频点");
                         break;
                     case LTEMsgCode.SendCode.SET_LOCATION_MODE:
-                        commonAck(ltePackage,"设置定位模式");
+                        commonAck(ltePackage, "设置定位模式");
                         break;
                     case LTEMsgCode.SendCode.SET_LOCATION_IMSI:
-                        commonAck(ltePackage,"设置定位名单(2.77)");
+                        commonAck(ltePackage, "设置定位名单(2.77)");
                         break;
                     case LTEMsgCode.SendCode.SET_BLACKLIST:
-                        commonAck(ltePackage,"设置定位名单（2.22）");
+                        commonAck(ltePackage, "设置定位名单（2.22）");
                         break;
                     case LTEMsgCode.SendCode.REBOOT:
-                        commonAck(ltePackage,"设备重启");
+                        commonAck(ltePackage, "设备重启");
                         break;
                     case LTEMsgCode.SendCode.SET_UPGRADE:
                         processUpdate(ltePackage);
                         break;
                     case LTEMsgCode.SendCode.SET_FALLBACK:
-                        commonAck(ltePackage,"版本回退");
+                        commonAck(ltePackage, "版本回退");
+                        break;
+                    case LTEMsgCode.SendCode.SET_TIME:
+                        commonAck(ltePackage, "设置系统时间");
+                        break;
+                    case LTEMsgCode.SendCode.GET_SCAN:
+                        processNetworkParams(ltePackage);
                         break;
                 }
                 break;
@@ -206,19 +216,18 @@ public class LTEDataParse {
 
     /**
      * @param ltePackage
-     * @param msg
-     * 通用回复
+     * @param msg        通用回复
      */
-    public void commonAck(LTEPackage ltePackage,String msg){
+    public void commonAck(LTEPackage ltePackage, String msg) {
         if (TextUtils.isEmpty(ltePackage.getPackageContent())) {
-            LogUtils.log(msg+"失败");
+            LogUtils.log(msg + "失败");
             return;
         }
         String content = ltePackage.getPackageContent().split("\r\n")[0];
         if ("0".equals(content)) {
-            LogUtils.log(msg+"成功");
+            LogUtils.log(msg + "成功");
         } else {
-            LogUtils.log(msg+"失败");
+            LogUtils.log(msg + "失败");
         }
     }
 
@@ -253,7 +262,7 @@ public class LTEDataParse {
         }
 
         if (!TextUtils.isEmpty(imsi) && !TextUtils.isEmpty(rssi)) {
-            EventAdapter.call(EventAdapter.SHIELD_RPT, imsi + ":" + rssi);
+            EventAdapter.call(EventAdapter.SHIELD_RPT, new ReportBean(ltePackage.getIp(), imsi, rssi));
         }
 
     }
@@ -278,7 +287,6 @@ public class LTEDataParse {
         }
 
         LteChannelCfg lteChannelCfg = new LteChannelCfg();
-
 
 
         lteChannelCfg.setIp(ltePackage.getIp());
@@ -352,7 +360,8 @@ public class LTEDataParse {
         CacheManager.addChannel(lteChannelCfg);
 
         EventAdapter.call(EventAdapter.REFRESH_DEVICE);
-        EventAdapter.call(EventAdapter.RF_STATUS);
+        EventAdapter.call(EventAdapter.RF_STATUS_LOC);
+        EventAdapter.call(EventAdapter.RF_STATUS_RPT);
     }
 
 
@@ -361,14 +370,14 @@ public class LTEDataParse {
      */
     public void processLocData(LTEPackage ltePackage) {
 
-        if (TextUtils.isEmpty(ltePackage.getPackageContent())){
+        if (TextUtils.isEmpty(ltePackage.getPackageContent())) {
             LogUtils.log("定位上报数据失败");
             return;
         }
 
         String[] split = ltePackage.getPackageContent().split("\r\n")[0].split("\t");
 
-        if (split.length <= 0){
+        if (split.length <= 0) {
             LogUtils.log("定位上报数据失败");
             return;
         }
@@ -377,18 +386,18 @@ public class LTEDataParse {
         String rssi = null;
         for (String s : split) {
             String[] split1 = s.split(":");
-            switch (split1[0]){
+            switch (split1[0]) {
                 case "IMSI":
-                    imsi = TextUtils.isEmpty(split1[1]) ? null:split1[1];
+                    imsi = TextUtils.isEmpty(split1[1]) ? null : split1[1];
                     break;
                 case "RSSI":
-                    rssi = TextUtils.isEmpty(split1[1]) ? null:split1[1];
+                    rssi = TextUtils.isEmpty(split1[1]) ? null : split1[1];
                     break;
             }
         }
 
-        if (!TextUtils.isEmpty(imsi) && !TextUtils.isEmpty(rssi)){
-            LogUtils.log("定位上报数据："+imsi+":"+rssi);
+        if (!TextUtils.isEmpty(imsi) && !TextUtils.isEmpty(rssi)) {
+            LogUtils.log("定位上报数据：" + imsi + ":" + rssi);
             if (CacheManager.getLocState()) {
                 if (imsi.equals(CacheManager.getCurrentLoction().getImsi())) {
                     EventAdapter.call(EventAdapter.LOCATION_RPT, rssi);
@@ -433,7 +442,7 @@ public class LTEDataParse {
                     rfState = split1[1];
                     break;
                 case "FW":
-                    CacheManager.addDevice(ltePackage.getIp(),ltePackage.getDeviceName(),split1[1]);
+                    CacheManager.addDevice(ltePackage.getIp(), ltePackage.getDeviceName(), split1[1]);
                     break;
             }
         }
@@ -443,9 +452,9 @@ public class LTEDataParse {
 
         LTESendManager.sendData(ltePackage.getIp(), LTEMsgCode.Type.APP_ACK, LTEMsgCode.RptCode.RPT_HEART_BEAT, null); //心跳回复
         EventAdapter.call(EventAdapter.HEARTBEAT_RPT);
-        EventAdapter.call(EventAdapter.RF_STATUS);
+        EventAdapter.call(EventAdapter.RF_STATUS_LOC);
+        EventAdapter.call(EventAdapter.RF_STATUS_LOC);
     }
-
 
 
     /**
@@ -463,7 +472,6 @@ public class LTEDataParse {
         } else {
             LogUtils.log("设置通道失败");
         }
-
     }
 
     /**
@@ -476,13 +484,67 @@ public class LTEDataParse {
         }
         String content = ltePackage.getPackageContent().split("\r\n")[0];
 
-        LogUtils.log("更新进度："+content);
+        LogUtils.log("更新进度：" + content);
 
-        EventAdapter.call(EventAdapter.UPGRADE_STATUS,ltePackage.getIp()+","+content);
+        EventAdapter.call(EventAdapter.UPGRADE_STATUS, ltePackage.getIp() + "," + content);
     }
 
+    /**
+     * @param ltePackage 获取公网环境参数回复
+     */
+    public void processNetworkParams(LTEPackage ltePackage) {
+        LogUtils.log("获取公网环境参数回复");
 
 
+        if (TextUtils.isEmpty(ltePackage.getPackageContent())) {
+            return;
+        }
+
+
+        String[] split = ltePackage.getPackageContent().split("\r\n");
+        if (split.length == 0) {
+            return;
+        }
+        Set<Integer> tddFcn = new HashSet<>();
+        Set<Integer> fddFcn = new HashSet<>();
+        for (String s : split) {
+            String[] split1 = s.split("\t");
+            for (String s1 : split1) {
+                String[] split2 = s1.split(":");
+                switch (split2[0]) {
+                    case "EARFCN":
+                        int fcn = Integer.parseInt(split2[1]);
+                        if (fcn > 20000) {
+                            tddFcn.add(fcn);
+                        } else {
+                            fddFcn.add(fcn);
+                        }
+                        break;
+                }
+            }
+        }
+
+
+        //设置FDD频点轮询
+        if (fddFcn.size() > 0) {
+            StringBuilder sb = new StringBuilder();
+            for (Integer integer : fddFcn) {
+                sb.append(integer).append(",");
+            }
+            ProtocolManager.setFcn(NetConfig.FDD_IP, sb.substring(0, sb.length() - 1), "10");
+        }
+
+        //设置TDD频点轮询
+        if (tddFcn.size() > 0) {
+            StringBuilder sb = new StringBuilder();
+            for (Integer integer : tddFcn) {
+                sb.append(integer).append(",");
+            }
+
+            ProtocolManager.setFcn(NetConfig.TDD_IP, sb.substring(0, sb.length() - 1), "10");
+        }
+
+    }
 
 
     public void clearReceiveBuffer() {

@@ -1,6 +1,7 @@
 package com.doit.net.Event;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.doit.net.Model.BlackBoxManger;
@@ -10,6 +11,7 @@ import com.doit.net.Protocol.ProtocolManager;
 import com.doit.net.Utils.LogUtils;
 import com.doit.net.Utils.ToastUtils;
 import com.doit.net.Utils.UtilOperator;
+import com.doit.net.bean.DeviceInfo;
 
 /**
  * Created by wiker on 2016/4/27.
@@ -20,25 +22,23 @@ public class AddToLocationListener implements View.OnClickListener
     private int position;
     private Context mContext;
     private String imsi;
+    private String ip;
     private String remark;
-    private DBBlackInfo blackInfo;
+//    private DBBlackInfo blackInfo;
     private String lastLocOperator; //上次定位号码制式
 
-    public AddToLocationListener(int position, Context mContext,String imsi,String remark) {
+    public AddToLocationListener(int position, Context mContext,String imsi,String remark,String ip) {
         this.position = position;
         this.mContext = mContext;
         this.remark = remark;
         this.imsi = imsi;
-        this.blackInfo = new DBBlackInfo();
-        this.blackInfo.setImsi(imsi);
-        this.blackInfo.setRemark(remark);
+        this.ip = ip;
     }
 
 
     public AddToLocationListener(int position, Context mContext, DBBlackInfo blackInfo){
         this.position = position;
         this.mContext = mContext;
-        this.blackInfo = blackInfo;
         this.remark = blackInfo.getRemark();
         this.imsi = blackInfo.getImsi();
 
@@ -56,14 +56,37 @@ public class AddToLocationListener implements View.OnClickListener
                     return;
                 }else{
                     EventAdapter.call(EventAdapter.SHOW_PROGRESS,8000);  //防止快速频繁更换定位目标
-                    CacheManager.updateLoc(imsi);
-                    ProtocolManager.openAllRf();
+                    CacheManager.updateLoc(imsi,ip);
+                    if (TextUtils.isEmpty(ip)){
+                        ProtocolManager.openAllRf();
+                    }else {
+                        for (DeviceInfo deviceInfo : CacheManager.deviceList) {
+                            if (deviceInfo.getIp().equals(ip)){
+                                ProtocolManager.openRf(ip);
+                            }else {
+                                ProtocolManager.closeRf(deviceInfo.getIp());
+                            }
+                        }
+
+                    }
+
                     CacheManager.startLoc(imsi);
                     ToastUtils.showMessage("开始新的搜寻");
                 }
             }else{
-                CacheManager.updateLoc(imsi);
-                ProtocolManager.openAllRf();
+                CacheManager.updateLoc(imsi,ip);
+                if (TextUtils.isEmpty(ip)){
+                    ProtocolManager.openAllRf();
+                }else {
+                    for (DeviceInfo deviceInfo : CacheManager.deviceList) {
+                        if (deviceInfo.getIp().equals(ip)){
+                            ProtocolManager.openRf(ip);
+                        }else {
+                            ProtocolManager.closeRf(deviceInfo.getIp());
+                        }
+                    }
+
+                }
                 CacheManager.startLoc(imsi);
                 ToastUtils.showMessage("搜寻开始");
             }

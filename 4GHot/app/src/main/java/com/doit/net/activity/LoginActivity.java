@@ -182,6 +182,8 @@ public class LoginActivity extends BaseActivity {
         ckRememberPass = findViewById(R.id.ckRememberPass);
         btLogin = findViewById(R.id.btLogin);
 
+        checkLocMode();
+
         isRemember = PrefManage.getBoolean("remember_password", false);
         if (isRemember) {
             String userName = PrefManage.getString("username", "");
@@ -225,7 +227,6 @@ public class LoginActivity extends BaseActivity {
                     }
 
                     AccountManage.setCurrentLoginAccount(userName);
-                    checkLocMode();
 
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);

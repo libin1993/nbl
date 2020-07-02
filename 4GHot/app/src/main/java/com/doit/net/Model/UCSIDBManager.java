@@ -2,6 +2,8 @@ package com.doit.net.Model;
 
 import android.os.Environment;
 
+import com.doit.net.Utils.LogUtils;
+
 import org.xutils.DbManager;
 import org.xutils.ex.DbException;
 import org.xutils.x;
@@ -19,7 +21,7 @@ public class UCSIDBManager {
             // 不设置dbDir时, 默认存储在app的私有目录.
             //.setDbDir(new File("/sdcard/.doit")) // "sdcard"的写法并非最佳实践, 这里为了简单, 先这样写了.
             //.setDbDir(new File(EXPORT_FILE_PATH)) // "sdcard"的写法并非最佳实践, 这里为了简单, 先这样写了.
-            .setDbVersion(4)
+            .setDbVersion(6)
             .setDbOpenListener(new DbManager.DbOpenListener() {
                 @Override
                 public void onDbOpened(DbManager db) {
@@ -35,6 +37,12 @@ public class UCSIDBManager {
                     // ...
                     // or
                     // db.dropDb();
+                    try {
+                        db.addColumn(DBUeidInfo.class,"ip");//新增ip字段
+                    } catch (DbException e) {
+                        e.printStackTrace();
+                    }
+
                 }
             });
 
@@ -44,11 +52,12 @@ public class UCSIDBManager {
         return DB;
     }
 
-    public static void saveUeidToDB(String imsi,String msisdn, String tmsi, long createDate, String longitude, String latitude){
+    public static void saveUeidToDB(String ip,String imsi,String msisdn, String tmsi, long createDate, String longitude, String latitude){
         try {
-            DB.save(new DBUeidInfo(imsi, msisdn, tmsi, createDate, longitude, latitude));
+            DB.save(new DBUeidInfo(ip,imsi, msisdn, tmsi, createDate, longitude, latitude));
         } catch (DbException e) {
             e.printStackTrace();
+            LogUtils.log("采集保存失败："+e.toString());
         }
     }
 

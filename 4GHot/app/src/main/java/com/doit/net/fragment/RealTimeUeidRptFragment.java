@@ -23,6 +23,7 @@ import com.daimajia.swipe.util.Attributes;
 import com.doit.net.adapter.UeidListViewAdapter;
 import com.doit.net.base.BaseFragment;
 import com.doit.net.bean.LteChannelCfg;
+import com.doit.net.bean.ReportBean;
 import com.doit.net.bean.UeidBean;
 import com.doit.net.Event.EventAdapter;
 import com.doit.net.Protocol.ProtocolManager;
@@ -69,13 +70,12 @@ public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapt
     //handler消息
     private final int UEID_RPT = 1;
     private final int SHIELD_RPT = 2;
-    private final int RF_STATUS = 3;
+    private final int RF_STATUS_RPT = 3;
 
 
     public RealTimeUeidRptFragment() {
     }
 
-//    private View rootView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -91,7 +91,7 @@ public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapt
         cbDetectSwitch = rootView.findViewById(R.id.cbDetectSwitch);
         initView();
 
-        EventAdapter.register(EventAdapter.RF_STATUS, this);
+        EventAdapter.register(EventAdapter.RF_STATUS_RPT, this);
         EventAdapter.register(EventAdapter.UEID_RPT, this);
         EventAdapter.register(EventAdapter.SHIELD_RPT, this);
 
@@ -233,7 +233,7 @@ public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapt
         }
     }
 
-    private void addShildRptList(String imsi, String srsp) {
+    private void addShildRptList(String imsi, String srsp,String ip) {
         //不再过滤，需要额外显示
 //        if (isWhitelist(imsi)){
 //            UtilBaseLog.printLog("忽略白名单："+imsi);
@@ -257,6 +257,7 @@ public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapt
                 if (rssi > 100) {
                     rssi = 100;
                 }
+                CacheManager.realtimeUeidList.get(i).setIp(ip);
                 CacheManager.realtimeUeidList.get(i).setSrsp("" + rssi);
 
                 CacheManager.realtimeUeidList.get(i).setRptTime(DateUtils.convert2String(new Date().getTime(), DateUtils.LOCAL_DATE));
@@ -266,14 +267,15 @@ public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapt
         }
 
         UeidBean newUeid = new UeidBean();
+        newUeid.setIp(ip);
         newUeid.setImsi(imsi);
         newUeid.setNumber("");
-        newUeid.setSrsp("" + (100 - Integer.parseInt(srsp)));
+        newUeid.setSrsp("" + (130 - Integer.parseInt(srsp)));
         newUeid.setRptTime(DateUtils.convert2String(new Date().getTime(), DateUtils.LOCAL_DATE));
         newUeid.setRptTimes(1);
         CacheManager.realtimeUeidList.add(newUeid);
 
-        UCSIDBManager.saveUeidToDB(imsi, ImsiMsisdnConvert.getMsisdnFromLocal(imsi), "",
+        UCSIDBManager.saveUeidToDB(ip,imsi, ImsiMsisdnConvert.getMsisdnFromLocal(imsi), "",
                 new Date().getTime(), "", "");
     }
 
@@ -347,15 +349,15 @@ public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapt
                     updateView();
                     break;
                 case SHIELD_RPT:
-                    String content = (String) msg.obj;
-                    if (!content.contains(":"))
+                    ReportBean reportBean = (ReportBean) msg.obj;
+                    if (reportBean == null)
                         return;
 
-                    addShildRptList(content.split(":")[0], content.split(":")[1]);
+                    addShildRptList(reportBean.getImsi(), reportBean.getRssi(),reportBean.getIp());
                     sortRealtimeRpt();
                     updateView();
                     break;
-                case RF_STATUS:
+                case RF_STATUS_RPT:
                     isRFOpen();
                     break;
 
@@ -433,8 +435,8 @@ public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapt
                 message.obj = val;
                 mHandler.sendMessage(message);
                 break;
-            case EventAdapter.RF_STATUS:
-                mHandler.sendEmptyMessage(RF_STATUS);
+            case EventAdapter.RF_STATUS_RPT:
+                mHandler.sendEmptyMessage(RF_STATUS_RPT);
                 break;
         }
     }

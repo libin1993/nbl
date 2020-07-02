@@ -12,7 +12,7 @@ public final class LTEMsgCode {
 
     //APP下发指令协议代码
     public final static class SendCode {
-        public static final String GET_SCAN = "01";
+        public static final String GET_SCAN = "01";   //公网环境参数
         public static final String SET_PARAM = "02";  //设置基站运行参数
         public static final String SET_POWER = "03"; //基站功率
         public static final String SET_RF = "04";  //开关射频

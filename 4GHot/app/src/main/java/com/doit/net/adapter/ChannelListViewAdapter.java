@@ -131,7 +131,6 @@ public class ChannelListViewAdapter extends BaseAdapter {
                 ProtocolManager.setFcn(cfg.getIp(), fcn, pollTmr);
                 ProtocolManager.setChannel(cfg.getIp(), null, null, rxGain, null, null, null);
 
-
             }
         });
         holder.rfButton.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {

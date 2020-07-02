@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.doit.net.Event.AddToLocalBlackListener;
 import com.doit.net.Event.AddToLocationListener;
+import com.doit.net.Event.AddToWhitelistListner;
 import com.doit.net.Model.CacheManager;
 import com.doit.net.Model.DBUeidInfo;
 import com.doit.net.Model.ImsiMsisdnConvert;
@@ -83,12 +84,12 @@ public class HistoryListViewAdapter extends BaseSwipeAdapter {
         if (VersionManage.isPoliceVer()){
             convertView.findViewById(R.id.add_to_black).setOnClickListener(new AddToLocalBlackListener(mContext,resp.getImsi()));
         }else if(VersionManage.isArmyVer()){
-            convertView.findViewById(R.id.add_to_black).setVisibility(View.GONE);
+            convertView.findViewById(R.id.add_to_black).setOnClickListener(new AddToWhitelistListner(mContext,resp.getImsi()));
         }
 
         //if(BuildConfig.LOC_MODEL){
         if(CacheManager.getLocMode()){
-            convertView.findViewById(R.id.add_to_localtion).setOnClickListener(new AddToLocationListener(position,mContext,resp.getImsi(),resp.getTmsi()));
+            convertView.findViewById(R.id.add_to_localtion).setOnClickListener(new AddToLocationListener(position,mContext,resp.getImsi(),resp.getTmsi(),resp.getIp()));
         }else{
             convertView.findViewById(R.id.add_to_localtion).setVisibility(View.GONE);
         }

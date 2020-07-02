@@ -5,9 +5,11 @@ import android.text.TextUtils;
 import com.doit.net.Event.EventAdapter;
 import com.doit.net.Model.DBChannel;
 import com.doit.net.Model.UCSIDBManager;
+import com.doit.net.Sockets.NetConfig;
 import com.doit.net.Utils.NetWorkUtils;
 import com.doit.net.Utils.UtilDataFormatChange;
 import com.doit.net.application.MyApplication;
+import com.doit.net.bean.DeviceInfo;
 import com.doit.net.bean.FtpConfig;
 import com.doit.net.bean.LteChannelCfg;
 import com.doit.net.Model.BlackBoxManger;
@@ -102,13 +104,51 @@ public class ProtocolManager {
 //        LTE_PT_PARAM.queryCommonParam(LTE_PT_PARAM.PARAM_GET_NAMELIST);
     }
 
+    /**
+     * 设置系统时间
+     */
     public static void setNowTime() {
-        Date d = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss");
-        LogUtils.log("当前时间：" + sdf.format(d));
 
-        LTE_PT_SYSTEM.setSystemParam(LTE_PT_SYSTEM.SYSTEM_SET_DATETIME, sdf.format(d));
+        LogUtils.log("当前时间：" + System.currentTimeMillis() / 1000);
+
+        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_TIME, System.currentTimeMillis() / 1000 + "");
     }
+
+    /**
+     * 获取公网环境参数请求  TDD搜网
+     */
+    public static void getNetworkParams() {
+        String ip = null;
+        for (DeviceInfo deviceInfo : CacheManager.deviceList) {
+            if (deviceInfo.getIp().equals(NetConfig.TDD_IP)){
+                ip = deviceInfo.getIp();
+                break;
+            }
+        }
+        if (TextUtils.isEmpty(ip)){
+            ip = NetConfig.FDD_IP;
+        }
+
+        List<String> params = new ArrayList<>();
+        params.add("AUTOREM:0");
+        params.add("LTEREM:1");
+//        params.add("EARFCN:100,350,500,1300,1506,1650,1850,37900,38098,38400,38544,38950,39148,39250,40936,41134");
+        params.add("EARFCN:100,350,500,1300,39148,39250,40936,41134");
+        params.add("GSMREM:0");
+        params.add("ARFCN:");
+        params.add("REMPRD:");
+        params.add("AUTOCFG:0");
+        String content = UtilDataFormatChange.encode(params);
+        if (TextUtils.isEmpty(content)) {
+            return;
+        }
+
+        LogUtils.log("获取公网环境参数：" + content);
+
+
+        LTESendManager.sendData(ip,LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.GET_SCAN, content);
+    }
+
 
     public static void changeTac() {
         if (!CacheManager.isDeviceOk()) {
@@ -121,38 +161,6 @@ public class ProtocolManager {
     }
 
 
-    public static void setCellConfig(String gpsOffset, String pci, String tacPeriod, String sync) {
-        if (!CacheManager.isDeviceOk()) {
-            return;
-        }
-
-        String configContent = "";
-        if (!"".equals(pci)) {
-            configContent += "@PCI:";
-            configContent += pci.replaceAll(",", ":");
-        }
-        if (!"".equals(gpsOffset)) {
-            configContent += "@GPS_OFFSET:";
-            configContent += gpsOffset.replaceAll(",", ":");
-        }
-
-        if (!"".equals(tacPeriod)) {
-            configContent += "@TAC_TIMER:";
-            configContent += tacPeriod;
-        }
-
-        if (!"".equals(sync)) {
-            configContent += "@SYNC:";
-            configContent += sync;
-        }
-
-        //删掉最开始的@
-        configContent = configContent.replaceFirst("@", "");
-
-        LogUtils.log("set cell config:" + configContent);
-        LTE_PT_PARAM.setCommonParam(LTE_PT_PARAM.PARAM_SET_ENB_CONFIG, configContent);
-        //EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.SET_CELL_CONFIG + configContent);
-    }
 
     public static void reboot() {
         if (!CacheManager.isDeviceOk()) {
@@ -199,7 +207,7 @@ public class ProtocolManager {
      * @param accmin 最小接收电平
      *               设置通道
      */
-    public static void setChannel(String ip, String band, String plmn, String rxGain, String accmin,String tac,String pci) {
+    public static void setChannel(String ip, String band, String plmn, String rxGain, String accmin, String tac, String pci) {
         if (!CacheManager.isDeviceOk()) {
             return;
         }
@@ -235,7 +243,6 @@ public class ProtocolManager {
         }
 
 
-
         String content = UtilDataFormatChange.encode(params);
         if (TextUtils.isEmpty(content)) {
             return;
@@ -249,7 +256,7 @@ public class ProtocolManager {
     /**
      * 设置下行功率
      */
-    public static void setPa(String ip,String pa) {
+    public static void setPa(String ip, String pa) {
         if (!CacheManager.isDeviceOk()) {
             return;
         }
@@ -482,12 +489,8 @@ public class ProtocolManager {
     }
 
     public static void clearImsi() {
-        if (!CacheManager.isDeviceOk()) {
-            return;
-        }
-
         LogUtils.log("清除定位名单");
-        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT,LTEMsgCode.SendCode.SET_BLACKLIST,"BLACKLIST:000000000000000\r\n");
+        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_BLACKLIST, "BLACKLIST:000000000000000\r\n");
 
     }
 
@@ -498,16 +501,13 @@ public class ProtocolManager {
 
         LogUtils.log("设置定位名单：" + imsi);
 //        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT,LTEMsgCode.SendCode.SET_LOCATION_IMSI,imsi);
-        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT,LTEMsgCode.SendCode.SET_BLACKLIST,"BLACKLIST:"+imsi+"\r\n");
+        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_BLACKLIST, "BLACKLIST:" + imsi + "\r\n");
     }
 
 
     public static void setActiveMode() {
-        if (!CacheManager.isDeviceOk()) {
-            return;
-        }
         LogUtils.log("设置定位模式");
-        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT,LTEMsgCode.SendCode.SET_LOCATION_MODE,"2");
+        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_LOCATION_MODE, "2");
     }
 
     /**
@@ -838,10 +838,9 @@ public class ProtocolManager {
      * @param ftpPort
      * @param username
      * @param password
-     * @param fileName
-     * 固件版本升级
+     * @param fileName 固件版本升级
      */
-    public static void systemUpgrade(String ftpIP,String ftpPort,String username,String password,String fileName) {
+    public static void systemUpgrade(String ftpIP, String ftpPort, String username, String password, String fileName) {
         if (!CacheManager.isDeviceOk()) {
             return;
         }
@@ -871,14 +870,13 @@ public class ProtocolManager {
         }
 
 
-
         String content = UtilDataFormatChange.encode(params);
         if (TextUtils.isEmpty(content)) {
             return;
         }
 
         LogUtils.log("版本更新：" + content);
-        LTESendManager.sendData( LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_UPGRADE, content);
+        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_UPGRADE, content);
     }
 
 
@@ -891,7 +889,7 @@ public class ProtocolManager {
         }
 
         LogUtils.log("版本回退");
-        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT,LTEMsgCode.SendCode.SET_FALLBACK,null);
+        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_FALLBACK, null);
 
     }
 

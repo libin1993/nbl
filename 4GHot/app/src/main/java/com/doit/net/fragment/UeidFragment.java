@@ -88,6 +88,7 @@ public class UeidFragment extends BaseFragment {
 //        }
 
         viewPagers.setAdapter(new UeidTabLayoutAdapter(getChildFragmentManager(), listFragments, listTitles));
+        viewPagers.setOffscreenPageLimit(listTitles.size());
         tabLayout.setupWithViewPager(viewPagers);
 
         //绑定自定义text，设置默认第一个标签放大

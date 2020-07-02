@@ -14,7 +14,6 @@
         android:background="@color/dimgrey"/>
 
     <ListView
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/lvWhitelistInfo"
         android:background="@drawable/ueid_bkg"
         android:layout_weight="1"

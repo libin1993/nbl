@@ -59,8 +59,7 @@
                     style="@style/dialog_edit"
                     android:layout_weight="1"
                     android:singleLine="true"
-                    android:digits="@string/fcn_rule"
-                    android:maxLength="35"/>
+                    android:digits="@string/fcn_rule" />
             </TableRow>
             <TableRow android:padding="0dp">
                 <TextView

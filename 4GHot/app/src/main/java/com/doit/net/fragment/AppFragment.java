@@ -131,7 +131,7 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
 //    private TextView tvSecondIp;
 //    private TextView tvSecondProgress;
 
-//    private long fileSize; //升级包大小
+    private long fileSize; //升级包大小
 
     private MySweetAlertDialog mProgressDialog;
 
@@ -402,7 +402,7 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
             for (int i = 0; i < files.length; i++) {
                 tmpFileName = files[i].getName();
                 //UtilBaseLog.printLog("获取升级包：" + tmpFileName);
-                if (tmpFileName.endsWith(".img"))
+                if (tmpFileName.endsWith(".img") && getFileSize(FileUtils.ROOT_PATH + "/" + tmpFileName)>2000000)
                     fileList.add(tmpFileName);
             }
             if (fileList.size() == 0) {
@@ -451,18 +451,21 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
     /**
      * 获取文件大小
      */
-//    private void getFileSize(String filePath) {
-//
-//        try {
-//            File file = new File(filePath);
-//            FileInputStream fis = new FileInputStream(file);
-//            fileSize = fis.available();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//
-//    }
+    private long getFileSize(String filePath) {
+
+        try {
+            File file = new File(filePath);
+            FileInputStream fis = new FileInputStream(file);
+            fileSize = fis.available();
+            LogUtils.log("文件大小"+fileSize);
+            return fileSize;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+
+    }
 
     /**
      * 升级进度

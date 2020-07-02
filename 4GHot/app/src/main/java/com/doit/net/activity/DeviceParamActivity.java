@@ -502,29 +502,23 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
 
         layoutChannelList.removeAllViews();
         for (int i = 0; i < CacheManager.channels.size(); i++) {
-            final LteChannelCfg cfg = CacheManager.getChannels().get(i);
+            LteChannelCfg cfg = CacheManager.getChannels().get(i);
             //String tac = CacheManager.getTac(cfg.getIdx());
 
             LSettingItem item = new LSettingItem(activity);
             String leftText = "通道：" + cfg.getBand() + "\n" +
                     "频点：[" + cfg.getFcn() + "]";
             item.setRightStyle(3);
+
             item.switchRightStyle(3);
+            item.setMaxLines(2);
             item.setLeftIconVisible(View.GONE);
             item.setClickItemChangeState(false);
             item.setChecked(cfg.isRFState());
-//            item.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+
             item.setLeftText(leftText);
             item.isShowDivider(true);
-            //只有能切换的band可以点击
-            if (!"".equals(cfg.getChangeBand())) {
-                item.setmOnLSettingItemClick(new LSettingItem.OnLSettingItemClick() {
-                    @Override
-                    public void click(LSettingItem item) {
-                        changeChannelBandDialog(cfg.getIdx(), cfg.getChangeBand());
-                    }
-                });
-            }
+
 
             item.setOnLSettingCheckedChange(new LSettingItem.OnLSettingItemClick() {
                 @Override
@@ -556,40 +550,8 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
             });
 
             layoutChannelList.addView(item);
-//            txt += "通道："  + cfg.getPlmn() + "，频点:" + cfg.getBand()+ "，TAC:" + tac + "，射频：" + (rf ? rf_open_tip : rf_close_tip)+"<br>";
+
         }
-    }
-
-    private void changeChannelBandDialog(final String idx, final String band) {
-        UserChannelListAdapter adapter = new UserChannelListAdapter(activity);
-        adapter.setIdx(idx);
-        //显示设备管理界面
-        DialogPlus deviceListDialog = DialogPlus.newDialog(activity)
-                .setContentHolder(new ListHolder())
-                .setHeader(R.layout.user_channel_header)
-//				.setFooter(R.layout.footer)
-                .setCancelable(true)
-                .setGravity(Gravity.CENTER)
-                .setAdapter(adapter)
-//				.setOnClickListener(clickListener)
-                .setOnItemClickListener(new OnItemClickListener() {
-                    @Override
-                    public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
-                        CacheManager.changeBand(idx, band);
-                        dialog.dismiss();
-                        ToastUtils.showMessageLong("切换Band命令已下发，请等待生效");
-                        EventAdapter.call(EventAdapter.ADD_BLACKBOX, BlackBoxManger.CHANGE_BAND + band);
-                    }
-                })
-                .setContentHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
-                .setOverlayBackgroundResource(R.color.dark_background)
-                .setExpanded(false)
-                .create();
-
-        ListView list = ((ListView) deviceListDialog.getHolderView());
-        list.setDivider(new ColorDrawable(Color.GRAY));
-        list.setDividerHeight(1);
-        deviceListDialog.show();
     }
 
 

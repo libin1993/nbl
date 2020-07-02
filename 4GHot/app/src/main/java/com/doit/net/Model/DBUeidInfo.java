@@ -33,10 +33,14 @@ public class DBUeidInfo {
     @Column(name = "location")  //归属地
     private String location = "";
 
+    @Column(name = "ip")
+    private String ip;
+
     public DBUeidInfo() {
     }
 
-    public DBUeidInfo(String imsi, String msisdn, String tmsi, long createDate, String longitude, String latitude) {
+    public DBUeidInfo(String ip,String imsi, String msisdn, String tmsi, long createDate, String longitude, String latitude) {
+        this.ip = ip;
         this.imsi = imsi;
         this.msisdn = msisdn;
         this.tmsi = tmsi;
@@ -107,5 +111,13 @@ public class DBUeidInfo {
     }
     public void setMsisdn(String msisdn) {
         this.msisdn = msisdn;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }

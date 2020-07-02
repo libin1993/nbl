@@ -12,9 +12,7 @@ import com.doit.net.bean.LteChannelCfg;
 import com.doit.net.bean.LteEquipConfig;
 import com.doit.net.Event.EventAdapter;
 import com.doit.net.Model.CacheManager;
-import com.doit.net.Model.ImsiMsisdnConvert;
 import com.doit.net.Model.ScanFreqManager;
-import com.doit.net.Model.UCSIDBManager;
 import com.doit.net.Utils.DateUtils;
 import com.doit.net.Utils.ToastUtils;
 import com.doit.net.Utils.LogUtils;
@@ -330,8 +328,8 @@ public class LTE_PT_PARAM {
                         /* 1.如果实时上报界面没打开，就只是存到数据库而不显示
                          * 2.存入数据库需要去重，去重的依据是否则已经存在实时列表里
                          * */
-                        UCSIDBManager.saveUeidToDB(tmpImsi, ImsiMsisdnConvert.getMsisdnFromLocal(tmpImsi), tmpTmsi,
-                                DateUtils.convert2long(tmpRptTime, DateUtils.LOCAL_DATE), longitude, latitude);
+//                        UCSIDBManager.saveUeidToDB(tmpImsi, ImsiMsisdnConvert.getMsisdnFromLocal(tmpImsi), tmpTmsi,
+//                                DateUtils.convert2long(tmpRptTime, DateUtils.LOCAL_DATE), longitude, latitude);
                     }
                 }
                 bufferedReader.close();
@@ -434,7 +432,7 @@ public class LTE_PT_PARAM {
                     }
                 }
 
-                EventAdapter.call(EventAdapter.RF_STATUS);
+                EventAdapter.call(EventAdapter.RF_STATUS_LOC);
                 EventAdapter.call(EventAdapter.REFRESH_DEVICE);
                 break;
 
@@ -748,10 +746,10 @@ public class LTE_PT_PARAM {
                         listRpt.add(new UeidBean(tmpImsi, "", "", "",
                                 DateUtils.convert2String(new Date(), DateUtils.LOCAL_DATE), "", ""));
 
-                        if (!CacheManager.removeExistUeidInRealtimeList(tmpImsi)) {
-                            UCSIDBManager.saveUeidToDB(tmpImsi, ImsiMsisdnConvert.getMsisdnFromLocal(tmpImsi), "",
-                                    new Date().getTime(), "", "");
-                        }
+//                        if (!CacheManager.removeExistUeidInRealtimeList(tmpImsi)) {
+//                            UCSIDBManager.saveUeidToDB(tmpImsi, ImsiMsisdnConvert.getMsisdnFromLocal(tmpImsi), "",
+//                                    new Date().getTime(), "", "");
+//                        }
                     }
 
                     if (listRpt.size() > 0) {
@@ -793,10 +791,10 @@ public class LTE_PT_PARAM {
                         EventAdapter.call(EventAdapter.LOCATION_RPT, SRSP);
                     }
 
-                    if (!CacheManager.removeExistUeidInRealtimeList(imsi)) {
-                        UCSIDBManager.saveUeidToDB(imsi, ImsiMsisdnConvert.getMsisdnFromLocal(imsi), "",
-                                new Date().getTime(), "", "");
-                    }
+//                    if (!CacheManager.removeExistUeidInRealtimeList(imsi)) {
+//                        UCSIDBManager.saveUeidToDB(imsi, ImsiMsisdnConvert.getMsisdnFromLocal(imsi), "",
+//                                new Date().getTime(), "", "");
+//                    }
 
                     EventAdapter.call(EventAdapter.UEID_RPT,
                             Arrays.asList(new UeidBean(imsi, "", "", "",

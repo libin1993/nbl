@@ -128,9 +128,11 @@ public class JustForTest extends BaseActivity implements EventAdapter.EventCall 
         btnFallback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (CacheManager.channels.size()>0){
-                    ProtocolManager.systemFallback();
-                }
+//                if (CacheManager.channels.size()>0){
+//                    ProtocolManager.systemFallback();
+//                }
+
+                ProtocolManager.getNetworkParams();
             }
         });
     }

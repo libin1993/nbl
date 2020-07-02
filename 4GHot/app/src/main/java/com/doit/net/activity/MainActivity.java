@@ -394,6 +394,7 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         }
 
         adapter = new MainTabLayoutAdapter(getSupportFragmentManager(), mTabs, listTitles);
+        mViewPager.setOffscreenPageLimit(mTabEntities.size());
         mViewPager.setAdapter(adapter);
 
         tabLayout.setTabData(mTabEntities);
@@ -467,6 +468,8 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         if (CacheManager.getLocState()) {
             CacheManager.stopCurrentLoc();
         }
+
+        ProtocolManager.closeAllRf();
 
         //BlackBoxManger.uploadCurrentBlxFile(); //会卡顿一段时间，体验很差
         clearDataDir();
@@ -977,6 +980,8 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
                 hasSetDefaultParam = true;
                 ProtocolManager.setActiveMode();
                 ProtocolManager.clearImsi();
+                ProtocolManager.setNowTime();
+                ProtocolManager.getNetworkParams();
             }
 
             heartbeatCount++;

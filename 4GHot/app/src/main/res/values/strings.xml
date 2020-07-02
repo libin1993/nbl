@@ -28,6 +28,7 @@
     <string name="clear_history">清除侦码历史数据</string>
     <string name="user_manege">用户管理</string>
     <string name="white_list_manage">白名单管理</string>
+    <string name="black_list_manage">黑名单管理</string>
     <string name="user_black_box">黑匣子</string>
     <string name="imsi_conver_setting">号码翻译设置</string>
     <string name="sound_option">语音播报选项</string>
