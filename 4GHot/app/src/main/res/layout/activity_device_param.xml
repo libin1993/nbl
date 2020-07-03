@@ -264,8 +264,8 @@
                 android:textColor="@color/darkorange"
                 android:background="@drawable/common_button_bkg"
                 android:text="@string/lable_set_channel"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="40dp"/>
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"/>
 
 
             <Button
@@ -277,7 +277,18 @@
                 android:textColor="@color/darkorange"
                 android:background="@drawable/common_button_bkg"
                 android:text="@string/change_tac"
-                android:layout_marginRight="40dp"/>
+                android:layout_marginRight="20dp"/>
+
+            <Button
+                android:id="@+id/btn_scan_fcn"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:textColor="@color/darkorange"
+                android:background="@drawable/common_button_bkg"
+                android:text="扫网频点"
+                android:layout_marginRight="20dp"/>
 
         </LinearLayout>
 
@@ -295,8 +306,8 @@
                 android:textColor="@color/darkorange"
                 android:background="@drawable/common_button_bkg"
                 android:text="@string/lable_reboot"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="40dp"/>
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"/>
 
             <Button
                 android:id="@+id/btRefreshParam"
@@ -307,7 +318,17 @@
                 android:textColor="@color/darkorange"
                 android:background="@drawable/common_button_bkg"
                 android:text="@string/lable_refresh_param"
-                android:layout_marginRight="40dp"/>
+                android:layout_marginRight="20dp"/>
+
+            <Button
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:textColor="@color/darkorange"
+                android:background="@drawable/common_button_bkg"
+                android:layout_marginRight="20dp"
+                android:visibility="invisible"/>
 
         </LinearLayout>
 

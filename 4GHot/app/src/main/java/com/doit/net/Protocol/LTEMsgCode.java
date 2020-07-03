@@ -27,7 +27,7 @@ public final class LTEMsgCode {
         public static final String SET_LOG_FTP = "13";
         public static final String GET_PA_PARAM = "14";
         public static final String SET_REFUSE_REASON = "15";
-        public static final String SET_SYNC_PARAM = "16";
+        public static final String SET_SYNC_PARAM = "16";  //设置同步
         public static final String SET_TIME = "17";
         public static final String GET_CUSTOM_PA_PARAM = "18";
         public static final String SET_FALLBACK = "19";

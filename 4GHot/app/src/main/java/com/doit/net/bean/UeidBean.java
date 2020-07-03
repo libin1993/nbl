@@ -4,7 +4,6 @@ package com.doit.net.bean;
  * Created by wiker on 2016-08-15.
  */
 public class UeidBean {
-    private String ip;
     private String imsi;
     private String tmsi;
     private String band;
@@ -31,13 +30,6 @@ public class UeidBean {
         this.latitude = latitude;
     }
 
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
 
     public String getImsi() {
         return imsi;

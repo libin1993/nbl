@@ -133,13 +133,12 @@ public class CacheManager {
         hasPressStartButton = flag;
     }
 
-    public static void updateLoc(String imsi,String ip) {
+    public static void updateLoc(String imsi) {
         if (currentLoction == null) {
             currentLoction = new LocationBean();
         }
         PrefManage.setImsi(imsi);
         currentLoction.setImsi(imsi);
-        currentLoction.setIp(ip);
     }
 
     public static void setCurrentBlackList() {
@@ -420,6 +419,9 @@ public class CacheManager {
                 channel.setGain(cfg.getGain());
                 channel.setRxGain(cfg.getRxGain());
                 channel.setGpsOffset(cfg.getGpsOffset());
+                channel.setGps(cfg.getGps());
+                channel.setFrmOfs(cfg.getFrmOfs());
+                channel.setCnm(cfg.getCnm());
                 channel.setRlm(cfg.getRlm());
                 channel.setPollTmr(cfg.getPollTmr());
                 channel.setTac(cfg.getTac());

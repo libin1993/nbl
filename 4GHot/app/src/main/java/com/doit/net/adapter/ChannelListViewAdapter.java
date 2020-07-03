@@ -6,20 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 
-import com.doit.net.application.MyApplication;
 import com.doit.net.bean.LteChannelCfg;
-import com.doit.net.Event.EventAdapter;
 import com.doit.net.Protocol.ProtocolManager;
 import com.doit.net.Model.CacheManager;
 import com.doit.net.Utils.ToastUtils;
 import com.doit.net.ucsi.R;
-import com.suke.widget.SwitchButton;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class ChannelListViewAdapter extends BaseAdapter {
 
@@ -35,15 +31,14 @@ public class ChannelListViewAdapter extends BaseAdapter {
 
     static class ViewHolder {
         TextView title;
-        SwitchButton rfButton;
-        //        BootstrapEditText reLevelMin;
         EditText fcn;
         EditText pa;
-        EditText ga;
-        EditText rlm;
         EditText etRxGain;
         EditText etPeriod;
         Button saveBtn;
+        CheckBox cbGPS;
+        CheckBox cbCNM;
+        EditText etGPS;
 
     }
 
@@ -54,15 +49,15 @@ public class ChannelListViewAdapter extends BaseAdapter {
             holder = new ViewHolder();
             convertView = LayoutInflater.from(mContext).inflate(R.layout.doit_layout_channel_item, null);
             holder.title = convertView.findViewById(R.id.title_text);
-            holder.rfButton = convertView.findViewById(R.id.id_switch_rf);
-//            holder.reLevelMin = (BootstrapEditText)convertView.findViewById(R.id.editText_rxlevmin);
             holder.fcn = convertView.findViewById(R.id.editText_fcn);
             holder.pa = convertView.findViewById(R.id.editText_pa);
-            holder.ga = convertView.findViewById(R.id.editText_ga);
-            holder.rlm = convertView.findViewById(R.id.etRLM);
+
             holder.etRxGain = convertView.findViewById(R.id.et_gain);
             holder.etPeriod = convertView.findViewById(R.id.et_period);
             holder.saveBtn = convertView.findViewById(R.id.button_save);
+            holder.cbGPS = convertView.findViewById(R.id.cb_gps);
+            holder.cbCNM = convertView.findViewById(R.id.cb_cnm);
+            holder.etGPS = convertView.findViewById(R.id.et_frm_ofs);
 
             convertView.setTag(holder);
         } else {
@@ -80,42 +75,25 @@ public class ChannelListViewAdapter extends BaseAdapter {
             return;
         }
         holder.title.setText("通道:" + cfg.getBand());
-        holder.rfButton.setChecked(cfg.isRfOpen());
-//        holder.reLevelMin.setText(cfg.getRxlevmin()==null?"":""+cfg.getRxlevmin().intValue());
+
         holder.fcn.setText(cfg.getFcn() == null ? "" : "" + cfg.getFcn());
-        holder.ga.setText(cfg.getRxGain() == null ? "" : "" + cfg.getRxGain());
         holder.pa.setText(cfg.getPa() == null ? "" : "" + cfg.getPa());
-        holder.rlm.setText(cfg.getRlm() == null ? "" : "" + cfg.getRlm());
         holder.etRxGain.setText(cfg.getRxGain() == null ? "" : "" + cfg.getRxGain());
         holder.etPeriod.setText(cfg.getPollTmr() == null ? "" : "" + cfg.getPollTmr());
-        holder.rfButton.setOnClickListener(new SwitchButton.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (CacheManager.checkDevice(MyApplication.mContext)) {
-                    return;
-                }
-
-                SwitchButton button = (SwitchButton) v;
-                if (button.isChecked()) {
-                    ProtocolManager.openRf(cfg.getIp());
-                    button.setChecked(false);
-                } else {
-                    ProtocolManager.closeRf(cfg.getIp());
-                    button.setChecked(true);
-                }
-            }
-        });
+        holder.etGPS.setText(cfg.getFrmOfs() == null ? "" : "" + cfg.getFrmOfs());
+        holder.cbCNM.setChecked("1".equals(cfg.getCnm()));
+        holder.cbGPS.setChecked("1".equals(cfg.getGps()));
 
         holder.saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String fcn = holder.fcn.getText().toString().trim();
                 String pa = holder.pa.getText().toString().trim();
-                String ga = holder.ga.getText().toString().trim();
-                String rlm = holder.rlm.getText().toString().trim();
                 String rxGain = holder.etRxGain.getText().toString().trim();
                 String pollTmr = holder.etPeriod.getText().toString().trim();
-
+                String frmOfs = holder.etGPS.getText().toString().trim();
+                String gps = holder.cbGPS.isChecked() ? "1":"0";
+                String cnm = holder.cbCNM.isChecked() ? "1":"0";
                 //不为空校验正则，为空不上传
 //                if (!TextUtils.isEmpty(fcn)){
 //                    if (!FormatUtils.getInstance().matchFCN(fcn)){
@@ -129,20 +107,12 @@ public class ChannelListViewAdapter extends BaseAdapter {
 
                 ProtocolManager.setPa(cfg.getIp(), pa);
                 ProtocolManager.setFcn(cfg.getIp(), fcn, pollTmr);
+                ProtocolManager.setSync(cfg.getIp(), gps, frmOfs,cnm);
                 ProtocolManager.setChannel(cfg.getIp(), null, null, rxGain, null, null, null);
 
             }
         });
-        holder.rfButton.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(SwitchButton view, boolean isChecked) {
-//                if(isChecked){
-//                    ProtocolManager.openRf(cfg.getIdx());
-//                }else{
-//                    ProtocolManager.closeRf(cfg.getIdx());
-//                }
-            }
-        });
+
     }
 
 

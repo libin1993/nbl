@@ -132,7 +132,7 @@ public class JustForTest extends BaseActivity implements EventAdapter.EventCall 
 //                    ProtocolManager.systemFallback();
 //                }
 
-                ProtocolManager.getNetworkParams();
+//                ProtocolManager.getNetworkParams();
             }
         });
     }

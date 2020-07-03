@@ -117,7 +117,7 @@ public class ProtocolManager {
     /**
      * 获取公网环境参数请求  TDD搜网
      */
-    public static void getNetworkParams() {
+    public static void getNetworkParams(String scnFcn) {
         String ip = null;
         for (DeviceInfo deviceInfo : CacheManager.deviceList) {
             if (deviceInfo.getIp().equals(NetConfig.TDD_IP)){
@@ -132,8 +132,7 @@ public class ProtocolManager {
         List<String> params = new ArrayList<>();
         params.add("AUTOREM:0");
         params.add("LTEREM:1");
-//        params.add("EARFCN:100,350,500,1300,1506,1650,1850,37900,38098,38400,38544,38950,39148,39250,40936,41134");
-        params.add("EARFCN:100,350,500,1300,39148,39250,40936,41134");
+        params.add("EARFCN:"+scnFcn);
         params.add("GSMREM:0");
         params.add("ARFCN:");
         params.add("REMPRD:");
@@ -276,6 +275,7 @@ public class ProtocolManager {
         LTESendManager.sendData(ip, LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_POWER, content);
     }
 
+
     /**
      * 设置频点
      */
@@ -303,6 +303,38 @@ public class ProtocolManager {
 
         LogUtils.log("频点设置：" + content);
         LTESendManager.sendData(ip, LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_POLL_EARFCN, content);
+    }
+
+    /**
+     * 设置同步
+     */
+    public static void setSync(String ip, String gps, String frmOfs,String cnm) {
+        if (!CacheManager.isDeviceOk()) {
+            return;
+        }
+
+        List<String> params = new ArrayList<>();
+
+
+        if (!TextUtils.isEmpty(gps)) {
+            params.add("GPS:" + gps);
+        }
+
+        if (!TextUtils.isEmpty(frmOfs)) {
+            params.add("FRMOFS:" + frmOfs);
+        }
+
+        if (!TextUtils.isEmpty(cnm)) {
+            params.add("CNM:" + cnm);
+        }
+
+        String content = UtilDataFormatChange.encode(params);
+        if (TextUtils.isEmpty(content)) {
+            return;
+        }
+
+        LogUtils.log("同步设置：" + content);
+        LTESendManager.sendData(ip, LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_SYNC_PARAM, content);
     }
 
 

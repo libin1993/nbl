@@ -188,14 +188,12 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
             }
         });
 
-        if ((VersionManage.isPoliceVer())) {
-            btBlackBox.setmOnLSettingItemClick(new LSettingItem.OnLSettingItemClick() {
-                @Override
-                public void click(LSettingItem item) {
-                    startActivity(new Intent(getActivity(), BlackBoxActivity.class));
-                }
-            });
-        }
+        btBlackBox.setmOnLSettingItemClick(new LSettingItem.OnLSettingItemClick() {
+            @Override
+            public void click(LSettingItem item) {
+                startActivity(new Intent(getActivity(), BlackBoxActivity.class));
+            }
+        });
 
         btWifiSetting.setmOnLSettingItemClick(new LSettingItem.OnLSettingItemClick() {
             @Override
@@ -284,9 +282,6 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
 
         if (AccountManage.getCurrentPerLevel() >= AccountManage.PERMISSION_LEVEL2) {
             btUserManage.setVisibility(View.VISIBLE);
-            if (VersionManage.isPoliceVer()) {    //军队版本不使用黑匣子
-                btBlackBox.setVisibility(View.VISIBLE);
-            }
             btClearUeid.setVisibility(View.VISIBLE);
         }
 

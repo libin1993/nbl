@@ -85,14 +85,30 @@
                 android:background="@color/dimgrey"/>
         </LinearLayout>
 
+
         <com.doit.net.Utils.LSettingItem
             android:id="@+id/btBlackBox"
             android:layout_width="match_parent"
             android:layout_height="42dp"
             app:isShowRightText="false"
             app:leftIcon="@drawable/black_box_w"
-            android:visibility="gone"
             app:leftText="@string/user_black_box" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:layout_width="48dp"
+                android:layout_height="0.6dp"
+                android:background="@color/deepgrey2"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="0.6dp"
+                android:background="@color/dimgrey"/>
+        </LinearLayout>
 
         <com.doit.net.Utils.LSettingItem
             android:id="@+id/btSetWhiteList"

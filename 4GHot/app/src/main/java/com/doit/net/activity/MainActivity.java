@@ -469,7 +469,6 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
             CacheManager.stopCurrentLoc();
         }
 
-        ProtocolManager.closeAllRf();
 
         //BlackBoxManger.uploadCurrentBlxFile(); //会卡顿一段时间，体验很差
         clearDataDir();
@@ -981,7 +980,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
                 ProtocolManager.setActiveMode();
                 ProtocolManager.clearImsi();
                 ProtocolManager.setNowTime();
-                ProtocolManager.getNetworkParams();
+
+                String scanFcn = PrefManage.getString(PrefManage.SCAN_FCN,PrefManage.DEFAULT_SCAN_FCN);
+                ProtocolManager.getNetworkParams(scanFcn);
             }
 
             heartbeatCount++;

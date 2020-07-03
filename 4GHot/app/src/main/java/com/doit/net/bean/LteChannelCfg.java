@@ -50,6 +50,15 @@ public class LteChannelCfg {
     private String gpsOffset;
     private String pollTmr;
     private String tac;
+    private String frmOfs;
+
+    public String getFrmOfs() {
+        return frmOfs;
+    }
+
+    public void setFrmOfs(String frmOfs) {
+        this.frmOfs = frmOfs;
+    }
 
     public String getTac() {
         return tac;

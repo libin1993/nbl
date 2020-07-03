@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.os.Bundle;
 
 import com.doit.net.View.ChannelsDialog;
+import com.doit.net.View.SetScanFcnDialog;
 import com.doit.net.View.SystemSetupDialog;
 import com.doit.net.adapter.UserChannelListAdapter;
 import com.doit.net.base.BaseActivity;
@@ -57,6 +58,7 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
     private Button btUpdateTac;
     private Button btRebootDevice;
     private Button btRefreshParam;
+    private Button btnScanFcn;
     private long lastRefreshParamTime = 0; //防止频繁刷新参数
 
     private RadioGroup rgPowerLevel;
@@ -104,6 +106,8 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
 
         btSetChannelCfg = findViewById(R.id.btSetChannelCfg);
         btSetChannelCfg.setOnClickListener(setChannelCfgClick);
+        btnScanFcn = findViewById(R.id.btn_scan_fcn);
+        btnScanFcn.setOnClickListener(setScanFcnClick);
         btUpdateTac = findViewById(R.id.btUpdateTac);
         btUpdateTac.setOnClickListener(updateTacClick);
         btRebootDevice = findViewById(R.id.btRebootDevice);
@@ -157,15 +161,24 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
         }
     };
 
+    View.OnClickListener setScanFcnClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (!CacheManager.checkDevice(activity)) {
+                return;
+            }
+
+            new SetScanFcnDialog(activity).show();
+        }
+    };
+
     View.OnClickListener updateTacClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (!CacheManager.checkDevice(activity)) {
                 return;
             }
-            if (CacheManager.channels.size() == 0) {
-                return;
-            }
+
             for (LteChannelCfg channel : CacheManager.channels) {
 
                 int tac = Integer.parseInt(channel.getTac());
@@ -496,11 +509,11 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
 
 
     private void refreshChannels() {
+        layoutChannelList.removeAllViews();
         if (!CacheManager.isDeviceOk()) {
             return;
         }
 
-        layoutChannelList.removeAllViews();
         for (int i = 0; i < CacheManager.channels.size(); i++) {
             LteChannelCfg cfg = CacheManager.getChannels().get(i);
             //String tac = CacheManager.getTac(cfg.getIdx());

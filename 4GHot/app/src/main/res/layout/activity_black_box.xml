@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:gravity="center_vertical"
             android:textColor="@color/darkorange"
-            android:text="@string/lab_keyword" />
+            android:text="关  键  字：" />
 
         <EditText
             android:id="@+id/etKeyword"

@@ -182,6 +182,9 @@ public class LTEDataParse {
                     case LTEMsgCode.SendCode.SET_POWER:
                         commonAck(ltePackage, "设置功率");
                         break;
+                    case LTEMsgCode.SendCode.SET_SYNC_PARAM:
+                        commonAck(ltePackage, "设置同步");
+                        break;
                     case LTEMsgCode.SendCode.SET_POLL_EARFCN:
                         commonAck(ltePackage, "设置频点");
                         break;
@@ -262,7 +265,10 @@ public class LTEDataParse {
         }
 
         if (!TextUtils.isEmpty(imsi) && !TextUtils.isEmpty(rssi)) {
-            EventAdapter.call(EventAdapter.SHIELD_RPT, new ReportBean(ltePackage.getIp(), imsi, rssi));
+            ReportBean reportBean = new ReportBean();
+            reportBean.setImsi(imsi);
+            reportBean.setRssi(rssi);
+            EventAdapter.call(EventAdapter.SHIELD_RPT, reportBean);
         }
 
     }
@@ -354,6 +360,9 @@ public class LTEDataParse {
                 case "ACCMIN":
                     lteChannelCfg.setRlm(split1[1]);
                     break;
+                case "FRMOFS":
+                    lteChannelCfg.setFrmOfs(split1[1]);
+                    break;
             }
         }
 
@@ -400,7 +409,10 @@ public class LTEDataParse {
             LogUtils.log("定位上报数据：" + imsi + ":" + rssi);
             if (CacheManager.getLocState()) {
                 if (imsi.equals(CacheManager.getCurrentLoction().getImsi())) {
-                    EventAdapter.call(EventAdapter.LOCATION_RPT, rssi);
+                    ReportBean reportBean = new ReportBean();
+                    reportBean.setIp(imsi);
+                    reportBean.setRssi(rssi);
+                    EventAdapter.call(EventAdapter.LOCATION_RPT, reportBean);
                 }
             }
 
@@ -475,16 +487,16 @@ public class LTEDataParse {
     }
 
     /**
-     * @param ltePackage 版本更新回复
+     * @param ltePackage 版本升级回复
      */
     public void processUpdate(LTEPackage ltePackage) {
         if (TextUtils.isEmpty(ltePackage.getPackageContent())) {
-            LogUtils.log("更新失败");
+            LogUtils.log("升级失败");
             return;
         }
         String content = ltePackage.getPackageContent().split("\r\n")[0];
 
-        LogUtils.log("更新进度：" + content);
+        LogUtils.log("升级进度：" + content);
 
         EventAdapter.call(EventAdapter.UPGRADE_STATUS, ltePackage.getIp() + "," + content);
     }

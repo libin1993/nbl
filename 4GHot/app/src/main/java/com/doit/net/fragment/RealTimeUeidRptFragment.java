@@ -233,7 +233,7 @@ public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapt
         }
     }
 
-    private void addShildRptList(String imsi, String srsp,String ip) {
+    private void addShildRptList(String imsi, String srsp) {
         //不再过滤，需要额外显示
 //        if (isWhitelist(imsi)){
 //            UtilBaseLog.printLog("忽略白名单："+imsi);
@@ -257,7 +257,6 @@ public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapt
                 if (rssi > 100) {
                     rssi = 100;
                 }
-                CacheManager.realtimeUeidList.get(i).setIp(ip);
                 CacheManager.realtimeUeidList.get(i).setSrsp("" + rssi);
 
                 CacheManager.realtimeUeidList.get(i).setRptTime(DateUtils.convert2String(new Date().getTime(), DateUtils.LOCAL_DATE));
@@ -267,7 +266,6 @@ public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapt
         }
 
         UeidBean newUeid = new UeidBean();
-        newUeid.setIp(ip);
         newUeid.setImsi(imsi);
         newUeid.setNumber("");
         newUeid.setSrsp("" + (130 - Integer.parseInt(srsp)));
@@ -275,7 +273,7 @@ public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapt
         newUeid.setRptTimes(1);
         CacheManager.realtimeUeidList.add(newUeid);
 
-        UCSIDBManager.saveUeidToDB(ip,imsi, ImsiMsisdnConvert.getMsisdnFromLocal(imsi), "",
+        UCSIDBManager.saveUeidToDB(imsi, ImsiMsisdnConvert.getMsisdnFromLocal(imsi), "",
                 new Date().getTime(), "", "");
     }
 
@@ -353,7 +351,7 @@ public class RealTimeUeidRptFragment extends BaseFragment implements  EventAdapt
                     if (reportBean == null)
                         return;
 
-                    addShildRptList(reportBean.getImsi(), reportBean.getRssi(),reportBean.getIp());
+                    addShildRptList(reportBean.getImsi(), reportBean.getRssi());
                     sortRealtimeRpt();
                     updateView();
                     break;

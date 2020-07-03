@@ -7,149 +7,176 @@
     android:focusableInTouchMode="true"
     android:paddingBottom="3dp"
     android:paddingTop="5dp"
-    android:paddingLeft="10dp"
     android:scrollbars="vertical"
     android:id="@+id/device_layout"
     android:paddingRight="10dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="5dp"
+        android:id="@+id/title_text"
+        android:text="通道："
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:layout_marginLeft="12dp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="30dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="15dp">
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:gravity="right"
+            android:textColor="@color/white"
+            android:text="频点："
+            android:textSize="15sp"/>
+
+        <EditText
+            android:id="@+id/editText_fcn"
+            style="@style/dialog_edit"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:digits="@string/fcn_rule" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="5dp">
 
         <TextView
-            android:layout_height="30dp"
-            android:layout_width="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_weight="2.5"
-            android:id="@+id/title_text"
-            android:text="通道：" />
-
-        <com.suke.widget.SwitchButton
-            android:id="@+id/id_switch_rf"
-            android:layout_width="70dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginLeft="20dp"
+            android:layout_height="wrap_content"
+            android:layout_width="100dp"
             android:gravity="right"
-            android:visibility="gone"
-            app:sb_checked="false"
+            android:textColor="@color/white"
+            android:text="周期："
+            android:textSize="15sp"/>
+
+        <EditText
+            android:id="@+id/et_period"
+            style="@style/dialog_edit"
             android:layout_weight="1"
-            android:layout_height="wrap_content"/>
+            android:singleLine="true"
+            android:digits="@string/number_rule" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="5dp">
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:gravity="right"
+            android:textColor="@color/white"
+            android:text="增益："
+            android:textSize="15sp"/>
+
+        <EditText
+            android:id="@+id/et_gain"
+            style="@style/dialog_edit"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:digits="@string/pa_rule"
+            android:maxLength="5"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="5dp">
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:gravity="right"
+            android:textColor="@color/white"
+            android:text="下行功率："
+            android:textSize="15sp"/>
+
+        <EditText
+            android:id="@+id/editText_pa"
+            style="@style/dialog_edit"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:digits="@string/pa_rule"
+            android:maxLength="5"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TableLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        android:layout_height="30dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="5dp">
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:gravity="right"
+            android:textColor="@color/white"
+            android:text="GPS同步："
+            android:textSize="15sp"/>
 
-            <TableRow android:padding="0dp">
-                <TextView
-                    android:layout_height="30dp"
-                    android:layout_width="match_parent"
-                    android:layout_marginTop="7dp"
-                    android:gravity="right"
-                    android:textColor="@color/white"
-                    android:text="频点：" />
+        <CheckBox
+            android:id="@+id/cb_gps"
+            android:layout_width="54dp"
+            android:layout_height="24dp"
+            android:button="@null"
+            android:background="@drawable/rf_switch_style" />
 
-                <EditText
-                    android:id="@+id/editText_fcn"
-                    style="@style/dialog_edit"
-                    android:layout_weight="1"
-                    android:singleLine="true"
-                    android:digits="@string/fcn_rule" />
-            </TableRow>
-            <TableRow android:padding="0dp">
-                <TextView
-                    android:layout_height="30dp"
-                    android:layout_width="match_parent"
-                    android:layout_marginTop="7dp"
-                    android:gravity="right"
-                    android:textColor="@color/white"
-                    android:text="周期：" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
 
-                <EditText
-                    android:id="@+id/et_period"
-                    style="@style/dialog_edit"
-                    android:layout_weight="1"
-                    android:singleLine="true"
-                    android:digits="@string/fcn_rule"
-                    android:inputType="number"
-                    android:maxLength="5"/>
-            </TableRow>
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textColor="@color/white"
+            android:text="帧偏置："
+            android:textSize="15sp"/>
+        <EditText
+            android:id="@+id/et_frm_ofs"
+            android:background="@drawable/common_edit_text_bkg"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:singleLine="true"
+            android:digits="@string/number_rule"
+            android:maxLength="8"
+            android:textColor="@android:color/white"
+            android:textSize="15sp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"/>
+    </LinearLayout>
 
-            <TableRow>
-                <TextView
-                    android:layout_height="30dp"
-                    android:layout_width="match_parent"
-                    android:layout_marginTop="7dp"
-                    android:gravity="right"
-                    android:textColor="@color/white"
-                    android:text="增益：" />
-                <EditText
-                    android:id="@+id/et_gain"
-                    style="@style/dialog_edit"
-                    android:layout_weight="1"
-                    android:singleLine="true"
-                    android:digits="@string/pa_rule"
-                    android:maxLength="5"/>
-            </TableRow>
-            <TableRow>
-                <TextView
-                    android:layout_height="30dp"
-                    android:layout_width="match_parent"
-                    android:layout_marginTop="7dp"
-                    android:gravity="right"
-                    android:textColor="@color/white"
-                    android:text="下行功率：" />
-                <EditText
-                    android:id="@+id/editText_pa"
-                    style="@style/dialog_edit"
-                    android:layout_weight="1"
-                    android:singleLine="true"
-                    android:digits="@string/pa_rule"
-                    android:maxLength="5"/>
-            </TableRow>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="5dp">
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:gravity="right"
+            android:textColor="@color/white"
+            android:text="空口同步："
+            android:textSize="15sp"/>
 
-            <TableRow
-                android:visibility="gone">
-                <TextView
-                    android:layout_height="30dp"
-                    android:layout_width="match_parent"
-                    android:layout_marginTop="7dp"
-                    android:gravity="right"
-                    android:textColor="@color/white"
-                    android:text="上行增益：" />
-                <EditText
-                    android:id="@+id/editText_ga"
-                    style="@style/dialog_edit"
-                    android:layout_weight="1"
-                    android:singleLine="true"
-                    android:digits="@string/pa_rule"
-                    android:maxLength="5"/>
-            </TableRow>
+        <CheckBox
+            android:id="@+id/cb_cnm"
+            android:layout_width="54dp"
+            android:layout_height="24dp"
+            android:button="@null"
+            android:background="@drawable/rf_switch_style" />
 
-            <TableRow android:padding="0dp"
-                android:visibility="gone">
-                <TextView
-                    android:layout_height="30dp"
-                    android:layout_width="match_parent"
-                    android:layout_marginTop="7dp"
-                    android:gravity="right"
-                    android:textColor="@color/white"
-                    android:text="最小接收电平：" />
-                <EditText
-                    android:id="@+id/etRLM"
-                    style="@style/dialog_edit"
-                    android:layout_weight="1"
-                    android:singleLine="true"
-                    android:digits="@string/pa_rule"
-                    android:maxLength="5"/>
-            </TableRow>
-
-        </TableLayout>
     </LinearLayout>
 
     <Button
@@ -158,6 +185,6 @@
         android:background="@drawable/common_button_bkg"
         android:layout_width="match_parent"
         android:layout_height="34dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="5dp"
         android:text="@string/set_now" />
 </LinearLayout>

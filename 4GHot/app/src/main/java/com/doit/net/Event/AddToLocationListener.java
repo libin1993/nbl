@@ -22,17 +22,15 @@ public class AddToLocationListener implements View.OnClickListener
     private int position;
     private Context mContext;
     private String imsi;
-    private String ip;
     private String remark;
 //    private DBBlackInfo blackInfo;
     private String lastLocOperator; //上次定位号码制式
 
-    public AddToLocationListener(int position, Context mContext,String imsi,String remark,String ip) {
+    public AddToLocationListener(int position, Context mContext,String imsi,String remark) {
         this.position = position;
         this.mContext = mContext;
         this.remark = remark;
         this.imsi = imsi;
-        this.ip = ip;
     }
 
 
@@ -56,37 +54,16 @@ public class AddToLocationListener implements View.OnClickListener
                     return;
                 }else{
                     EventAdapter.call(EventAdapter.SHOW_PROGRESS,8000);  //防止快速频繁更换定位目标
-                    CacheManager.updateLoc(imsi,ip);
-                    if (TextUtils.isEmpty(ip)){
-                        ProtocolManager.openAllRf();
-                    }else {
-                        for (DeviceInfo deviceInfo : CacheManager.deviceList) {
-                            if (deviceInfo.getIp().equals(ip)){
-                                ProtocolManager.openRf(ip);
-                            }else {
-                                ProtocolManager.closeRf(deviceInfo.getIp());
-                            }
-                        }
-
-                    }
+                    CacheManager.updateLoc(imsi);
+                    ProtocolManager.openAllRf();
 
                     CacheManager.startLoc(imsi);
                     ToastUtils.showMessage("开始新的搜寻");
                 }
             }else{
-                CacheManager.updateLoc(imsi,ip);
-                if (TextUtils.isEmpty(ip)){
-                    ProtocolManager.openAllRf();
-                }else {
-                    for (DeviceInfo deviceInfo : CacheManager.deviceList) {
-                        if (deviceInfo.getIp().equals(ip)){
-                            ProtocolManager.openRf(ip);
-                        }else {
-                            ProtocolManager.closeRf(deviceInfo.getIp());
-                        }
-                    }
+                CacheManager.updateLoc(imsi);
+                ProtocolManager.openAllRf();
 
-                }
                 CacheManager.startLoc(imsi);
                 ToastUtils.showMessage("搜寻开始");
             }

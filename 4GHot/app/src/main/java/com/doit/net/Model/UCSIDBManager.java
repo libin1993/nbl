@@ -52,9 +52,9 @@ public class UCSIDBManager {
         return DB;
     }
 
-    public static void saveUeidToDB(String ip,String imsi,String msisdn, String tmsi, long createDate, String longitude, String latitude){
+    public static void saveUeidToDB(String imsi,String msisdn, String tmsi, long createDate, String longitude, String latitude){
         try {
-            DB.save(new DBUeidInfo(ip,imsi, msisdn, tmsi, createDate, longitude, latitude));
+            DB.save(new DBUeidInfo(imsi, msisdn, tmsi, createDate, longitude, latitude));
         } catch (DbException e) {
             e.printStackTrace();
             LogUtils.log("采集保存失败："+e.toString());

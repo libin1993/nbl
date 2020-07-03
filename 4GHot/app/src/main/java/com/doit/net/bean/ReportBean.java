@@ -10,13 +10,6 @@ public class ReportBean {
     private String imsi;
     private String rssi;
 
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
 
     public String getImsi() {
         return imsi;
@@ -34,9 +27,14 @@ public class ReportBean {
         this.rssi = rssi;
     }
 
-    public ReportBean(String ip, String imsi, String rssi) {
-        this.ip = ip;
-        this.imsi = imsi;
-        this.rssi = rssi;
+
+    public String getIp() {
+        return ip;
     }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+
 }

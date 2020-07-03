@@ -3,6 +3,7 @@ package com.doit.net.fragment;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import com.doit.net.Model.VersionManage;
 import com.doit.net.Utils.Cellular;
 import com.doit.net.Utils.LogUtils;
 import com.doit.net.Utils.UtilOperator;
+import com.doit.net.bean.ReportBean;
 import com.doit.net.ucsi.R;
 import com.doit.net.Utils.ToastUtils;
 
@@ -45,7 +47,7 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
     private List<Integer> listChartValue = new ArrayList<>();
     private final int LOCATE_CHART_X_AXIS_P_CNT = 15;       //图表横坐标点数
     private final int LOCATE_CHART_Y_AXIS_P_CNT = 25;       //图表纵坐标点数
-    private String textContent="搜寻未开始";
+    private String textContent = "搜寻未开始";
 
     private int currentSRSP = 0;
     private int lastRptSRSP = 60;//初始平滑地开始
@@ -58,7 +60,7 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
     private final int MAX_DEVIATION = 16;   //强度与上次上报偏差大于这个值就重新计算
 
     private String lastLocateIMSI = "";
-    private boolean startLoc = false;  //点击开始定位
+    private boolean startLoc = false;  //开始定位后数据上报前，不监听射频状态
 
     //handler消息
     private final int UPDATE_VIEW = 0;
@@ -94,7 +96,7 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
 
 
     private void initEvent() {
-        EventAdapter.register(EventAdapter.REFRESH_DEVICE,this);
+        EventAdapter.register(EventAdapter.REFRESH_DEVICE, this);
         EventAdapter.register(EventAdapter.RF_STATUS_LOC, this);
         EventAdapter.register(EventAdapter.LOCATION_RPT, this);
         EventAdapter.register(EventAdapter.ADD_LOCATION, this);
@@ -119,10 +121,12 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
             speechTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    if ((int) (System.currentTimeMillis() - lastLocRptTime) > LOC_RPT_TIMEOUT) {
+                    //脱标
+                    if (lastLocRptTime != 0 && (int) (System.currentTimeMillis() - lastLocRptTime) > LOC_RPT_TIMEOUT) {
                         currentSRSP = 0;
                         resetLocateChartValue();
                         refreshPage();
+                        ProtocolManager.openAllRf();
                     }
 
                     if (currentSRSP == 0) {
@@ -215,6 +219,8 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
             resetLocateChartValue();
         }
 
+        lastLocRptTime = 0;
+
         refreshPage();
     }
 
@@ -276,7 +282,7 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
             }
 
             if (!isChecked) {
-                if (CacheManager.getLocState()){  //手动关闭定位，需要打开射频
+                if (CacheManager.getLocState()) {  //手动关闭定位，需要打开射频
                     ProtocolManager.openAllRf();
                 }
                 stopLoc();
@@ -286,17 +292,10 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
                 }
             } else {
                 if (CacheManager.currentLoction == null || CacheManager.currentLoction.getImsi().equals("")) {
-                    ToastUtils.showMessage( R.string.button_loc_unstart);
+                    ToastUtils.showMessage(R.string.button_loc_unstart);
                 } else {
 
-                    for (DeviceInfo deviceInfo : CacheManager.deviceList) {     //开启对应频段射频
-                        if (deviceInfo.getIp().equals(CacheManager.currentLoction.getIp())){
-                            ProtocolManager.openRf(deviceInfo.getIp());
-                        }else {
-                            ProtocolManager.closeRf(deviceInfo.getIp());
-                        }
-                    }
-
+                    ProtocolManager.openAllRf();
                     startLoc();
                     EventAdapter.call(EventAdapter.SHOW_PROGRESS, 8000);
                     EventAdapter.call(EventAdapter.ADD_BLACKBOX, BlackBoxManger.START_LOCALTE + CacheManager.currentLoction.getImsi());
@@ -315,10 +314,10 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
     /**
      * 射频是否开启
      */
-    private void isRFOpen(){
+    private void isRFOpen() {
 
         if (!CacheManager.getLocState()) {
-           return;
+            return;
         }
         for (LteChannelCfg channel : CacheManager.getChannels()) {
             if (channel.isRFState()) {
@@ -358,9 +357,9 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }else if (key.equals(EventAdapter.REFRESH_DEVICE)){
+        } else if (key.equals(EventAdapter.REFRESH_DEVICE)) {
             mHandler.sendEmptyMessage(REFRESH_DEVICE);
-        }else if (key.equals(EventAdapter.RF_STATUS_LOC)){
+        } else if (key.equals(EventAdapter.RF_STATUS_LOC)) {
             mHandler.sendEmptyMessage(RF_STATUS_LOC);
         }
     }
@@ -382,7 +381,8 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
                 cbLocSwitch.setOnCheckedChangeListener(rfLocSwitchListener);
             } else if (msg.what == LOC_REPORT) {   //定位实时上报
                 if (CacheManager.getCurrentLoction() != null && CacheManager.getCurrentLoction().isLocateStart()) {
-                    currentSRSP = correctSRSP(Integer.valueOf((String) msg.obj));
+                    ReportBean reportBean = (ReportBean) msg.obj;
+                    currentSRSP = correctSRSP(Integer.valueOf(reportBean.getRssi()));
                     if (currentSRSP == 0)
                         return;
 
@@ -395,20 +395,35 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
 
                     refreshPage();
 
+                    //定位数据上报后，只开启对应板卡射频
+                    String ip = reportBean.getIp();
+                    if (TextUtils.isEmpty(ip)) {
+                        ProtocolManager.openAllRf();
+                    } else {
+                        for (DeviceInfo deviceInfo : CacheManager.deviceList) {
+                            if (deviceInfo.getIp().equals(ip)) {
+                                ProtocolManager.openRf(ip);
+                            } else {
+                                ProtocolManager.closeRf(deviceInfo.getIp());
+                            }
+                        }
+
+                    }
+
                     startLoc = false;
                 }
             } else if (msg.what == STOP_LOC) {
                 stopLoc();
             } else if (msg.what == ADD_LOCATION) {
                 addLocation((String) msg.obj);
-            }else if (msg.what == REFRESH_DEVICE){
-                if (CacheManager.channels !=null && CacheManager.channels.size() > 0){
+            } else if (msg.what == REFRESH_DEVICE) {
+                if (CacheManager.channels != null && CacheManager.channels.size() > 0) {
 
                     cbGainSwitch.setOnCheckedChangeListener(null);
                     boolean isHighPa = true;
                     for (LteChannelCfg channel : CacheManager.channels) {
                         int pa = Integer.parseInt(channel.getPa());
-                        if (pa <=10){
+                        if (pa <= 10) {
                             isHighPa = false;
                             break;
                         }
@@ -416,8 +431,8 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
                     cbGainSwitch.setChecked(isHighPa);
                     cbGainSwitch.setOnCheckedChangeListener(gainSwitchListener);
                 }
-            }else if (msg.what == RF_STATUS_LOC){
-                if (!startLoc){
+            } else if (msg.what == RF_STATUS_LOC) {
+                if (!startLoc) {
                     isRFOpen();
                 }
 

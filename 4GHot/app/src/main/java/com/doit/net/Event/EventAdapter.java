@@ -12,7 +12,7 @@ public class EventAdapter {
     public final static String WIFI_CHANGE = "WIFI_CHANGE";   //wifi状态监控
     public final static String FOUND_BLACK_NAME = "FOUND_BLACK_NAME";
     public final static String BLACK_NAME_RPT = "BLACK_NAME_RPT";
-    public final static String LOCATION_RPT = "LOCATION_RPT";
+    public final static String LOCATION_RPT = "LOCATION_RPT";  //定位上报
     public final static String SHIELD_RPT = "SHIELD_RPT";  //军队app，侦码
     public final static String UEID_RPT = "UEID_RPT";    //警察app，管控
     public final static String UPDATE_FILE_SYS = "UPDATE_FILE_SYS";
