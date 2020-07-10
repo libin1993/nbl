@@ -104,46 +104,46 @@ public class SystemSettingActivity extends BaseActivity {
     };
 
     private void generalAdmin() {
-//        final String accountFullPath = FileUtils.ROOT_PATH+"FtpAccount/";
-//        final String accountFileName = "account";
-//
-//
-//        File namelistFile = new File(accountFullPath+accountFileName);
-//        if (namelistFile.exists()){
-//            namelistFile.delete();
-//        }
-//
-//        BufferedWriter bufferedWriter = null;
-//        try {
-//                bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(accountFullPath+accountFileName,true)));
-//                bufferedWriter.write("admin"+","+"admin"+ "," + AccountManage.getAdminRemark()+"\n");
-//                bufferedWriter.flush();
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        } finally {
-//            if(bufferedWriter != null){
-//                try {
-//                    bufferedWriter.close();
-//                } catch (IOException e) {}
-//            }
-//        }
+        final String accountFullPath = FileUtils.ROOT_PATH+"FtpAccount/";
+        final String accountFileName = "account";
 
-//        new Thread() {
-//            public void run() {
-//                try {
-//                    FTPManager.getInstance().connect();
-//                    if (FTPManager.getInstance().uploadFile(accountFullPath, accountFileName)){
-//                        ToastUtils.showMessage(getBaseContext(), "生成管理员账号成功");
-//                    }else {
-//                        ToastUtils.showMessage(getBaseContext(), "生成管理员账号出错");
-//                    }
-//                    AccountManage.deleteAccountFile();
-//                } catch (Exception e) {
-//                    ToastUtils.showMessage(getBaseContext(), "生成管理员账号出错");
-//                    e.printStackTrace();
-//                }
-//            }
-//        }.start();
+
+        File namelistFile = new File(accountFullPath+accountFileName);
+        if (namelistFile.exists()){
+            namelistFile.delete();
+        }
+
+        BufferedWriter bufferedWriter = null;
+        try {
+                bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(accountFullPath+accountFileName,true)));
+                bufferedWriter.write("admin"+","+"admin"+ "," + AccountManage.getAdminRemark()+"\n");
+                bufferedWriter.flush();
+        } catch (IOException e){
+            e.printStackTrace();
+        } finally {
+            if(bufferedWriter != null){
+                try {
+                    bufferedWriter.close();
+                } catch (IOException e) {}
+            }
+        }
+
+        new Thread() {
+            public void run() {
+                try {
+                    FTPManager.getInstance().connect();
+                    if (FTPManager.getInstance().uploadFile(accountFullPath, accountFileName)){
+                        ToastUtils.showMessage( "生成管理员账号成功");
+                    }else {
+                        ToastUtils.showMessage("生成管理员账号出错");
+                    }
+                    AccountManage.deleteAccountFile();
+                } catch (Exception e) {
+                    ToastUtils.showMessage( "生成管理员账号出错");
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
 

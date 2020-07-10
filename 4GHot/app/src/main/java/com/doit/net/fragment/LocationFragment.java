@@ -11,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.doit.net.Sockets.NetConfig;
 import com.doit.net.View.LocateChart;
 import com.doit.net.View.LocateCircle;
 import com.doit.net.base.BaseFragment;
@@ -195,16 +196,15 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
 
     void addLocation(String imsi) {
         LogUtils.log("##########  addLocation:" + imsi + "  ###########");
-
+        textContent = "正在搜寻" + imsi;
+        currentSRSP = 0;
+        lastRptSRSP = 0;
+        resetLocateChartValue();
+        refreshPage();
+        startSpeechBroadcastLoop();  //从停止定位的状态添加定位，故语音手动再次开启
+        startLoc = true;
         if (!"".equals(lastLocateIMSI) && !lastLocateIMSI.equals(imsi)) {   //更换目标
-            textContent = "正在搜寻" + imsi;
             speech("搜寻目标更换");
-            currentSRSP = 0;
-            lastRptSRSP = 0;
-            resetLocateChartValue();
-            refreshPage();
-            startSpeechBroadcastLoop();  //从停止定位的状态添加定位，故语音手动再次开启
-            startLoc = true;
         }
     }
 
@@ -212,6 +212,10 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
     private void stopLoc() {
         LogUtils.log("call stopLoc() in locationFragment... ...");
         if (CacheManager.getLocState()) {
+            ProtocolManager.setFcn(NetConfig.FDD_IP, CacheManager.fcnMap.get(NetConfig.FDD_IP), "10"); //停止定位，恢复默认频点
+            ProtocolManager.setFcn(NetConfig.TDD_IP, CacheManager.fcnMap.get(NetConfig.TDD_IP), "10");
+
+
             CacheManager.stopCurrentLoc();
             stopSpeechBroadcastLoop();
             textContent = "搜寻暂停：" + CacheManager.getCurrentLoction().getImsi();

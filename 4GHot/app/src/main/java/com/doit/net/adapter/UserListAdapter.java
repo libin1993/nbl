@@ -9,10 +9,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
+import com.doit.net.Model.AccountManage;
 import com.doit.net.Model.BlackBoxManger;
 import com.doit.net.Event.EventAdapter;
 import com.doit.net.Model.UCSIDBManager;
 import com.doit.net.Model.UserInfo;
+import com.doit.net.Utils.ToastUtils;
 import com.doit.net.View.ModifyUserInfoDialog;
 import com.doit.net.ucsi.R;
 
@@ -65,7 +67,7 @@ public class UserListAdapter extends BaseSwipeAdapter {
 
         final UserInfo userInfo = listUserInfo.get(position);
         tvIndex.setText(" " +(position + 1) + ".");
-        tvUserInfo.setText("姓名："+userInfo.getAccount()  + "            密码：" + userInfo.getPassword() + "\n" +
+        tvUserInfo.setText("账号："+userInfo.getAccount()  + "            密码：" + userInfo.getPassword() + "\n" +
                             "备注："+userInfo.getRemake());
         tvUserInfo.setTag(position);
 
@@ -118,15 +120,13 @@ public class UserListAdapter extends BaseSwipeAdapter {
                 //listUserInfo.remove(position);
 
                 UCSIDBManager.getDbManager().delete(resp);
-                EventAdapter.call(EventAdapter.REFRESH_USER_LIST);
-                EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.DELTE_USER+resp.getAccount());
-//                if (AccountManage.UpdateAccountToDevice()){
-//                    UIEventManager.call(UIEventManager.KEY_REFRESH_USER_LIST);
-//                    EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.DELTE_USER+resp.getAccount());
-//                }else{
-//                    UCSIDBManager.getDbManager().save(resp);
-//                    ToastUtils.showMessageLong(mContext, R.string.del_user_fail_ftp_error);
-//                }
+                if (AccountManage.UpdateAccountToDevice()){
+                    EventAdapter.call(EventAdapter.REFRESH_USER_LIST);
+                    EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.DELTE_USER+resp.getAccount());
+                }else{
+                    UCSIDBManager.getDbManager().save(resp);
+                    ToastUtils.showMessageLong(R.string.del_user_fail_ftp_error);
+                }
 
             } catch (DbException e) {
                 new SweetAlertDialog(mContext, SweetAlertDialog.ERROR_TYPE)

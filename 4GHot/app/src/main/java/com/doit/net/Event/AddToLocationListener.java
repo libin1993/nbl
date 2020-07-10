@@ -8,6 +8,7 @@ import com.doit.net.Model.BlackBoxManger;
 import com.doit.net.Model.CacheManager;
 import com.doit.net.Model.DBBlackInfo;
 import com.doit.net.Protocol.ProtocolManager;
+import com.doit.net.Sockets.NetConfig;
 import com.doit.net.Utils.LogUtils;
 import com.doit.net.Utils.ToastUtils;
 import com.doit.net.Utils.UtilOperator;
@@ -54,17 +55,11 @@ public class AddToLocationListener implements View.OnClickListener
                     return;
                 }else{
                     EventAdapter.call(EventAdapter.SHOW_PROGRESS,8000);  //防止快速频繁更换定位目标
-                    CacheManager.updateLoc(imsi);
-                    ProtocolManager.openAllRf();
-
-                    CacheManager.startLoc(imsi);
+                    startLocation(imsi);
                     ToastUtils.showMessage("开始新的搜寻");
                 }
             }else{
-                CacheManager.updateLoc(imsi);
-                ProtocolManager.openAllRf();
-
-                CacheManager.startLoc(imsi);
+                startLocation(imsi);
                 ToastUtils.showMessage("搜寻开始");
             }
 
@@ -76,6 +71,25 @@ public class AddToLocationListener implements View.OnClickListener
             LogUtils.log("开启搜寻失败"+e);
         }
 
+    }
+
+    /**
+     * @param imsi 开始定位
+     */
+    private void startLocation(String imsi){
+        String fddFcn = UtilOperator.getFcn(imsi,CacheManager.fcnMap.get(NetConfig.FDD_IP));
+        String tddFcn = UtilOperator.getFcn(imsi,CacheManager.fcnMap.get(NetConfig.TDD_IP));
+        if (!TextUtils.isEmpty(fddFcn)){
+            ProtocolManager.setFcn(NetConfig.FDD_IP,fddFcn,"10");
+        }
+
+        if (!TextUtils.isEmpty(tddFcn)){
+            ProtocolManager.setFcn(NetConfig.TDD_IP,tddFcn,"10");
+        }
+
+        CacheManager.updateLoc(imsi);
+        ProtocolManager.openAllRf();
+        CacheManager.startLoc(imsi);
     }
 
     private void TurnToLocInterface() {

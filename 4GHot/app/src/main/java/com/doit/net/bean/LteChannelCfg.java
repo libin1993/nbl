@@ -1,5 +1,7 @@
 package com.doit.net.bean;
 
+import com.doit.net.Utils.LogUtils;
+
 /**
  * Created by Zxc on 2018/10/19.
  */

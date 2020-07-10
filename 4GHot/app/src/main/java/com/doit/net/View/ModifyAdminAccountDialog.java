@@ -64,14 +64,14 @@ public class ModifyAdminAccountDialog extends Dialog {
                 AccountManage.saveAccoutToPref(etAccount.getText().toString(), etPassword.getText().toString());
                 ToastUtils.showMessage(R.string.modify_admin_success);
                 ToastUtils.showMessage( R.string.modify_admin_success);
-//                if (AccountManage.UpdateAccountToDevice()){
-//                    ToastUtils.showMessage(getContext(),R.string.modify_admin_success);
-//                }else{
-//                    new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
-//                            .setTitleText(getContext().getString(R.string.modify_admin_fail))
-//                            .setContentText(getContext().getString(R.string.modify_admin_fail_ftp))
-//                            .show();
-//                }
+                if (AccountManage.UpdateAccountToDevice()){
+                    ToastUtils.showMessage(R.string.modify_admin_success);
+                }else{
+                    new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText(getContext().getString(R.string.modify_admin_fail))
+                            .setContentText(getContext().getString(R.string.modify_admin_fail_ftp))
+                            .show();
+                }
 
 
                 dismiss();

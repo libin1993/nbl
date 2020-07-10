@@ -1,5 +1,7 @@
 package com.doit.net.Utils;
 
+import android.text.TextUtils;
+
 import com.doit.net.bean.LteChannelCfg;
 import com.doit.net.Protocol.ProtocolManager;
 import com.doit.net.Model.CacheManager;
@@ -12,18 +14,18 @@ import java.util.List;
  */
 
 public class UtilOperator {
-    private static List<String> listFcnsInCTJ = Arrays.asList("1300","37900", "38098", "38300", "38400", "38544",
+    private static List<String> listFcnsInCTJ = Arrays.asList("1300", "37900", "38098", "38300", "38400", "38544",
             "38950", "39148", "39300", "38200");
-    private static List<String> listFcnsInCTU = Arrays.asList("375", "400", "450", "500",  "1506","1650");
+    private static List<String> listFcnsInCTU = Arrays.asList("375", "400", "450", "500", "1506", "1650");
     private static List<String> listFcnsInCTC = Arrays.asList("100", "1825");
 
 
-    public static String getOperatorName(String plmn){
-        if(plmn == null){
+    public static String getOperatorName(String plmn) {
+        if (plmn == null) {
             return "";
         }
         if (plmn.startsWith("46000") || plmn.startsWith("46002") ||
-            plmn.startsWith("46007") || plmn.startsWith("46004")) {// 因为移动网络编号46000下的IMSI已经用完，所以虚拟了一个46002编号，134/159号段使用了此编号
+                plmn.startsWith("46007") || plmn.startsWith("46004")) {// 因为移动网络编号46000下的IMSI已经用完，所以虚拟了一个46002编号，134/159号段使用了此编号
             // 中国移动
             return "CTJ";
         } else if (plmn.startsWith("46001") || plmn.startsWith("46006") || plmn.startsWith("46009")) {
@@ -36,8 +38,8 @@ public class UtilOperator {
         return "";
     }
 
-    public static String getOperatorNameCH(String plmn){
-        if(plmn == null){
+    public static String getOperatorNameCH(String plmn) {
+        if (plmn == null) {
             return "";
         }
         if (plmn.startsWith("46000") || plmn.startsWith("46002") ||
@@ -60,16 +62,16 @@ public class UtilOperator {
             return false;
 
         int intFcn = Integer.parseInt(fcn);
-        if (operator.equals("CTJ")){
+        if (operator.equals("CTJ")) {
             return (rangeInDefined(intFcn, 38250, 38600) ||
                     rangeInDefined(intFcn, 38850, 39350) ||
                     rangeInDefined(intFcn, 40440, 41040) || intFcn == 1300);
-        }else if (operator.equals("CTU")){   //联通暂不考虑TDD频段,并包括了B3的DCS
+        } else if (operator.equals("CTU")) {   //联通暂不考虑TDD频段,并包括了B3的DCS
             return (rangeInDefined(intFcn, 1350, 1750) ||
                     rangeInDefined(intFcn, 350, 599));
-        }else if (operator.equals("CTC")){
+        } else if (operator.equals("CTC")) {
             return (rangeInDefined(intFcn, 1750, 1900) ||
-                    rangeInDefined(intFcn, 0, 200)||
+                    rangeInDefined(intFcn, 0, 200) ||
                     rangeInDefined(intFcn, 41040, 41240));
         }
 
@@ -77,8 +79,63 @@ public class UtilOperator {
     }
 
 
+    /**
+     * @param imsi
+     * @param fcn
+     * @return 设置对应制式频点
+     * <p>
+     * 移动：1200- 1400      37550 - 41589
+     * 联通：1401-1750      201 - 600
+     * 电信：1751- 1950    1- 200
+     */
+    public static String getFcn(String imsi, String fcn) {
+        if (TextUtils.isEmpty(fcn)){
+            return "";
+        }
+        String tempFcn = "";
+        String[] fcnArr = fcn.split(",");
+        switch (getOperatorName(imsi)) {
+            case "CTJ":
+                for (int i = 0; i < fcnArr.length; i++) {
+                    int intFcn = Integer.parseInt(fcnArr[i]);
+                    if ((intFcn >= 1200 && intFcn <= 1400) || (intFcn >= 37550 && intFcn <= 41589)) {
+                        tempFcn += intFcn + ",";
+                    }
+                }
+                break;
+            case "CTU":
+                for (int i = 0; i < fcnArr.length; i++) {
+                    int intFcn = Integer.parseInt(fcnArr[i]);
+                    if ((intFcn >= 1401 && intFcn <= 1750) || (intFcn >= 201 && intFcn <= 600)) {
+                        tempFcn += intFcn + ",";
+                    }
+                }
+                break;
+            case "CTC":
+                for (int i = 0; i < fcnArr.length; i++) {
+                    int intFcn = Integer.parseInt(fcnArr[i]);
+                    if ((intFcn >= 1751 && intFcn <= 1950) || (intFcn >= 1 && intFcn <= 200)) {
+                        tempFcn += intFcn + ",";
+                    }
+                }
+                break;
+            default:
+                tempFcn = fcn+",";
+                break;
+        }
+
+
+        if (TextUtils.isEmpty(tempFcn)){
+            return "";
+        }
+
+        return tempFcn.substring(0,tempFcn.length()-1);
+
+    }
+
+
     //根据imsi的制式，关闭所有其他制式的频点以加大目标制式频点的功率
-    public static  void checkPower(String imsi) {
+    public static void checkPower(String imsi) {
         //1.根据imsi获取制式
         String operator = UtilOperator.getOperatorName(imsi);
         if ("".equals(operator))
@@ -88,16 +145,16 @@ public class UtilOperator {
         //  就将其功率设到最大，否则设置到最小
         String[] tmpFcns;
         String tmpPa = "";
-        for (LteChannelCfg tmpCfg : CacheManager.getChannels()){
+        for (LteChannelCfg tmpCfg : CacheManager.getChannels()) {
             tmpFcns = tmpCfg.getFcn().split(",");
-            for (int i = 0; i < tmpFcns.length; i++){
-                if (UtilOperator.isArfcnInOperator(operator, tmpFcns[i])){
+            for (int i = 0; i < tmpFcns.length; i++) {
+                if (UtilOperator.isArfcnInOperator(operator, tmpFcns[i])) {
                     tmpPa += "-5,";
-                }else{
+                } else {
                     tmpPa += "-80,";
                 }
             }
-            ProtocolManager.setChannelConfig(tmpCfg.getIdx(), "", "", tmpPa.substring(0, tmpPa.length()-1),"", "","", "");
+            ProtocolManager.setChannelConfig(tmpCfg.getIdx(), "", "", tmpPa.substring(0, tmpPa.length() - 1), "", "", "", "");
             tmpPa = "";
         }
     }
@@ -113,11 +170,11 @@ public class UtilOperator {
             return 3;
         } else if (rangeInDefined(fcn, 37750, 38250)) {
             return 38;
-        }else if (rangeInDefined(fcn, 38250, 38650)){
+        } else if (rangeInDefined(fcn, 38250, 38650)) {
             return 39;
-        }else if (rangeInDefined(fcn, 38650, 39650)){
+        } else if (rangeInDefined(fcn, 38650, 39650)) {
             return 40;
-        }else if (rangeInDefined(fcn, 39650, 41589))
+        } else if (rangeInDefined(fcn, 39650, 41589))
             return 41;
 
         return -1;

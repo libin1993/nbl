@@ -214,6 +214,14 @@ public class LoginActivity extends BaseActivity {
                 }
 
                 AccountManage.getAdminAccoutFromPref();
+                if (!userName.equals(AccountManage.getSuperAccount()) && !userName.equals(AccountManage.getAdminAcount())){
+
+                    getAccountInfoFormDevice();
+                    if (!AccountManage.hasGetAccountFromDev()){
+                        return;
+                    }
+                }
+
 
                 if (AccountManage.checkAccount(userName, password)) {
                     if (ckRememberPass.isChecked()) { // 检查复选框是否被选中

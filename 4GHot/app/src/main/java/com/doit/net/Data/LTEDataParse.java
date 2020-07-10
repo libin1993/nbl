@@ -317,6 +317,9 @@ public class LTEDataParse {
                     break;
                 case "POLLFCN":
                     lteChannelCfg.setFcn(split1[1]);
+                    if (CacheManager.fcnMap.size() <2){     //保存初始轮询频点
+                        CacheManager.fcnMap.put(lteChannelCfg.getIp(),split1[1]);
+                    }
                     break;
                 case "POLLTMR":
                     lteChannelCfg.setPollTmr(split1[1]);
@@ -410,8 +413,9 @@ public class LTEDataParse {
             if (CacheManager.getLocState()) {
                 if (imsi.equals(CacheManager.getCurrentLoction().getImsi())) {
                     ReportBean reportBean = new ReportBean();
-                    reportBean.setIp(imsi);
+                    reportBean.setIp(ltePackage.getIp());
                     reportBean.setRssi(rssi);
+                    reportBean.setImsi(imsi);
                     EventAdapter.call(EventAdapter.LOCATION_RPT, reportBean);
                 }
             }
@@ -464,7 +468,7 @@ public class LTEDataParse {
 
         LTESendManager.sendData(ltePackage.getIp(), LTEMsgCode.Type.APP_ACK, LTEMsgCode.RptCode.RPT_HEART_BEAT, null); //心跳回复
         EventAdapter.call(EventAdapter.HEARTBEAT_RPT);
-        EventAdapter.call(EventAdapter.RF_STATUS_LOC);
+        EventAdapter.call(EventAdapter.RF_STATUS_RPT);
         EventAdapter.call(EventAdapter.RF_STATUS_LOC);
     }
 
@@ -512,6 +516,9 @@ public class LTEDataParse {
             return;
         }
 
+        if (CacheManager.getLocState()){   //当前正在定位则不设置频点
+            return;
+        }
 
         String[] split = ltePackage.getPackageContent().split("\r\n");
         if (split.length == 0) {
@@ -523,15 +530,13 @@ public class LTEDataParse {
             String[] split1 = s.split("\t");
             for (String s1 : split1) {
                 String[] split2 = s1.split(":");
-                switch (split2[0]) {
-                    case "EARFCN":
-                        int fcn = Integer.parseInt(split2[1]);
-                        if (fcn > 20000) {
-                            tddFcn.add(fcn);
-                        } else {
-                            fddFcn.add(fcn);
-                        }
-                        break;
+                if ("EARFCN".equals(split2[0])) {
+                    int fcn = Integer.parseInt(split2[1]);
+                    if (fcn >=37750 && fcn<=41589) {     //b38、b39、b40、b41
+                        tddFcn.add(fcn);
+                    } else if ((fcn >= 0 && fcn <= 599) || (fcn >= 1200 && fcn <= 1949)){   //b1、b3
+                        fddFcn.add(fcn);
+                    }
                 }
             }
         }
@@ -543,7 +548,10 @@ public class LTEDataParse {
             for (Integer integer : fddFcn) {
                 sb.append(integer).append(",");
             }
-            ProtocolManager.setFcn(NetConfig.FDD_IP, sb.substring(0, sb.length() - 1), "10");
+
+            String fcn = sb.substring(0, sb.length() - 1);
+            CacheManager.fcnMap.put(NetConfig.FDD_IP,fcn);
+            ProtocolManager.setFcn(NetConfig.FDD_IP, fcn, "10");
         }
 
         //设置TDD频点轮询
@@ -553,7 +561,9 @@ public class LTEDataParse {
                 sb.append(integer).append(",");
             }
 
-            ProtocolManager.setFcn(NetConfig.TDD_IP, sb.substring(0, sb.length() - 1), "10");
+            String fcn = sb.substring(0, sb.length() - 1);
+            CacheManager.fcnMap.put(NetConfig.TDD_IP,fcn);
+            ProtocolManager.setFcn(NetConfig.TDD_IP, fcn, "10");
         }
 
     }

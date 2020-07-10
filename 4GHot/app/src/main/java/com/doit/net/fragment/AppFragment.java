@@ -1,5 +1,6 @@
 package com.doit.net.fragment;
 
+import com.doit.net.Data.LTEDataParse;
 import com.doit.net.Event.EventAdapter;
 import com.doit.net.Utils.FTPServer;
 import com.doit.net.Utils.FileUtils;
@@ -39,6 +40,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.doit.net.base.BaseFragment;
@@ -67,6 +69,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
+
+import static com.doit.net.Utils.FileUtils.ROOT_PATH;
 
 public class AppFragment extends BaseFragment implements EventAdapter.EventCall {
 
@@ -123,17 +127,17 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
     private ListView lvPackageList;
     private LinearLayout layoutUpgradePackage;
     private PopupWindow mPopupWindow;
-//    private PopupWindow mPwProgress;
-//    private ProgressBar pbFirstEquip;
-//    private TextView tvFirstIp;
-//    private TextView tvFirstProgress;
-//    private ProgressBar pbSecondEquip;
-//    private TextView tvSecondIp;
-//    private TextView tvSecondProgress;
+    private PopupWindow mPwProgress;
+    private ProgressBar pbFirstEquip;
+    private TextView tvFirstIp;
+    private TextView tvFirstProgress;
+    private ProgressBar pbSecondEquip;
+    private TextView tvSecondIp;
+    private TextView tvSecondProgress;
 
     private long fileSize; //升级包大小
 
-    private MySweetAlertDialog mProgressDialog;
+//    private MySweetAlertDialog mProgressDialog;
 
 
     //handler消息
@@ -277,7 +281,7 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
         }
 
 
-        initProgressDialog();
+//        initProgressDialog();
         tvVersion.setRightText(VersionManage.getVersionName(getContext()));
 
         if (AccountManage.getCurrentPerLevel() >= AccountManage.PERMISSION_LEVEL2) {
@@ -291,11 +295,11 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
         }
     }
 
-    private void initProgressDialog() {
-        mProgressDialog = new MySweetAlertDialog(getContext(), MySweetAlertDialog.PROGRESS_TYPE);
-        mProgressDialog.setTitleText("升级包正在加载，请耐心等待...");
-        mProgressDialog.setCancelable(false);
-    }
+//    private void initProgressDialog() {
+//        mProgressDialog = new MySweetAlertDialog(getContext(), MySweetAlertDialog.PROGRESS_TYPE);
+//        mProgressDialog.setTitleText("升级包正在加载，请耐心等待...");
+//        mProgressDialog.setCancelable(false);
+//    }
 
     private void showDeviceInfoDialog() {
         if (!CacheManager.checkDevice(getContext()))
@@ -323,10 +327,10 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
         layoutUpgradePackage = dialogView.findViewById(R.id.layoutUpgradePackage);
 
         //设置Popup具体参数
-        mPopupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
+//        mPopupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
         mPopupWindow.setFocusable(true);//点击空白，popup不自动消失
         mPopupWindow.setTouchable(true);//popup区域可触摸
-        mPopupWindow.setOutsideTouchable(true);//非popup区域可触摸
+        mPopupWindow.setOutsideTouchable(false);//非popup区域可触摸
         mPopupWindow.showAtLocation(getActivity().getWindow().getDecorView(), Gravity.CENTER, 0, 0);
 
     }
@@ -380,7 +384,7 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
         public void onClick(View v) {
 
 
-            File file = new File(FileUtils.ROOT_PATH);
+            File file = new File(ROOT_PATH);
             if (!file.exists()) {
                 ToastUtils.showMessageLong("未找到升级包，请确认已将升级包放在\"手机存储/"+FileUtils.ROOT_DIRECTORY+"/\"目录下");
                 return;
@@ -397,7 +401,7 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
             for (int i = 0; i < files.length; i++) {
                 tmpFileName = files[i].getName();
                 //UtilBaseLog.printLog("获取升级包：" + tmpFileName);
-                if (tmpFileName.endsWith(".img") && getFileSize(FileUtils.ROOT_PATH + "/" + tmpFileName)>2000000)
+                if (tmpFileName.endsWith(".img") && getFileSize(ROOT_PATH + "/" + tmpFileName)>2000000)
                     fileList.add(tmpFileName);
             }
             if (fileList.size() == 0) {
@@ -430,11 +434,11 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
                                     ProtocolManager.systemUpgrade(NetWorkUtils.getWIFILocalIpAddress(), FTPServer.FTP_PORT + "",
                                             FTPServer.USERNAME, FTPServer.PASSWORD, choosePackage);
 
-//                                    getFileSize(FTP_SERVER_PATH + "/" + choosePackage);
-//                                    updateProgress();
+                                    getFileSize(ROOT_PATH + "/" + choosePackage);
+                                    updateProgress();
 
                                     sweetAlertDialog.dismiss();
-                                    mProgressDialog.show();
+//                                    mProgressDialog.show();
                                 }
                             }).show();
 
@@ -465,30 +469,28 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
     /**
      * 升级进度
      */
-//    private void updateProgress() {
-//        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.layout_popup_update, null);
-//        mPwProgress = new PopupWindow(dialogView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-//
-//        //设置Popup具体参数
-//        mPwProgress.setOutsideTouchable(false);//非popup区域可触摸
-//        mPwProgress.setTouchable(true);//popup区域可触摸
-//        mPwProgress.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
-//        mPwProgress.showAtLocation(getActivity().getWindow().getDecorView(), Gravity.CENTER, 0, 0);
-//
-//        pbFirstEquip = dialogView.findViewById(R.id.pb_first_equip);
-//        tvFirstIp = dialogView.findViewById(R.id.tv_first_ip);
-//        tvFirstProgress = dialogView.findViewById(R.id.tv_first_progress);
-//
-//        pbSecondEquip = dialogView.findViewById(R.id.pb_second_equip);
-//        tvSecondIp = dialogView.findViewById(R.id.tv_second_ip);
-//        tvSecondProgress = dialogView.findViewById(R.id.tv_second_progress);
-//
-//
-//        List<String> ipList = new ArrayList<>(LTEDataParse.set.keySet());
-//
-//        tvFirstIp.setText(ipList.get(0));
-//        tvSecondIp.setText(ipList.get(1));
-//    }
+    private void updateProgress() {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.layout_popup_update, null);
+        mPwProgress = new PopupWindow(dialogView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+        //设置Popup具体参数
+        mPwProgress.setOutsideTouchable(true);//非popup区域可触摸
+        mPwProgress.setTouchable(true);//popup区域可触摸
+        mPwProgress.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
+        mPwProgress.showAtLocation(getActivity().getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+
+        pbFirstEquip = dialogView.findViewById(R.id.pb_first_equip);
+        tvFirstIp = dialogView.findViewById(R.id.tv_first_ip);
+        tvFirstProgress = dialogView.findViewById(R.id.tv_first_progress);
+
+        pbSecondEquip = dialogView.findViewById(R.id.pb_second_equip);
+        tvSecondIp = dialogView.findViewById(R.id.tv_second_ip);
+        tvSecondProgress = dialogView.findViewById(R.id.tv_second_progress);
+
+
+        tvFirstIp.setText(CacheManager.deviceList.get(0).getIp());
+        tvSecondIp.setText(CacheManager.deviceList.get(1).getIp());
+    }
 
     Handler mHandler = new Handler() {
         @Override
@@ -504,26 +506,31 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
                         .setContentText("失败原因：" + msg.obj)
                         .show();
             } else if (msg.what == SYSTEM_UPDATE) {
-//                if (mPwProgress == null || !mPwProgress.isShowing()) {
-//                    return;
-//                }
-//                String content = (String) msg.obj;
-//                String ip = content.split(",")[0];
-//                int progress = (int) (Long.parseLong(content.split(",")[1]) * 100 / fileSize);
-//                String firstIp = tvFirstIp.getText().toString().trim();
-//                String secondIp = tvSecondIp.getText().toString().trim();
-//
-//                if (ip.equals(firstIp)) {
-//                    pbFirstEquip.setProgress(progress);
-//                    tvFirstProgress.setText(progress + "%");
-//                } else {
-//                    pbSecondEquip.setProgress(progress);
-//                    tvSecondProgress.setText(progress + "%");
-//                }
-
-                if (mProgressDialog != null) {
-                    mProgressDialog.dismiss();
+                if (mPwProgress == null || !mPwProgress.isShowing()) {
+                    return;
                 }
+                String content = (String) msg.obj;
+                String ip = content.split(",")[0];
+                int progress = (int) (Long.parseLong(content.split(",")[1]) * 100 / fileSize);
+                String firstIp = tvFirstIp.getText().toString().trim();
+                String secondIp = tvSecondIp.getText().toString().trim();
+
+                if (ip.equals(firstIp)) {
+                    pbFirstEquip.setProgress(progress);
+                    tvFirstProgress.setText(progress + "%");
+                } else {
+                    pbSecondEquip.setProgress(progress);
+                    tvSecondProgress.setText(progress + "%");
+                }
+
+                if (pbFirstEquip.getProgress() == 100 && pbSecondEquip.getProgress() == 100){
+                    mPwProgress.dismiss();
+                    ToastUtils.showMessageLong("升级包加载成功，设备即将重启");
+                }
+
+//                if (mProgressDialog != null) {
+//                    mProgressDialog.dismiss();
+//                }
             }
         }
     };

@@ -185,17 +185,17 @@ public class AccountManage {
             }
         }
 
-//        new Thread() {
-//            public void run() {
-//                try {
-//                    FTPManager.getInstance().connect();
-//                    FTPManager.getInstance().uploadFile(LOCAL_FTP_ACCOUNT_PATH, ACCOUNT_FILE_NAME);
-//                    namelistFile.delete();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }.start();
+        new Thread() {
+            public void run() {
+                try {
+                    FTPManager.getInstance().connect();
+                    FTPManager.getInstance().uploadFile(LOCAL_FTP_ACCOUNT_PATH, ACCOUNT_FILE_NAME);
+                    namelistFile.delete();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
 
 
 

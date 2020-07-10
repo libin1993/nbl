@@ -77,7 +77,7 @@ public class AddUserDialog extends Dialog {
                 }
 
                 dismiss();
-                EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.ADD_USER+name+"+"+password);
+                EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.ADD_USER+"账号："+name+"密码："+password+"备注："+remark);
             }
         });
 
@@ -110,16 +110,16 @@ public class AddUserDialog extends Dialog {
             ToastUtils.showMessage(R.string.add_success);
 
 
-//            if (AccountManage.UpdateAccountToDevice()){
-//                ToastUtils.showMessage(getContext(),R.string.add_success);
-//                return 0;
-//            }else{
-//                dbManager.delete(info);
-//                new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
-//                        .setTitleText(getContext().getString(R.string.add_user_fail))
-//                        .setContentText(getContext().getString(R.string.add_user_fail_ftp))
-//                        .show();
-//            }
+            if (AccountManage.UpdateAccountToDevice()){
+                ToastUtils.showMessage(R.string.add_success);
+                return 0;
+            }else{
+                dbManager.delete(info);
+                new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
+                        .setTitleText(getContext().getString(R.string.add_user_fail))
+                        .setContentText(getContext().getString(R.string.add_user_fail_ftp))
+                        .show();
+            }
 
         } catch (DbException e) {
             new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)

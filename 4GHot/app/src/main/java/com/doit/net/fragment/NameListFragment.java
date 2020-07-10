@@ -258,7 +258,7 @@ public class NameListFragment extends BaseFragment implements EventAdapter.Event
                         mHandler.sendMessage(message);
 
 
-                        EventAdapter.call(EventAdapter.ADD_BLACKBOX, BlackBoxManger.EXPORT_WHITELIST + BLACKLIST_FILE_PATH);
+                        EventAdapter.call(EventAdapter.ADD_BLACKBOX, BlackBoxManger.EXPORT_NAMELIST + BLACKLIST_FILE_PATH);
 
                     } catch (Exception e) {
                         /* proper exception handling to be here */

@@ -47,7 +47,6 @@ import java.util.TimerTask;
  * @date 2016-4-26 下午3:37:39
  */
 public class CacheManager {
-    public static String DEVICE_IP = "192.168.4.100";
 
     public static List<UeidBean> realtimeUeidList = new ArrayList<>();
     public static final int MAX_REALTIME_LIST_SIZE = 300;
@@ -79,6 +78,7 @@ public class CacheManager {
     private static LteEquipConfig equipConfig;
     public static List<LteChannelCfg> channels = new ArrayList<>();
     public static List<DeviceInfo>  deviceList = new ArrayList<>();
+    public static Map<String,String>  fcnMap = new HashMap<>();   //FDD、TDD默认轮询频点
 
     public static byte[] magic;   //协议默认字段 00 FF FF 00
 
@@ -355,6 +355,7 @@ public class CacheManager {
         //deviceInfo = null;
         channels.clear();
         deviceList.clear();
+        fcnMap.clear();
 
     }
 

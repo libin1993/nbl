@@ -168,7 +168,6 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
                 initSpeech();
                 initFTP();
                 initBlackBox();
-
             }
         }.start();
     }
@@ -190,12 +189,10 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
 
     private void initBlackBox() {
-        if (VersionManage.isArmyVer())
-            return;
 
         BlackBoxManger.setCurrentAccount(AccountManage.getCurrentLoginAccount());
         BlackBoxManger.initBlx();
-        BlackBoxManger.recordOperation(BlackBoxManger.LOGIN + AccountManage.getCurrentLoginAccount());
+
     }
 
     private void initNetWork() {
@@ -328,7 +325,6 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
     private void clearDataDir() {
         AccountManage.deleteAccountFile();
-        BlackBoxManger.clearBlxData();
     }
 
     private void initTabs() {
@@ -470,7 +466,7 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         }
 
 
-        //BlackBoxManger.uploadCurrentBlxFile(); //会卡顿一段时间，体验很差
+//        BlackBoxManger.uploadCurrentBlxFile(); //会卡顿一段时间，体验很差
         clearDataDir();
 
         unregisterReceiver(networkChangeReceiver);
@@ -485,7 +481,7 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         }
 
         isCheckDeviceStateThreadRun = false;
-        FTPManager.getInstance().closeFTP();
+
         LogUtils.unInitLog();
         finish();
         System.exit(0);
@@ -543,59 +539,6 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
     private NetworkChangeReceiver networkChangeReceiver;
 
-//    public class MainTabLayoutAdapter1 extends FragmentPagerAdapter {
-//        private List<BaseFragment> mList;
-//        private List<String> mTitles;
-//        private FragmentManager fm;
-//
-//        public MainTabLayoutAdapter1(FragmentManager fm, List<BaseFragment> list, List<String> titles) {
-//            super(fm);
-//            this.mList = list;
-//            this.mTitles = titles;
-//            this.fm = fm;
-//        }
-//
-//        @Override
-//        public Fragment getItem(int position) {
-//            return mList.get(position);
-//        }
-//
-//        @Override
-//        public int getItemPosition(Object object) {
-//            return POSITION_NONE;
-//        }
-//
-//        @Override
-//        public int getCount() {
-//            return mList.size();
-//        }
-//
-//        @Override
-//        public CharSequence getPageTitle(int position) {
-//            return mTitles == null ? super.getPageTitle(position) : mTitles.get(position);
-//        }
-//
-//        @Override
-//        public Object instantiateItem(ViewGroup container, int position) {
-//            Fragment fragment = (Fragment) super.instantiateItem(container, position);
-//            String fragmentTag = fragment.getTag();
-//            if (fragmentsUpdateFlag[position % fragmentsUpdateFlag.length]) {
-//                FragmentTransaction ft = fm.beginTransaction();
-//                ft.remove(fragment);
-//                fragment = mTabs.get(position % mTabs.size());
-//                //添加新fragment时必须用前面获得的tag，这点很重要
-//                ft.add(container.getId(), fragment, fragmentTag == null ? fragment.getClass().getName() + position : fragmentTag);
-//                ft.attach(fragment);
-//                ft.commit();
-//
-//                fragmentsUpdateFlag[position % fragmentsUpdateFlag.length] = false;
-//            } else {
-//                fragment = mTabs.get(position);
-//
-//            }
-//            return fragment;
-//        }
-//    }
 
     private void powerStart() {
         turnToUeidPage();
@@ -744,14 +687,6 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
             workMode = "2";
         }
 
-//        ProtocolManager.setActiveMode(workMode);
-//
-//        if (workMode.equals("2")){
-//            CacheManager.setLocalWhiteList("on");
-//        }else {
-//            CacheManager.setLocalWhiteList("off");
-//        }
-
         LogUtils.log("设置默认工作模式：" + workMode);
         ProtocolManager.setActiveMode();
         CacheManager.currentWorkMode = workMode;
@@ -897,7 +832,6 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
             hasSetDefaultParam = false;
             CacheManager.resetState();
 
-            CacheManager.DEVICE_IP = utilSocket.remoteIP;
         }
 
         @Override

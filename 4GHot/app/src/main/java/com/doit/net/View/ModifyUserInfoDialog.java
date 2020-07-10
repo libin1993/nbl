@@ -71,67 +71,62 @@ public class ModifyUserInfoDialog extends Dialog {
         btSave.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-            if ("".equals(etUserName.getText().toString()) || "".equals(etPassword.getText().toString())){
-                ToastUtils.showMessage("账号或密码为空，请确认后输入！");
-                return;
-            }
-
-            try {
-                DbManager db = UCSIDBManager.getDbManager();
-                UserInfo tmpUserInfo = db.selector(UserInfo.class)
-                        .where("account", "=", modifyName)
-                        .findFirst();
-
-                if (tmpUserInfo == null){
-                    ToastUtils.showMessage(R.string.modify_user_fail);
+                if ("".equals(etUserName.getText().toString()) || "".equals(etPassword.getText().toString())){
+                    ToastUtils.showMessage("账号或密码为空，请确认后输入！");
                     return;
                 }
 
-                if (!modifyName.equals(etUserName.getText().toString())){
-                    long count = db.selector(UserInfo.class)
-                            .where("account","=",etUserName.getText().toString())
-                            .count();
-                    if(count>0){
-                        ToastUtils.showMessage( R.string.same_user);
+                try {
+                    DbManager db = UCSIDBManager.getDbManager();
+                    UserInfo tmpUserInfo = db.selector(UserInfo.class)
+                            .where("account", "=", modifyName)
+                            .findFirst();
+
+                    if (tmpUserInfo == null){
+                        ToastUtils.showMessage(R.string.modify_user_fail);
                         return;
                     }
+
+                    if (!modifyName.equals(etUserName.getText().toString())){
+                        long count = db.selector(UserInfo.class)
+                                .where("account","=",etUserName.getText().toString())
+                                .count();
+                        if(count>0){
+                            ToastUtils.showMessage(R.string.same_user);
+                            return;
+                        }
+                    }
+
+                    tmpUserInfo.setAccount(etUserName.getText().toString());
+                    tmpUserInfo.setRemake(etRemake.getText().toString());
+                    tmpUserInfo.setPassword(etPassword.getText().toString());
+                    UCSIDBManager.getDbManager().update(tmpUserInfo, "account", "password", "remake");
+                    if (AccountManage.UpdateAccountToDevice()){
+                        ToastUtils.showMessage(R.string.modify_user_success);
+
+                        EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.MODIFY_USER+"修改账户"+modifyName+
+                                "为:账号："+etUserName.getText().toString() + "密码：" + etPassword.getText().toString() +
+                                ("".equals(etRemake.getText().toString())?"":("备注："+etRemake.getText().toString())));
+                    }else{
+                        tmpUserInfo.setAccount(modifyName);
+                        tmpUserInfo.setRemake(modifyRemake);
+                        tmpUserInfo.setPassword(modifyPassword);
+                        UCSIDBManager.getDbManager().update(tmpUserInfo, "account", "password", "remake");
+
+                        new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
+                                .setTitleText(getContext().getString(R.string.modify_user_fail))
+                                .setContentText(getContext().getString(R.string.modify_user_fail_ftp))
+                                .show();
+                    }
+
+
+                } catch (DbException e) {
+                    new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText(getContext().getString(R.string.modify_user_fail))
+                            .show();
                 }
 
-                tmpUserInfo.setAccount(etUserName.getText().toString());
-                tmpUserInfo.setRemake(etRemake.getText().toString());
-                tmpUserInfo.setPassword(etPassword.getText().toString());
-                UCSIDBManager.getDbManager().update(tmpUserInfo, "account", "password", "remake");
-                ToastUtils.showMessage(R.string.modify_user_success);
-                EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.MODIFY_USER+"修改账户"+modifyName+
-                        "为:"+etUserName.getText().toString() + "+" + etPassword.getText().toString() +
-                        ("".equals(etRemake.getText().toString())?"":("+"+etRemake.getText().toString())));
-
-//                if (AccountManage.UpdateAccountToDevice()){
-//                    ToastUtils.showMessage(getContext(),R.string.modify_user_success);
-//
-//                    EventAdapter.call(EventAdapter.ADD_BLACKBOX,BlackBoxManger.MODIFY_USER+"修改账户"+modifyName+
-//                            "为:"+etUserName.getText().toString() + "+" + etPassword.getText().toString() +
-//                            ("".equals(etRemake.getText().toString())?"":("+"+etRemake.getText().toString())));
-//                }else{
-//                    tmpUserInfo.setAccount(modifyName);
-//                    tmpUserInfo.setRemake(modifyRemake);
-//                    tmpUserInfo.setPassword(modifyPassword);
-//                    UCSIDBManager.getDbManager().update(tmpUserInfo, "account", "password", "remake");
-//
-//                    new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
-//                            .setTitleText(getContext().getString(R.string.modify_user_fail))
-//                            .setContentText(getContext().getString(R.string.modify_user_fail_ftp))
-//                            .show();
-//                }
-
-
-            } catch (DbException e) {
-                new SweetAlertDialog(getContext(), SweetAlertDialog.ERROR_TYPE)
-                        .setTitleText(getContext().getString(R.string.modify_user_fail))
-                        .show();
-            }
-
-            dismiss();
+                dismiss();
             }
         });
 
