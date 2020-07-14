@@ -12,6 +12,7 @@ import com.doit.net.activity.DeviceParamActivity;
 import com.doit.net.activity.HistoryListActivity;
 import com.doit.net.activity.JustForTest;
 import com.doit.net.View.LicenceDialog;
+import com.doit.net.activity.ScanFcnActivity;
 import com.doit.net.activity.SystemSettingActivity;
 import com.doit.net.activity.UserManageActivity;
 import com.doit.net.activity.WhitelistManagerActivity;
@@ -108,6 +109,8 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
     @ViewInject(R.id.btDeviceParam)
     private LSettingItem btDeviceParam;
 
+    @ViewInject(R.id.btScanFcn)
+    private LSettingItem btScanFcn;
 
     @ViewInject(R.id.btDeviceFcn)
     private LSettingItem btDeviceFcn;
@@ -217,6 +220,16 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
             @Override
             public void click(LSettingItem item) {
                 startActivity(new Intent(getActivity(), DeviceParamActivity.class));
+            }
+        });
+
+        btScanFcn.setmOnLSettingItemClick(new LSettingItem.OnLSettingItemClick() {
+            @Override
+            public void click(LSettingItem item) {
+                if (!CacheManager.checkDevice(getContext()))
+                    return;
+
+                startActivity(new Intent(getActivity(), ScanFcnActivity.class));
             }
         });
 

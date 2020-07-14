@@ -65,8 +65,8 @@ public class LTEDataParse {
             }
 
             //删除内存列表中的数据
-            for (int j = 0; j < contentLen; j++) {
-                listReceiveBuffer.remove(0);
+            if (contentLen > 0) {
+                listReceiveBuffer.subList(0, contentLen).clear();
             }
 
             //解析包
@@ -542,29 +542,29 @@ public class LTEDataParse {
         }
 
 
-        //设置FDD频点轮询
-        if (fddFcn.size() > 0) {
-            StringBuilder sb = new StringBuilder();
-            for (Integer integer : fddFcn) {
-                sb.append(integer).append(",");
-            }
-
-            String fcn = sb.substring(0, sb.length() - 1);
-            CacheManager.fcnMap.put(NetConfig.FDD_IP,fcn);
-            ProtocolManager.setFcn(NetConfig.FDD_IP, fcn, "10");
-        }
-
-        //设置TDD频点轮询
-        if (tddFcn.size() > 0) {
-            StringBuilder sb = new StringBuilder();
-            for (Integer integer : tddFcn) {
-                sb.append(integer).append(",");
-            }
-
-            String fcn = sb.substring(0, sb.length() - 1);
-            CacheManager.fcnMap.put(NetConfig.TDD_IP,fcn);
-            ProtocolManager.setFcn(NetConfig.TDD_IP, fcn, "10");
-        }
+//        //设置FDD频点轮询
+//        if (fddFcn.size() > 0) {
+//            StringBuilder sb = new StringBuilder();
+//            for (Integer integer : fddFcn) {
+//                sb.append(integer).append(",");
+//            }
+//
+//            String fcn = sb.substring(0, sb.length() - 1);
+//            CacheManager.fcnMap.put(NetConfig.FDD_IP,fcn);
+//            ProtocolManager.setFcn(NetConfig.FDD_IP, fcn, "10");
+//        }
+//
+//        //设置TDD频点轮询
+//        if (tddFcn.size() > 0) {
+//            StringBuilder sb = new StringBuilder();
+//            for (Integer integer : tddFcn) {
+//                sb.append(integer).append(",");
+//            }
+//
+//            String fcn = sb.substring(0, sb.length() - 1);
+//            CacheManager.fcnMap.put(NetConfig.TDD_IP,fcn);
+//            ProtocolManager.setFcn(NetConfig.TDD_IP, fcn, "10");
+//        }
 
     }
 

@@ -15,11 +15,8 @@ public class DBChannel {
     @Column(name = "id", isId = true)
     private int id;
 
-    @Column(name = "idx")
-    private String idx;
-
-    @Column(name = "band")
-    private String band;
+    @Column(name = "ip")
+    private String ip;
 
     @Column(name = "fcn")
     private String fcn;
@@ -30,13 +27,6 @@ public class DBChannel {
     @Column(name = "is_check")
     private int isCheck;
 
-    public String getBand() {
-        return band;
-    }
-
-    public void setBand(String band) {
-        this.band = band;
-    }
 
     public String getFcn() {
         return fcn;
@@ -70,18 +60,17 @@ public class DBChannel {
         this.id = id;
     }
 
-    public String getIdx() {
-        return idx;
+    public String getIp() {
+        return ip;
     }
 
-    public void setIdx(String idx) {
-        this.idx = idx;
+    public void setIp(String ip) {
+        this.ip= ip;
     }
 
 
-    public DBChannel(String idx, String band, String fcn, int isDefault, int isCheck) {
-        this.idx = idx;
-        this.band = band;
+    public DBChannel(String ip, String fcn, int isDefault, int isCheck) {
+        this.ip = ip;
         this.fcn = fcn;
         this.isDefault = isDefault;
         this.isCheck = isCheck;

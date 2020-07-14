@@ -102,6 +102,7 @@ public class ChannelListViewAdapter extends BaseAdapter {
 //                    }
 //                }
 
+                CacheManager.fcnMap.put(cfg.getIp(),fcn);
 
                 ToastUtils.showMessage( R.string.tip_15);
 

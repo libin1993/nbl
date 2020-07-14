@@ -4,6 +4,8 @@ import android.text.TextUtils;
 
 import com.doit.net.Model.CacheManager;
 import com.doit.net.Sockets.ServerSocketUtils;
+import com.doit.net.Utils.LogUtils;
+import com.doit.net.Utils.ToastUtils;
 import com.doit.net.Utils.UtilDataFormatChange;
 import com.doit.net.bean.DeviceInfo;
 import com.doit.net.bean.LteChannelCfg;
@@ -28,6 +30,10 @@ public class LTESendManager {
 
 
     public static void sendData(String ip,String msgType, String msgCode, String packageContent) {
+        if (CacheManager.magic == null){
+            LogUtils.log("网络未连接");
+            return;
+        }
         int length = 4;  //消息内容长度
         byte[] magic = CacheManager.magic;
         byte[] msgId = UtilDataFormatChange.intToByteArray(LTEProtocol.getId());
@@ -58,6 +64,7 @@ public class LTESendManager {
 
 
         ByteArrayBuffer byteArray = new ByteArrayBuffer(length);
+
         byteArray.append(magic, 0, magic.length);
         byteArray.append(msgId, 0, msgId.length);
         byteArray.append(dataLength, 0, dataLength.length);

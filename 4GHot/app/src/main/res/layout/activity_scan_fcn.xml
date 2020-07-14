@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    android:focusableInTouchMode="true">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dark_gray"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开机自动扫网"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="12dp"/>
+
+        <CheckBox
+            android:id="@+id/cb_scn_fcn"
+            android:layout_width="54dp"
+            android:layout_height="24dp"
+            android:button="@null"
+            android:background="@drawable/rf_switch_style"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:checked="true"
+            android:layout_marginRight="12dp"/>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.6dp"
+        android:background="@color/dimgrey"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/et_input_fcn"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:paddingStart="5dp"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:background="@drawable/common_edit_text_bkg"
+            android:maxLength="5"
+            android:digits="@string/number_rule"
+            android:inputType="number"
+            android:singleLine="true"
+            android:imeOptions="actionSearch"
+            android:hint="请输入扫网频点"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="30dp"
+            android:textColorHint="@color/gray_btn_bg_pressed_color"/>
+
+
+        <Button
+            android:id="@+id/btn_add_fcn"
+            android:layout_height="30dp"
+            android:layout_width="80dp"
+            android:textSize="14sp"
+            android:textColor="@color/darkorange"
+            android:background="@drawable/common_button_bkg"
+            android:text="添加"
+            android:layout_marginRight="12dp"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.6dp"
+        android:background="@color/dimgrey"/>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_scan_fcn"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/ueid_bkg"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.6dp"
+        android:background="@color/dimgrey"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <CheckBox
+            android:id="@+id/cb_select_all_fcn"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:button="@null"
+            android:background="@drawable/cb_selector"
+            android:layout_marginLeft="12dp"
+            android:checked="false"
+            android:drawablePadding="3dp"
+            android:textSize="10sp"
+            android:layout_centerVertical="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="全选"
+            android:textSize="10sp"
+            android:textColor="@android:color/white"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/cb_select_all_fcn"
+            android:layout_marginLeft="3dp"/>
+
+
+        <Button
+            android:id="@+id/btn_save_fcn"
+            android:layout_height="30dp"
+            android:layout_width="80dp"
+            android:textSize="14sp"
+            android:textColor="@color/darkorange"
+            android:background="@drawable/common_button_bkg"
+            android:text="扫网"
+            android:layout_marginRight="12dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
+
+        <Button
+            android:id="@+id/btn_delete_fcn"
+            android:layout_height="30dp"
+            android:layout_width="80dp"
+            android:textSize="14sp"
+            android:textColor="@color/darkorange"
+            android:background="@drawable/common_button_bkg"
+            android:text="删除"
+            android:layout_marginRight="12dp"
+            android:layout_toLeftOf="@id/btn_save_fcn"
+            android:layout_centerVertical="true"/>
+
+
+    </RelativeLayout>
+
+</LinearLayout>

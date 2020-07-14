@@ -21,54 +21,18 @@
         android:gravity="center"
         android:layout_marginBottom="12dp" />
 
-    <LinearLayout
+    <EditText
+        android:id="@+id/et_fcn1"
         android:layout_width="160dp"
-        android:layout_height="32dp"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/et_fcn1"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:singleLine="true"
-            android:maxLength="5"
-            android:background="@drawable/common_edit_text_bkg"
-            android:digits="@string/number_rule"
-            android:layout_marginRight="5dp"
-            android:textColor="@android:color/white"
-            android:gravity="center"
-            android:textSize="13sp"
-            android:inputType="number"/>
-        <EditText
-            android:id="@+id/et_fcn2"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:singleLine="true"
-            android:maxLength="5"
-            android:background="@drawable/common_edit_text_bkg"
-            android:digits="@string/number_rule"
-            android:layout_marginRight="5dp"
-            android:textColor="@android:color/white"
-            android:gravity="center"
-            android:textSize="13sp"
-            android:inputType="number"/>
-        <EditText
-            android:id="@+id/et_fcn3"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:singleLine="true"
-            android:maxLength="5"
-            android:background="@drawable/common_edit_text_bkg"
-            android:digits="@string/number_rule"
-            android:textColor="@android:color/white"
-            android:gravity="center"
-            android:textSize="13sp"
-            android:inputType="number"/>
-    </LinearLayout>
-
-
-
+        android:layout_height="wrap_content"
+        android:minHeight="60dp"
+        android:background="@drawable/common_edit_text_bkg"
+        android:digits="@string/fcn_rule"
+        android:textColor="@android:color/white"
+        android:textSize="13sp"
+        android:padding="5dp"
+        android:gravity="top"
+        android:inputType="number"/>
 
     <LinearLayout
         android:layout_width="match_parent"

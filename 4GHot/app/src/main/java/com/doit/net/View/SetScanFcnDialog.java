@@ -69,7 +69,7 @@ public class SetScanFcnDialog extends Dialog {
 
                 PrefManage.setString(PrefManage.SCAN_FCN,fcn);
 
-                ProtocolManager.getNetworkParams(fcn);
+//                ProtocolManager.getNetworkParams(fcn);
 
                 dismiss();
             }

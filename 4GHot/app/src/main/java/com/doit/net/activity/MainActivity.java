@@ -31,6 +31,9 @@ import android.widget.ImageView;
 
 import android.widget.Toast;
 
+import com.doit.net.Model.DBChannel;
+import com.doit.net.Model.DBScanFcn;
+import com.doit.net.Model.UCSIDBManager;
 import com.doit.net.Protocol.GSMSendPackage;
 import com.doit.net.Protocol.GSMSubPackage;
 import com.doit.net.Sockets.NetConfig;
@@ -53,8 +56,6 @@ import com.doit.net.Utils.FTPManager;
 import com.doit.net.Utils.LicenceUtils;
 import com.doit.net.Model.PrefManage;
 import com.doit.net.Model.VersionManage;
-import com.doit.net.Sockets.IServerSocketChange;
-import com.doit.net.Sockets.UtilServerSocketSub;
 import com.doit.net.Utils.DateUtils;
 import com.doit.net.Utils.FTPServer;
 import com.doit.net.Utils.FileUtils;
@@ -79,6 +80,8 @@ import com.flyco.tablayout.listener.OnTabSelectListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xutils.DbManager;
+import org.xutils.ex.DbException;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -110,9 +113,7 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
     private MySweetAlertDialog mProgressDialog;
     private boolean hasSetDefaultParam = false;   //开始全部打开射频标志
-    private boolean connectSuccess = false;   //两个socket连接成功
 
-    private int heartbeatCount = 0;
     private boolean isCheckDeviceStateThreadRun = true;
     private FTPServer ftpServer = new FTPServer();
 
@@ -159,6 +160,8 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         new Thread() {
             @Override
             public void run() {
+                initScanFcn();
+                initCustomFcn();
                 checkDataDir();
                 initEvent();
                 initWifiChangeReceive();
@@ -170,6 +173,55 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
                 initBlackBox();
             }
         }.start();
+    }
+
+    /**
+     * 设置自定义频点
+     */
+    private void initCustomFcn() {
+        String fddFcn = "100,350,500,1300,1506,1650,1850";
+        String tddFcn = "37900,38098,38400,38544,38950,39148,39250,40936,41134";
+
+        try {
+            DbManager dbManager = UCSIDBManager.getDbManager();
+            DBChannel fddChannel = dbManager.selector(DBChannel.class)
+                    .where("fcn", "=", fddFcn)
+                    .findFirst();
+            if (fddChannel == null) {
+                dbManager.save(new DBChannel(NetConfig.FDD_IP,fddFcn, 1, 1));
+            }
+
+
+            DBChannel tddChannel = dbManager.selector(DBChannel.class)
+                    .where("fcn", "=", tddFcn)
+                    .findFirst();
+            if (tddChannel == null) {
+                dbManager.save(new DBChannel(NetConfig.TDD_IP,tddFcn, 1, 1));
+            }
+
+        } catch (DbException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 设置默认扫网频点
+     */
+    private void initScanFcn() {
+        int[] fcnArr = new int[]{100,350,500,1300,1506,1650,1850,37900,38098,38400,38544,38950,39148,39250,40936,41134};
+        try {
+            for (int i : fcnArr) {
+                DbManager dbManager = UCSIDBManager.getDbManager();
+                DBScanFcn scanFcn = dbManager.selector(DBScanFcn.class)
+                        .where("fcn", "=", i)
+                        .findFirst();
+                if (scanFcn == null) {
+                    dbManager.save(new DBScanFcn(i, 1, 1));
+                }
+            }
+        } catch (DbException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -200,7 +252,7 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         ServerSocketUtils.getInstance().startTCP(new OnSocketChangedListener() {
             @Override
             public void onConnect() {
-
+                hasSetDefaultParam = false;
             }
 
             @Override
@@ -677,21 +729,6 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
     }
 
 
-
-
-    private void setDeviceWorkMode() {
-        String workMode = "";
-        if (VersionManage.isPoliceVer()) {
-            workMode = "0";
-        } else if (VersionManage.isArmyVer()) {
-            workMode = "2";
-        }
-
-        LogUtils.log("设置默认工作模式：" + workMode);
-        ProtocolManager.setActiveMode();
-        CacheManager.currentWorkMode = workMode;
-    }
-
     private void updateStatusBar(String deviceState) {
         switch (deviceState) {
             case DeviceState.WIFI_DISCONNECT:
@@ -817,37 +854,6 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         }
     }
 
-    private class ServerSocketChange implements IServerSocketChange {
-        @Override
-        public void onServerStartListener(String mainSocketTag) {
-        }
-
-        @Override
-        public void onServerReceiveNewLink(String subSocketTag, UtilServerSocketSub utilSocket) {
-            LogUtils.log("call onServerReceiveNewLink on main activity.");
-            CacheManager.deviceState.setDeviceState(DeviceState.ON_INIT);
-
-            heartbeatCount = 0;    //一旦发现是连接就重置此标志以设置所有配置
-            //设备重启（重连）后需要重新检查设置默认参数
-            hasSetDefaultParam = false;
-            CacheManager.resetState();
-
-        }
-
-        @Override
-        public void onServerReceiveError(String errorMsg) {
-            LogUtils.log("call onServerReceiveError");
-            CacheManager.deviceState.setDeviceState(DeviceState.ON_INIT);
-            // TODO Auto-generated method stub
-        }
-
-        @Override
-        public void onServerStopLink(String mainSocketTag) {
-            LogUtils.log("call onServerStopLink");
-            // TODO Auto-generated method stub
-        }
-    }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -911,18 +917,34 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
             if (!hasSetDefaultParam && CacheManager.deviceList.size() > 1) {
                 hasSetDefaultParam = true;
-                ProtocolManager.setActiveMode();
-                ProtocolManager.clearImsi();
+
+
+                if (!CacheManager.getLocState()){
+                    ProtocolManager.setActiveMode();
+                    ProtocolManager.clearImsi();
+                    ProtocolManager.setDefaultFcn();
+                }
+
+
                 ProtocolManager.setNowTime();
+                //是否设置开机自动扫网
+//                if (PrefManage.getBoolean(PrefManage.AUTO_SCAN_FCN, false)){
+//                    ProtocolManager.getNetworkParams();
+//                }
 
-                String scanFcn = PrefManage.getString(PrefManage.SCAN_FCN,PrefManage.DEFAULT_SCAN_FCN);
-                ProtocolManager.getNetworkParams(scanFcn);
+                if (CacheManager.hasPressStartButton()) {
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if (!CacheManager.getLocState()){
+                                ProtocolManager.openAllRf();
+                            }
+                        }
+                    }, 5000);
+                }
+
             }
 
-            heartbeatCount++;
-            if (heartbeatCount >= 1000) {
-                heartbeatCount = 0;
-            }
         }
     }
 

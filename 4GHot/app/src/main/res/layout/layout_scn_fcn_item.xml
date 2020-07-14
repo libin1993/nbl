@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:background="@android:color/black"
+    android:alpha="0.8">
+
+    <ImageView
+        android:id="@+id/iv_select_scan_fcn"
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:src="@mipmap/ic_fcn_normal"
+        android:scaleType="fitCenter"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="12dp"/>
+
+
+    <TextView
+        android:id="@+id/tv_scan_fcn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="20dp"
+        android:layout_toRightOf="@id/iv_select_scan_fcn" />
+
+
+    <LinearLayout
+        android:id="@+id/ll_delete_scan_fcn"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="12dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@mipmap/ic_delete_fcn"
+            android:scaleType="fitCenter" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="删除"
+            android:textColor="@android:color/white"
+            android:textSize="10sp"
+            android:layout_marginLeft="3dp"/>
+
+    </LinearLayout>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/dimgrey"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

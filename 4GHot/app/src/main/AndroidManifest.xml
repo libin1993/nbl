@@ -197,6 +197,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
             android:label="@string/custom_fcn"/>
+        <activity android:name="com.doit.net.activity.ScanFcnActivity"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:parentActivityName="com.doit.net.activity.MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+            android:label="@string/scan_fcn"/>
     </application>
 
 </manifest>

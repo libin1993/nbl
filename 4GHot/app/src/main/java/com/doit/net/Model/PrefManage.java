@@ -10,6 +10,9 @@ public class PrefManage {
     public static final String SHIELD_SWITCH_KEY = "SHIELD_SWITCH_KEY";
     public static final String SCAN_FCN= "SHIELD_SWITCH_KEY";   //扫网频点
     public static final String DEFAULT_SCAN_FCN= "100,350,500,1300,1506,1650,1850,37900,38098,38400,38544,38950,39148,39250,40936,41134";   //默认扫网频点
+
+    public static final String AUTO_SCAN_FCN= "AUTO_SCAN_FCN";   //开机自动扫网
+
     private static SharedPreferences settings;
     private static SharedPreferences.Editor editor;
     public static void init(Context context){

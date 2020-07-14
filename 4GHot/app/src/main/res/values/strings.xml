@@ -263,4 +263,5 @@
     <string name="upload_success">上传成功，共上传：%1$d条</string>
     <string name="upload_fail">上传失败了！</string>
     <string name="export_to_sdcard">导出所有数据到手机</string>
+    <string name="scan_fcn">扫网频点</string>
 </resources>

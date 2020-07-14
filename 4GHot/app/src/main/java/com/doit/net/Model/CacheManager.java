@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.Build;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 
 import com.doit.net.application.MyApplication;
 import com.doit.net.bean.DeviceInfo;
@@ -28,6 +29,7 @@ import com.doit.net.Utils.LogUtils;
 import com.doit.net.udp.g4.bean.G4MsgChannelCfg;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.xutils.DbManager;
 import org.xutils.ex.DbException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -169,55 +171,7 @@ public class CacheManager {
         CacheManager.getCurrentLoction().setLocateStart(true);
     }
 
-    /**
-     * @param imsi 切换imsi
-     */
-    public static void changeLocTarget(String imsi) {
-        ProtocolManager.setLocImsi(imsi);
 
-
-//        ProtocolManager.clearImsi();
-//
-//        new Timer().schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                ProtocolManager.setLocImsi(imsi);
-//            }
-//        }, 3000);
-
-    }
-
-    /**
-     * 关闭管控模式
-     */
-    public static void setLocalWhiteList(String mode) {
-        String imsi0 = getSimIMSI(0);
-        String imsi1 = getSimIMSI(1);
-
-        if (imsi0 == null || imsi0.equals("000000000000000"))
-            imsi0 = "";
-
-        if (imsi1 == null || imsi1.equals("000000000000000"))
-            imsi1 = "";
-
-
-        String whitelistContent = "";
-
-        if ("".equals(imsi0) && "".equals(imsi1)) {
-            whitelistContent = "";
-        } else if (!"".equals(imsi0) && "".equals(imsi1)) {
-            whitelistContent = imsi0;
-        } else if ("".equals(imsi0) && !"".equals(imsi1)) {
-            whitelistContent = imsi1;
-        } else {
-            whitelistContent = imsi0 + "," + imsi1;
-        }
-
-
-        ProtocolManager.setNameList(mode, "", whitelistContent,
-                "", "", "block", "", "");
-
-    }
 
     public static String getSimIMSI(int simid) {
         TelephonyManager telephonyManager = (TelephonyManager) MyApplication.mContext.getSystemService(Context.TELEPHONY_SERVICE);
@@ -539,53 +493,6 @@ public class CacheManager {
         }
     }
 
-    public static boolean isHighGa() {
-        if (!isDeviceOk())
-            return true;    //默认高
-
-        int allGa = 0;
-        for (LteChannelCfg channel : channels) {
-            allGa += Integer.parseInt(channel.getGa());
-        }
-
-        return allGa > 32;
-    }
-
-    public static void changeBand(final String idx, final String changeBand) {
-        ProtocolManager.changeBand(idx, changeBand);
-
-        //下发切换之后，等待生效，设置默认频点
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                String band38Fcns = "37900,38098,38200";
-                String band40Fcns = "38950,39148,39300";
-
-                switch (changeBand) {
-                    case "38":
-                        ProtocolManager.setChannelConfig(idx, band38Fcns, "", "", "", "", "", "");
-                        break;
-
-                    case "40":
-                        ProtocolManager.setChannelConfig(idx, band40Fcns, "", "", "", "", "", "");
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-        }, 5000);
-
-        //设置完频点，更新参数和界面
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                ProtocolManager.getEquipAndAllChannelConfig();
-            }
-        }, 12000);
-
-        EventAdapter.call(EventAdapter.SHOW_PROGRESS, 13000);
-    }
 
 
     /*
@@ -603,13 +510,5 @@ public class CacheManager {
         return false;
     }
 
-    public static void clearUeidWhithoutSrsp() {
-        for (int i = 0; i < realtimeUeidList.size(); i++) {
-            if (realtimeUeidList.get(i).getSrsp().equals("")) {
-                realtimeUeidList.remove(i);
-                i--;
-            }
-        }
-    }
 
 }

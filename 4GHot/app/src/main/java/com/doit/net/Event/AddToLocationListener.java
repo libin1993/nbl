@@ -79,6 +79,7 @@ public class AddToLocationListener implements View.OnClickListener
     private void startLocation(String imsi){
         String fddFcn = UtilOperator.getFcn(imsi,CacheManager.fcnMap.get(NetConfig.FDD_IP));
         String tddFcn = UtilOperator.getFcn(imsi,CacheManager.fcnMap.get(NetConfig.TDD_IP));
+
         if (!TextUtils.isEmpty(fddFcn)){
             ProtocolManager.setFcn(NetConfig.FDD_IP,fddFcn,"10");
         }

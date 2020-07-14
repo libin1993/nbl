@@ -12,7 +12,10 @@
         android:textColor="@android:color/white"
         android:textSize="14sp"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="20dp"/>
+        android:layout_marginRight="200dp"
+        android:layout_marginLeft="20dp"
+        android:maxLines="2"
+        android:ellipsize="end"/>
 
 
     <LinearLayout

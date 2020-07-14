@@ -58,7 +58,7 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
     private Button btUpdateTac;
     private Button btRebootDevice;
     private Button btRefreshParam;
-    private Button btnScanFcn;
+
     private long lastRefreshParamTime = 0; //防止频繁刷新参数
 
     private RadioGroup rgPowerLevel;
@@ -80,7 +80,7 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
     private CheckBox cbRFSwitch;
 
     private MySweetAlertDialog mProgressDialog;
-    private Handler checkHandler = new Handler();
+
     private boolean refreshViewEnable = true;   //在设置需要长时间回馈的参数时，禁止界面更新
 
     //handler消息
@@ -106,8 +106,7 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
 
         btSetChannelCfg = findViewById(R.id.btSetChannelCfg);
         btSetChannelCfg.setOnClickListener(setChannelCfgClick);
-        btnScanFcn = findViewById(R.id.btn_scan_fcn);
-        btnScanFcn.setOnClickListener(setScanFcnClick);
+
         btUpdateTac = findViewById(R.id.btUpdateTac);
         btUpdateTac.setOnClickListener(updateTacClick);
         btRebootDevice = findViewById(R.id.btRebootDevice);
@@ -179,18 +178,8 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
                 return;
             }
 
-            for (LteChannelCfg channel : CacheManager.channels) {
+            ProtocolManager.changeTac();
 
-                int tac = Integer.parseInt(channel.getTac());
-                if (tac < 65535) {
-                    tac++;
-                } else {
-                    tac = 1;
-                }
-                ProtocolManager.setChannel(channel.getIp(), null, null, null, null, String.valueOf(tac), null);
-            }
-
-            //ToastUtils.showMessage(GameApplication.appContext,"下发更新TAC成功");
             EventAdapter.call(EventAdapter.ADD_BLACKBOX, BlackBoxManger.CHANNEL_TAG);
         }
     };

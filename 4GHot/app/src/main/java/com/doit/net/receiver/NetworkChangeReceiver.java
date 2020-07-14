@@ -10,6 +10,7 @@ import android.net.wifi.WifiInfo;
 
 import com.doit.net.Event.EventAdapter;
 import com.doit.net.Model.CacheManager;
+import com.doit.net.Utils.LogUtils;
 import com.doit.net.Utils.MySweetAlertDialog;
 import com.doit.net.ucsi.R;
 
@@ -39,6 +40,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
             isShow = true;
             EventAdapter.call(EventAdapter.STOP_LOC);
+            LogUtils.log("Wifi断开");
             CacheManager.resetState();
         }
 

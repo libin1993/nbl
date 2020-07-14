@@ -204,7 +204,30 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone">
+            android:visibility="visible">
+
+            <View
+                android:layout_width="48dp"
+                android:layout_height="0.6dp"
+                android:background="@color/deepgrey2"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="0.6dp"
+                android:background="@color/dimgrey"/>
+        </LinearLayout>
+
+        <com.doit.net.Utils.LSettingItem
+            android:id="@+id/btScanFcn"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            app:leftIcon="@drawable/ic_custom_fcn"
+            app:leftText="@string/scan_fcn" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible">
 
             <View
                 android:layout_width="48dp"
@@ -223,8 +246,7 @@
             android:layout_width="match_parent"
             android:layout_height="42dp"
             app:leftIcon="@drawable/ic_custom_fcn"
-            app:leftText="@string/custom_fcn"
-            android:visibility="gone" />
+            app:leftText="@string/custom_fcn" />
 
         <View
             android:layout_width="match_parent"

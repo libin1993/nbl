@@ -107,11 +107,11 @@ public class ServerSocketUtils {
             byte[] bytesReceived = new byte[1024];
             //接收到流的数量
             int receiveCount;
-            Socket socket;
             LTEDataParse lteDataParse = new LTEDataParse();
+
             try {
                 //获取当前socket
-                socket = map.get(remoteIP);
+                Socket socket = map.get(remoteIP);
                 if (socket == null) {
                     return;
                 }
@@ -120,32 +120,20 @@ public class ServerSocketUtils {
                 InputStream inputStream = socket.getInputStream();
 
                 //循环接收数据
-                while (true) {
-                    //读取服务端发送给客户端的数据
-                    receiveCount = inputStream.read(bytesReceived);
-                    if (receiveCount <= -1) {
-                        LogUtils.log("break read!");
-
-                        closeSocket(remoteIP);  //关闭socket
-                        CacheManager.removeEquip(remoteIP);
-                        lteDataParse.clearReceiveBuffer();
-                        onSocketChangedListener.onDisconnect();
-                        break;
-                    }
-
-                    //收到数据
+                while ((receiveCount = inputStream.read(bytesReceived)) != -1) {
                     lteDataParse.parseData(remoteIP ,bytesReceived, receiveCount);
-
                 }
+
+                LogUtils.log("socket被关闭，读取长度：" + receiveCount);
+
             } catch (IOException ex) {
                 LogUtils.log("读取错误:" + ex.toString());
-
-                closeSocket(remoteIP);  //关闭socket
-                CacheManager.removeEquip(remoteIP);
-                lteDataParse.clearReceiveBuffer();
-                onSocketChangedListener.onDisconnect();
-
             }
+
+            closeSocket(remoteIP);  //关闭socket
+            CacheManager.removeEquip(remoteIP);
+            lteDataParse.clearReceiveBuffer();
+            onSocketChangedListener.onDisconnect();
         }
     }
 
@@ -177,7 +165,6 @@ public class ServerSocketUtils {
      * @return
      */
     public void sendData(String ip,byte[] tempByte) {
-        LogUtils.log("发送数据:"+ip+":" + Arrays.toString(tempByte));
 
         Socket socket = map.get(ip);
         if (socket != null) {
@@ -187,8 +174,9 @@ public class ServerSocketUtils {
                     try {
                         OutputStream outputStream = socket.getOutputStream();
                         outputStream.write(tempByte);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        LogUtils.log("socket发送失败："+e.getMessage());
                     }
                 }
             }.start();
