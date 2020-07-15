@@ -324,7 +324,7 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
             }
 
             if (fileList.size() == 0) {
-                ToastUtils.showMessageLong("未找到白名单，白名单必须是以\".xls\"或\".xlsx\"为后缀的文件");
+                ToastUtils.showMessageLong("\"手机存储/"+FileUtils.ROOT_DIRECTORY+"\"目录下未找到白名单，白名单必须是以\".xls\"或\".xlsx\"为后缀的文件");
                 return;
             }
 
@@ -338,7 +338,7 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
             RecyclerView rvFile = dialogView.findViewById(R.id.rv_file);
             Button btnCancel = dialogView.findViewById(R.id.btn_cancel_import);
             Button btnConfirm = dialogView.findViewById(R.id.btn_confirm_import);
-            TextView tvTitle = dialogView.findViewById(R.id.tv_name_list);
+            TextView tvTitle = dialogView.findViewById(R.id.tv_import_whitelist);
             tvTitle.setText("请选择白名单文件");
 
 

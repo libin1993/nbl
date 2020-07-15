@@ -242,16 +242,4 @@ public class BlackBoxManger {
     }
 
 
-//    public static void clearBlxData(){
-//        File file = new File(LOCAL_FTP_BLX_PATH);
-//        if(!file.exists()){//判断是否待删除目录是否存在
-//            return;
-//        }
-//
-//        String[] content = file.list();//取得当前目录下所有文件和文件夹
-//        for(String name : content){
-//            File temp = new File(LOCAL_FTP_BLX_PATH, name);
-//            temp.delete();
-//        }
-//    }
 }

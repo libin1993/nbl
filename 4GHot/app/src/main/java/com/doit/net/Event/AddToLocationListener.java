@@ -12,7 +12,6 @@ import com.doit.net.Sockets.NetConfig;
 import com.doit.net.Utils.LogUtils;
 import com.doit.net.Utils.ToastUtils;
 import com.doit.net.Utils.UtilOperator;
-import com.doit.net.bean.DeviceInfo;
 
 /**
  * Created by wiker on 2016/4/27.
@@ -55,11 +54,17 @@ public class AddToLocationListener implements View.OnClickListener
                     return;
                 }else{
                     EventAdapter.call(EventAdapter.SHOW_PROGRESS,8000);  //防止快速频繁更换定位目标
-                    startLocation(imsi);
+                    ProtocolManager.exchangeFcn(imsi);
+                    CacheManager.updateLoc(imsi);
+                    ProtocolManager.openAllRf();
+                    CacheManager.startLoc(imsi);
                     ToastUtils.showMessage("开始新的搜寻");
                 }
             }else{
-                startLocation(imsi);
+                ProtocolManager.exchangeFcn(imsi);
+                CacheManager.updateLoc(imsi);
+                ProtocolManager.openAllRf();
+                CacheManager.startLoc(imsi);
                 ToastUtils.showMessage("搜寻开始");
             }
 
@@ -73,25 +78,6 @@ public class AddToLocationListener implements View.OnClickListener
 
     }
 
-    /**
-     * @param imsi 开始定位
-     */
-    private void startLocation(String imsi){
-        String fddFcn = UtilOperator.getFcn(imsi,CacheManager.fcnMap.get(NetConfig.FDD_IP));
-        String tddFcn = UtilOperator.getFcn(imsi,CacheManager.fcnMap.get(NetConfig.TDD_IP));
-
-        if (!TextUtils.isEmpty(fddFcn)){
-            ProtocolManager.setFcn(NetConfig.FDD_IP,fddFcn,"10");
-        }
-
-        if (!TextUtils.isEmpty(tddFcn)){
-            ProtocolManager.setFcn(NetConfig.TDD_IP,tddFcn,"10");
-        }
-
-        CacheManager.updateLoc(imsi);
-        ProtocolManager.openAllRf();
-        CacheManager.startLoc(imsi);
-    }
 
     private void TurnToLocInterface() {
         EventAdapter.call(EventAdapter.CHANGE_TAB, 1);

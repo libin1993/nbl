@@ -9,6 +9,7 @@ import com.doit.net.Model.UCSIDBManager;
 import com.doit.net.Sockets.NetConfig;
 import com.doit.net.Utils.NetWorkUtils;
 import com.doit.net.Utils.UtilDataFormatChange;
+import com.doit.net.Utils.UtilOperator;
 import com.doit.net.application.MyApplication;
 import com.doit.net.bean.DeviceInfo;
 import com.doit.net.bean.FtpConfig;
@@ -161,6 +162,24 @@ public class ProtocolManager {
         }
 
     }
+
+    /**
+     * @param imsi 修改频点
+     */
+    public static  void exchangeFcn(String imsi){
+        String fddFcn = UtilOperator.getFcn(imsi,CacheManager.fcnMap.get(NetConfig.FDD_IP));
+        String tddFcn = UtilOperator.getFcn(imsi,CacheManager.fcnMap.get(NetConfig.TDD_IP));
+
+        if (!TextUtils.isEmpty(fddFcn)){
+            setFcn(NetConfig.FDD_IP,fddFcn,"10");
+        }
+
+        if (!TextUtils.isEmpty(tddFcn)){
+           setFcn(NetConfig.TDD_IP,tddFcn,"10");
+        }
+
+    }
+
 
 
 

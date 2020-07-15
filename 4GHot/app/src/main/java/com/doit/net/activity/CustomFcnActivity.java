@@ -1,7 +1,10 @@
 package com.doit.net.activity;
 
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -61,13 +64,17 @@ public class CustomFcnActivity extends BaseActivity {
 
     private void initView() {
         rvCustomFcn.setLayoutManager(new LinearLayoutManager(this));
+        //添加分割线
+        DividerItemDecoration divider = new DividerItemDecoration(this,DividerItemDecoration.VERTICAL);
+        divider.setDrawable(ContextCompat.getDrawable(this,R.drawable.rv_devider));
+        rvCustomFcn.addItemDecoration(divider);
         adapter = new BaseSectionQuickAdapter<SectionBean, BaseViewHolder>(R.layout.layout_fcn_item,
                 R.layout.layout_fcn_header, dataList) {
 
             @Override
             protected void convert(BaseViewHolder helper, SectionBean item) {
                 DBChannel channel = item.t;
-                helper.setText(R.id.tv_fcn, "频点: " + channel.getFcn());
+                helper.setText(R.id.tv_fcn,  channel.getFcn());
                 ImageView ivCheck = helper.getView(R.id.iv_select_fcn);
                 TextView tvCheck = helper.getView(R.id.tv_select_fcn);
                 LinearLayout llEdit = helper.getView(R.id.ll_edit_fcn);
@@ -81,8 +88,8 @@ public class CustomFcnActivity extends BaseActivity {
                 }
 
                 if (channel.isDefault() == 1) {
-                    llEdit.setVisibility(View.GONE);
-                    llDelete.setVisibility(View.GONE);
+                    llEdit.setVisibility(View.INVISIBLE);
+                    llDelete.setVisibility(View.INVISIBLE);
                 } else {
                     llEdit.setVisibility(View.VISIBLE);
                     llDelete.setVisibility(View.VISIBLE);
@@ -96,7 +103,7 @@ public class CustomFcnActivity extends BaseActivity {
             @Override
             protected void convertHead(BaseViewHolder helper, SectionBean item) {
 
-                helper.setText(R.id.tv_band, item.header.equals(NetConfig.FDD_IP) ? "FDD："+NetConfig.FDD_IP: "TDD："+NetConfig.TDD_IP);
+                helper.setText(R.id.tv_band, item.header.equals(NetConfig.FDD_IP) ? "FDD板卡频点": "TDD板卡频点");
                 helper.addOnClickListener(R.id.iv_add_fcn);
             }
 
@@ -129,6 +136,9 @@ public class CustomFcnActivity extends BaseActivity {
                         checkFcn(section.t.getIp(), section.t.getFcn());
                         break;
                     case R.id.ll_edit_fcn:
+                        if (view.getVisibility() == View.INVISIBLE){
+                            return;
+                        }
                         AddFcnDialog editFcnDialog = new AddFcnDialog(CustomFcnActivity.this,
                                 "编辑频点", dataList.get(position).t.getIp(),
                                 dataList.get(position).t.getFcn(), new AddFcnDialog.OnConfirmListener() {
@@ -141,6 +151,9 @@ public class CustomFcnActivity extends BaseActivity {
                         editFcnDialog.show();
                         break;
                     case R.id.ll_delete_fcn:
+                        if (view.getVisibility() == View.INVISIBLE){
+                            return;
+                        }
                         SectionBean sectionDelete = dataList.get(position);
                         deleteDcn(position, sectionDelete.t.getIp(),sectionDelete.t.getFcn(), sectionDelete.t.isCheck());
                         break;

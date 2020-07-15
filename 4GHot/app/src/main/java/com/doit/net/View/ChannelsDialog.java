@@ -28,8 +28,6 @@ import org.xutils.x;
  */
 public class ChannelsDialog extends Dialog {
 
-    private final static Logger log = LoggerFactory.getLogger(ChannelsDialog.class);
-
     private View mView;
     private Context mContext;
     private ListView channelListView;

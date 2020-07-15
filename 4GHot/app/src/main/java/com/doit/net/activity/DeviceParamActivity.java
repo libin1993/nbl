@@ -1,12 +1,19 @@
 package com.doit.net.activity;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.BaseViewHolder;
+import com.doit.net.Utils.FormatUtils;
+import com.doit.net.Utils.ScreenUtils;
 import com.doit.net.View.ChannelsDialog;
 import com.doit.net.View.SetScanFcnDialog;
 import com.doit.net.View.SystemSetupDialog;
+import com.doit.net.adapter.ChannelListViewAdapter;
 import com.doit.net.adapter.UserChannelListAdapter;
 import com.doit.net.base.BaseActivity;
 import com.doit.net.Utils.MySweetAlertDialog;
@@ -18,15 +25,21 @@ import android.graphics.drawable.ColorDrawable;
 
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
@@ -45,12 +58,14 @@ import com.orhanobut.dialogplus.OnItemClickListener;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static java.security.AccessController.getContext;
+
 
 /**
  * 设备参数
  */
 public class DeviceParamActivity extends BaseActivity implements EventAdapter.EventCall {
-    private final Activity activity = this;
+
     private LinearLayout layoutChannelList;
 
 
@@ -134,7 +149,7 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
 
         layoutChannelList = findViewById(R.id.id_channel_list);
 
-        mProgressDialog = new MySweetAlertDialog(activity, MySweetAlertDialog.PROGRESS_TYPE);
+        mProgressDialog = new MySweetAlertDialog(DeviceParamActivity.this, MySweetAlertDialog.PROGRESS_TYPE);
         mProgressDialog.setTitleText("Loading...");
         mProgressDialog.setCancelable(false);
     }
@@ -142,39 +157,135 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
     View.OnClickListener setCellParamClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (!CacheManager.checkDevice(activity)) {
+            if (!CacheManager.checkDevice(DeviceParamActivity.this)) {
                 return;
             }
-            new SystemSetupDialog(activity).show();
+            new SystemSetupDialog(DeviceParamActivity.this).show();
         }
     };
 
     View.OnClickListener setChannelCfgClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (!CacheManager.checkDevice(activity)) {
+            if (!CacheManager.checkDevice(DeviceParamActivity.this)) {
                 return;
             }
 
-            new ChannelsDialog(activity).show();
+            setChannel();
+
         }
     };
+
+    /**
+     * 设置通道
+     */
+    private void setChannel() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.doit_layout_channels_dialog, null);
+        PopupWindow popupWindow = new PopupWindow(dialogView, ScreenUtils.getInstance()
+                .getScreenWidth(DeviceParamActivity.this)-FormatUtils.getInstance().dip2px(40),
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        RecyclerView rvChannel = dialogView.findViewById(R.id.rv_channel);
+        Button btnCancel = dialogView.findViewById(R.id.button_cancel);
+
+        //设置Popup具体参数
+        popupWindow.setFocusable(true);//点击空白，popup不自动消失
+        popupWindow.setTouchable(true);//popup区域可触摸
+        popupWindow.setOutsideTouchable(false);//非popup区域可触摸
+        popupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
+        popupWindow.showAtLocation(getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+
+
+        rvChannel.setLayoutManager(new LinearLayoutManager(this));
+        BaseQuickAdapter<LteChannelCfg, BaseViewHolder> adapter = new BaseQuickAdapter<LteChannelCfg,
+                BaseViewHolder>(R.layout.doit_layout_channel_item, CacheManager.getChannels()) {
+            @Override
+            protected void convert(BaseViewHolder helper, LteChannelCfg item) {
+                helper.setText(R.id.title_text, "通道:" + item.getBand());
+
+                helper.setText(R.id.editText_fcn, item.getFcn() == null ? "" : "" + item.getFcn());
+                helper.setText(R.id.editText_pa, item.getPa() == null ? "" : "" + item.getPa());
+
+                helper.setText(R.id.et_gain,item.getRxGain() == null ? "" : "" + item.getRxGain());
+                helper.setText(R.id.et_period,item.getPollTmr() == null ? "" : "" + item.getPollTmr());
+                helper.setText(R.id.et_frm_ofs,item.getFrmOfs() == null ? "" : "" + item.getFrmOfs());
+                CheckBox cbGps = helper.getView(R.id.cb_gps);
+                CheckBox cbCnm = helper.getView(R.id.cb_cnm);
+                cbGps.setChecked("1".equals(item.getCnm()));
+                cbCnm.setChecked("1".equals(item.getGps()));
+
+
+                helper.addOnClickListener(R.id.button_save);
+            }
+        };
+        rvChannel.setAdapter(adapter);
+
+        adapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
+            @Override
+            public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+
+                if (view.getId() == R.id.button_save) {
+                    if (!CacheManager.checkDevice(DeviceParamActivity.this)){
+                        return;
+                    }
+                    BaseViewHolder viewHolder = (BaseViewHolder) rvChannel.findViewHolderForLayoutPosition(position);
+                    if (viewHolder ==null){
+                        return;
+                    }
+
+                    EditText etFcn = (EditText) viewHolder.getView( R.id.editText_fcn);
+                    EditText etPa = (EditText) viewHolder.getView( R.id.editText_pa);
+                    EditText etRxGain = (EditText) viewHolder.getView( R.id.et_gain);
+                    EditText etPeriod = (EditText)viewHolder.getView(R.id.et_period);
+                    EditText etFrmOfs= (EditText) viewHolder.getView( R.id.et_frm_ofs);
+                    CheckBox cbGps = (CheckBox)viewHolder.getView(R.id.cb_gps);
+                    CheckBox cbCnm = (CheckBox) viewHolder.getView(R.id.cb_cnm);
+
+                    String fcn = etFcn.getText().toString().trim();
+                    String pa = etPa.getText().toString().trim();
+                    String rxGain = etRxGain.getText().toString().trim();
+                    String pollTmr = etPeriod.getText().toString().trim();
+                    String frmOfs = etFrmOfs.getText().toString().trim();
+                    String gps = cbGps.isChecked() ? "1":"0";
+                    String cnm = cbCnm.isChecked() ? "1":"0";
+
+
+                    CacheManager.fcnMap.put(CacheManager.channels.get(position).getIp(),fcn);
+
+                    ToastUtils.showMessage( R.string.tip_15);
+
+                    ProtocolManager.setPa(CacheManager.channels.get(position).getIp(), pa);
+                    ProtocolManager.setFcn(CacheManager.channels.get(position).getIp(), fcn, pollTmr);
+                    ProtocolManager.setSync(CacheManager.channels.get(position).getIp(), gps, frmOfs,cnm);
+                    ProtocolManager.setChannel(CacheManager.channels.get(position).getIp(), null, null, rxGain, null, null, null);
+                }
+            }
+        });
+
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+    }
 
     View.OnClickListener setScanFcnClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (!CacheManager.checkDevice(activity)) {
+            if (!CacheManager.checkDevice(DeviceParamActivity.this)) {
                 return;
             }
 
-            new SetScanFcnDialog(activity).show();
+            new SetScanFcnDialog(DeviceParamActivity.this).show();
         }
     };
 
     View.OnClickListener updateTacClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (!CacheManager.checkDevice(activity)) {
+            if (!CacheManager.checkDevice(DeviceParamActivity.this)) {
                 return;
             }
 
@@ -187,11 +298,11 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
     View.OnClickListener rebootDeviceClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (!CacheManager.checkDevice(activity)) {
+            if (!CacheManager.checkDevice(DeviceParamActivity.this)) {
                 return;
             }
 
-            new MySweetAlertDialog(activity, MySweetAlertDialog.WARNING_TYPE)
+            new MySweetAlertDialog(DeviceParamActivity.this, MySweetAlertDialog.WARNING_TYPE)
                     .setTitleText("设备重启")
                     .setContentText("确定重启设备")
                     .setCancelText(getString(R.string.cancel))
@@ -213,7 +324,7 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
     View.OnClickListener refreshParamClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (!CacheManager.checkDevice(activity)) {
+            if (!CacheManager.checkDevice(DeviceParamActivity.this)) {
                 return;
             }
 
@@ -235,7 +346,7 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
                 return;
             }
 
-            if (!CacheManager.checkDevice(activity)) {
+            if (!CacheManager.checkDevice(DeviceParamActivity.this)) {
                 lastPowerPress.setChecked(true);
                 return;
             }
@@ -287,7 +398,7 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
                 return;
             }
 
-            if (!CacheManager.checkDevice(activity)) {
+            if (!CacheManager.checkDevice(DeviceParamActivity.this)) {
                 lastDetectCarrierOperatePress.setChecked(true);
                 return;
             }
@@ -347,7 +458,7 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
                 return;
             }
 
-            if (!CacheManager.checkDevice(activity)) {
+            if (!CacheManager.checkDevice(DeviceParamActivity.this)) {
                 cbRFSwitch.setChecked(!isChecked);
                 return;
             }
@@ -369,7 +480,7 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
                 }, 6000);
             } else {
                 if (CacheManager.getLocState()) {
-                    new MySweetAlertDialog(activity, MySweetAlertDialog.WARNING_TYPE)
+                    new MySweetAlertDialog(DeviceParamActivity.this, MySweetAlertDialog.WARNING_TYPE)
                             .setTitleText("提示")
                             .setContentText("当前正在搜寻，确定关闭吗？")
                             .setCancelText(getString(R.string.cancel))
@@ -507,7 +618,7 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
             LteChannelCfg cfg = CacheManager.getChannels().get(i);
             //String tac = CacheManager.getTac(cfg.getIdx());
 
-            LSettingItem item = new LSettingItem(activity);
+            LSettingItem item = new LSettingItem(DeviceParamActivity.this);
             String leftText = "通道：" + cfg.getBand() + "\n" +
                     "频点：[" + cfg.getFcn() + "]";
             item.setRightStyle(3);
@@ -525,7 +636,7 @@ public class DeviceParamActivity extends BaseActivity implements EventAdapter.Ev
             item.setOnLSettingCheckedChange(new LSettingItem.OnLSettingItemClick() {
                 @Override
                 public void click(LSettingItem item) {
-                    if (!CacheManager.checkDevice(activity)) {
+                    if (!CacheManager.checkDevice(DeviceParamActivity.this)) {
                         if (item.isChecked()) {
                             item.setChecked(false);
                         } else {

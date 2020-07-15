@@ -103,7 +103,6 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
     private List<BaseFragment> mTabs = new ArrayList<BaseFragment>();
     private CommonTabLayout tabLayout;
     private MainTabLayoutAdapter adapter;
-//    boolean[] fragmentsUpdateFlag = {false, false, false};
     private List<String> listTitles = new ArrayList<>();
     private ArrayList<CustomTabEntity> mTabEntities = new ArrayList<>();
 
@@ -165,7 +164,7 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
                 checkDataDir();
                 initEvent();
                 initWifiChangeReceive();
-                setData();
+                initWifiStatus();
                 startCheckDeviceState();
                 initNetWork();
                 initSpeech();
@@ -225,7 +224,10 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
     }
 
 
-    private void setData() {
+    /**
+     * wifi状态
+     */
+    private void initWifiStatus() {
         NetworkInfo wifiNetInfo = ((ConnectivityManager) activity.
                 getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         String ssid = NetWorkUtils.getWifiSSID(activity);
@@ -240,6 +242,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
     }
 
 
+    /**
+     * 黑匣子
+     */
     private void initBlackBox() {
 
         BlackBoxManger.setCurrentAccount(AccountManage.getCurrentLoginAccount());
@@ -247,6 +252,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
     }
 
+    /**
+     * socket
+     */
     private void initNetWork() {
 
         ServerSocketUtils.getInstance().startTCP(new OnSocketChangedListener() {
@@ -262,6 +270,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         });
     }
 
+    /**
+     * FTP
+     */
     private void initFTP() {
         File f = new File(FileUtils.ROOT_PATH);
         if (!f.exists())
@@ -278,6 +289,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         mProgressDialog.setCancelable(false);
     }
 
+    /**
+     * 语音
+     */
     private void initSpeech() {
         PrefManage.getPlayType();
         textToSpeech = new TextToSpeech(this, this);
@@ -285,6 +299,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         baiduAudio = new BaiduAudio(this);
     }
 
+    /**
+     * 注册监听wifi状态广播
+     */
     private void initWifiChangeReceive() {
         networkChangeReceiver = new NetworkChangeReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -294,16 +311,16 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
     private void initView() {
         setOverflowShowingAlways();
-//        getActionBar().setDisplayShowHomeEnabled(false);
+
         mViewPager = findViewById(R.id.vpTabPage);
         tabLayout = findViewById(R.id.tablayout);
 
         ivWifiState = findViewById(R.id.ivWifiState);
         ivWifiState.setOnClickListener(wifiSystemSetting);
-        //ivWifiState.setOnClickListener(showSetParamDialogListener);
+
 
         ivDeviceState = findViewById(R.id.ivDeviceState);
-        //ivDeviceState.setOnClickListener(showSetParamDialogListener);
+
 
         ivSyncError = findViewById(R.id.ivSyncError);
 
@@ -330,6 +347,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         EventAdapter.register(EventAdapter.HEARTBEAT_RPT, this);
     }
 
+    /**
+     * 创建文件缓存路径
+     */
     private void checkDataDir() {
 
         File file = new File(FileUtils.ROOT_PATH);
@@ -360,6 +380,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         }
     };
 
+    /**
+     * @param text  语音播报
+     */
     public void speak(String text) {
         if (PrefManage.play_type == 0) {
             textToSpeech.setPitch(1f);// 设置音调，值越大声音越尖（女生），值越小则变成男声,1.0是常规
@@ -511,8 +534,10 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         return true;
     }
 
+
+    //程序退出停止掉定位
     private void appExit() {
-        //程序退出停止掉定位
+
         if (CacheManager.getLocState()) {
             CacheManager.stopCurrentLoc();
         }
@@ -592,10 +617,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
     private NetworkChangeReceiver networkChangeReceiver;
 
 
-    private void powerStart() {
-        turnToUeidPage();
-    }
-
+    /**
+     * 替换首页
+     */
     private void turnToUeidPage() {
         mTabs.set(0, new UeidFragment());
         adapter.exchangeFragment();
@@ -619,6 +643,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         }
     }
 
+    /**
+     * @param filePath 刷新文件系统
+     */
     public void notifyUpdateFileSystem(String filePath) {
         Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         File file = new File(filePath);
@@ -628,6 +655,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         this.getApplication().sendBroadcast(intent);
     }
 
+    /**
+     * wifi状态返回
+     */
     private void wifiChangeEvent() {
         NetworkInfo wifiNetInfo = ((ConnectivityManager) activity.
                 getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -709,7 +739,7 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
     }
 
     /**
-     *  发送数据
+     *  UDP发送手机ip、端口，让设备TCP连接
      */
     public void sendData() {
         try {
@@ -729,6 +759,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
     }
 
 
+    /**
+     * @param deviceState 状态栏
+     */
     private void updateStatusBar(String deviceState) {
         switch (deviceState) {
             case DeviceState.WIFI_DISCONNECT:
@@ -787,6 +820,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
         }
     }
 
+    /**
+     * 低电量提醒
+     */
     private void lowBatteryWarnning() {
         if (batteryWarningDialog == null) {
             batteryWarningDialog = new MySweetAlertDialog(this, MySweetAlertDialog.WARNING_TYPE)
@@ -808,6 +844,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
     }
 
+    /**
+     * @param voltage  设备电量
+     */
     private void processBattery(int voltage) {
         final int LEVEL1 = 9112;
         final int LEVEL2 = 9800;
@@ -1074,7 +1113,7 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
             } else if (msg.what == CHANGE_TAB) {
                 mViewPager.setCurrentItem((int) msg.obj, true);
             } else if (msg.what == POWER_START) {
-                powerStart();
+                turnToUeidPage();
             } else if (msg.what == CHECK_LICENCE) {
                 checkAuthorize();
             }

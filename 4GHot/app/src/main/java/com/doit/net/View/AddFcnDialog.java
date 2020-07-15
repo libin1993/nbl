@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.doit.net.Sockets.NetConfig;
 import com.doit.net.Utils.FormatUtils;
 import com.doit.net.Utils.ToastUtils;
 import com.doit.net.ucsi.R;
@@ -34,7 +35,8 @@ public class AddFcnDialog extends Dialog {
         setContentView(mView);
 
     }
-    public AddFcnDialog(Context context, String title,String ip,String fcn,OnConfirmListener onConfirmListener) {
+
+    public AddFcnDialog(Context context, String title, String ip, String fcn, OnConfirmListener onConfirmListener) {
         super(context, R.style.Theme_dialog);
         mContext = context;
         mOnConfirmListener = onConfirmListener;
@@ -45,17 +47,18 @@ public class AddFcnDialog extends Dialog {
     }
 
     private void initView() {
-        LayoutInflater inflater= LayoutInflater.from(getContext());
+        LayoutInflater inflater = LayoutInflater.from(getContext());
         mView = inflater.inflate(R.layout.dialog_add_fcn, null);
         setCancelable(false);
         TextView tvTitle = mView.findViewById(R.id.tv_dialog_title);
-        EditText etFcn1 = mView.findViewById(R.id.et_fcn1);
+        EditText etFcn = mView.findViewById(R.id.et_fcn1);
         Button btnSave = mView.findViewById(R.id.btn_save);
         Button btnCancel = mView.findViewById(R.id.btn_cancel);
 
         tvTitle.setText(mTitle);
-        if (!TextUtils.isEmpty(mFcn)){
-            etFcn1.setText(mFcn);
+        if (!TextUtils.isEmpty(mFcn)) {
+            etFcn.setText(mFcn);
+            etFcn.setSelection(mFcn.length());
         }
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -68,15 +71,45 @@ public class AddFcnDialog extends Dialog {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String fcn1 = etFcn1.getText().toString().trim();
-
-                if (TextUtils.isEmpty(fcn1)){
+                String content = etFcn.getText().toString().trim();
+                if (TextUtils.isEmpty(content)) {
                     ToastUtils.showMessage("请输入有效内容");
                     return;
                 }
 
-                if (mOnConfirmListener!=null){
-                    mOnConfirmListener.onConfirm(fcn1);
+                String[] split = content.split(",");
+
+                String fcn="";
+                for (int i = 0; i < split.length; i++) {
+                    if (!TextUtils.isEmpty(split[i])) {
+                        long intFcn = Long.parseLong(split[i]);
+                        if (NetConfig.FDD_IP.equals(mIP)) {
+                            if (intFcn < 0 || intFcn > 1949) {
+                                ToastUtils.showMessage("请输入1-1949范围内数字");
+                                return;
+                            }
+                        } else {
+                            if (intFcn < 37750 || intFcn > 41589) {
+                                ToastUtils.showMessage("请输入37750-41589范围内数字");
+                                return;
+                            }
+                        }
+
+                        if (i == split.length-1){
+                            fcn += split[i];
+                        }else {
+                            fcn += split[i]+",";
+                        }
+
+                    }
+                }
+                if (TextUtils.isEmpty(fcn)){
+                    ToastUtils.showMessage("请输入有效内容");
+                    return;
+                }
+
+                if (mOnConfirmListener != null) {
+                    mOnConfirmListener.onConfirm(fcn);
                 }
                 dismiss();
             }
@@ -84,8 +117,7 @@ public class AddFcnDialog extends Dialog {
     }
 
 
-
-    public interface OnConfirmListener{
+    public interface OnConfirmListener {
         void onConfirm(String value);
     }
 }

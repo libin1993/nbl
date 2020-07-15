@@ -1,31 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
+    android:layout_height="wrap_content"
+    android:minHeight="50dp"
     android:background="@android:color/black"
-    android:alpha="0.8">
+    android:alpha="0.8"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp">
 
     <TextView
         android:id="@+id/tv_fcn"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
         android:textSize="14sp"
         android:layout_centerVertical="true"
-        android:layout_marginRight="200dp"
-        android:layout_marginLeft="20dp"
-        android:maxLines="2"
-        android:ellipsize="end"/>
+        android:layout_marginLeft="12dp"
+        android:layout_toLeftOf="@+id/ll_edit_fcn"
+        android:layout_marginRight="20dp"
+        android:maxLines="3"
+        android:ellipsize="end"
+        android:gravity="left"/>
 
 
     <LinearLayout
         android:id="@+id/ll_select_fcn"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_marginRight="12dp"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:layout_centerVertical="true">
         <ImageView
             android:id="@+id/iv_select_fcn"
             android:layout_width="20dp"
@@ -48,12 +54,13 @@
     <LinearLayout
         android:id="@+id/ll_delete_fcn"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_toLeftOf="@id/ll_select_fcn"
         android:layout_marginRight="12dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:visibility="gone">
+        android:visibility="invisible"
+        android:layout_centerVertical="true">
 
 
         <ImageView
@@ -75,12 +82,13 @@
     <LinearLayout
         android:id="@+id/ll_edit_fcn"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_toLeftOf="@id/ll_delete_fcn"
         android:layout_marginRight="12dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:visibility="gone">
+        android:visibility="invisible"
+        android:layout_centerVertical="true">
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
@@ -96,13 +104,5 @@
             android:textSize="10sp"/>
 
     </LinearLayout>
-
-
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="@color/dimgrey"
-        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>
