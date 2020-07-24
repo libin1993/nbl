@@ -70,8 +70,10 @@
             app:leftText="@string/user_manege" />
 
         <LinearLayout
+            android:id="@+id/ll_divider_user"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
             <View
                 android:layout_width="48dp"
@@ -92,11 +94,14 @@
             android:layout_height="42dp"
             app:isShowRightText="false"
             app:leftIcon="@drawable/black_box_w"
-            app:leftText="@string/user_black_box" />
+            app:leftText="@string/user_black_box"
+            android:visibility="gone"/>
 
         <LinearLayout
+            android:id="@+id/ll_divider_black_box"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
             <View
                 android:layout_width="48dp"
@@ -139,8 +144,10 @@
             app:leftText="@string/tab_history_and_export" />
 
         <LinearLayout
+            android:id="@+id/ll_divider_history"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
             <View
                 android:layout_width="48dp"
@@ -223,11 +230,12 @@
             android:layout_width="match_parent"
             android:layout_height="42dp"
             app:leftIcon="@drawable/ic_custom_fcn"
-            app:leftText="@string/scan_fcn" />
+            app:leftText="@string/scan_fcn"
+            android:visibility="gone"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <View
                 android:layout_width="48dp"

@@ -95,7 +95,7 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
     private Button btImportWhitelist;
     private Button btClearWhitelist;
 
-    DbManager dbManager = UCSIDBManager.getDbManager();
+    private DbManager dbManager;
 
     private PopupWindow whitelistItemPop;
     View whitelistItemPopView;
@@ -112,8 +112,10 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
     private final int UPDATE_LIST = 1;
     private final int UPDATE_WHITELIST = 2;
     private final int EXPORT_ERROR = -1;
-    private final static  int IMPORT_SUCCESS =  3;  //导入成功
-    private final static  int EXPORT_SUCCESS =  4;  //导出成功
+    private final static int IMPORT_SUCCESS = 3;  //导入成功
+    private final static int EXPORT_SUCCESS = 4;  //导出成功
+
+    private MySweetAlertDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +123,7 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
         setContentView(R.layout.activity_set_whitelist);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        dbManager = UCSIDBManager.getDbManager();
 
         initView();
 
@@ -179,7 +182,7 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
                 }
 
                 if ("".equals(msisdn)) {
-                    ToastUtils.showMessage( "手机号为空，请确认后点击！");
+                    ToastUtils.showMessage("手机号为空，请确认后点击！");
                     return;
                 }
 
@@ -201,6 +204,11 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
                 whitelistItemPop.dismiss();
             }
         });
+
+
+        mProgressDialog = new MySweetAlertDialog(this, MySweetAlertDialog.PROGRESS_TYPE);
+        mProgressDialog.setTitleText("加载中，请耐心等待...");
+        mProgressDialog.setCancelable(false);
     }
 
     private void showListPopWindow(View anchorView, int posX, int posY) {
@@ -301,13 +309,13 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
         public void onClick(View v) {
             File file = new File(FileUtils.ROOT_PATH);
             if (!file.exists()) {
-                ToastUtils.showMessageLong("未找到白名单，请确认已将白名单放在\"手机存储/"+FileUtils.ROOT_DIRECTORY+"\"目录下");
+                ToastUtils.showMessageLong("未找到白名单，请确认已将白名单放在\"手机存储/" + FileUtils.ROOT_DIRECTORY + "\"目录下");
                 return;
             }
 
             File[] files = file.listFiles();
             if (files == null || files.length == 0) {
-                ToastUtils.showMessageLong("未找到白名单，请确认已将白名单放在\"手机存储/"+FileUtils.ROOT_DIRECTORY+"\"目录下");
+                ToastUtils.showMessageLong("未找到白名单，请确认已将白名单放在\"手机存储/" + FileUtils.ROOT_DIRECTORY + "\"目录下");
                 return;
             }
 
@@ -324,7 +332,7 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
             }
 
             if (fileList.size() == 0) {
-                ToastUtils.showMessageLong("\"手机存储/"+FileUtils.ROOT_DIRECTORY+"\"目录下未找到白名单，白名单必须是以\".xls\"或\".xlsx\"为后缀的文件");
+                ToastUtils.showMessageLong("\"手机存储/" + FileUtils.ROOT_DIRECTORY + "\"目录下未找到白名单，白名单必须是以\".xls\"或\".xlsx\"为后缀的文件");
                 return;
             }
 
@@ -393,14 +401,15 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
     };
 
     /**
-     * @param fileList
-     * 导入白名单
+     * @param fileList 导入白名单
      */
     private void importWhitelist(List<FileBean> fileList) {
-        new Thread() {
+        if (mProgressDialog !=null && !mProgressDialog.isShowing()){
+            mProgressDialog.show();
+        }
+        new Thread(new Runnable() {
             @Override
             public void run() {
-
                 File file = null;
                 for (FileBean fileBean : fileList) {
                     if (fileBean.isCheck()) {
@@ -451,12 +460,12 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
                             continue;
                         }
 
-                        if (!TextUtils.isEmpty(remark) &&remark.length() > 8){
-                            remark = remark.substring(0,8);
+                        if (!TextUtils.isEmpty(remark) && remark.length() > 8) {
+                            remark = remark.substring(0, 8);
                         }
                         listValidWhite.add(new WhiteListInfo(imsiInLine, msisdnInLine, remark));
                         validImportNum++;
-                        if (validImportNum > 10000)  //白名单最大10000
+                        if (validImportNum >= 10000)  //白名单最大10000
                             break;
 
                     }
@@ -477,9 +486,8 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
                     LogUtils.log(e.toString());
                     createExportError("写入文件错误");
                 }
-
             }
-        }.start();
+        }).start();
     }
 
     /**
@@ -523,8 +531,10 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
 
     View.OnClickListener exortWhitelistClick = new View.OnClickListener() {
         @Override
-
         public void onClick(View v) {
+            if (mProgressDialog !=null && !mProgressDialog.isShowing()){
+                mProgressDialog.show();
+            }
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -550,10 +560,10 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
                             ToastUtils.showMessageLong("当前名单为空，此次导出为模板");
                         } else {
                             for (int i = 0; i < listWhitelistInfo.size(); i++) {
-                                Row rowi = sheet.createRow(i+1);
-                                rowi.createCell(0).setCellValue(listWhitelistInfo.get(i).getImsi()+"");
-                                rowi.createCell(1).setCellValue(listWhitelistInfo.get(i).getMsisdn()+"");
-                                rowi.createCell(2).setCellValue(listWhitelistInfo.get(i).getRemark()+"");
+                                Row rowi = sheet.createRow(i + 1);
+                                rowi.createCell(0).setCellValue(listWhitelistInfo.get(i).getImsi() + "");
+                                rowi.createCell(1).setCellValue(listWhitelistInfo.get(i).getMsisdn() + "");
+                                rowi.createCell(2).setCellValue(listWhitelistInfo.get(i).getRemark() + "");
                             }
                         }
 
@@ -566,7 +576,7 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
 
                         Message message = new Message();
                         message.what = EXPORT_SUCCESS;
-                        message.obj = "文件导出在：手机存储/"+FileUtils.ROOT_DIRECTORY+"/"+ file.getName();
+                        message.obj = "文件导出在：手机存储/" + FileUtils.ROOT_DIRECTORY + "/" + file.getName();
                         mHandler.sendMessage(message);
 
                         EventAdapter.call(EventAdapter.ADD_BLACKBOX, BlackBoxManger.EXPORT_WHITELIST + WHITELIST_FILE_PATH);
@@ -664,18 +674,28 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
                 updateListFromDB();
                 CacheManager.updateWhitelistToDev(activity);
             } else if (msg.what == EXPORT_ERROR) {
+
+                if (mProgressDialog !=null && mProgressDialog.isShowing()){
+                    mProgressDialog.dismiss();
+                }
                 new SweetAlertDialog(activity, SweetAlertDialog.ERROR_TYPE)
                         .setTitleText("导出失败")
                         .setContentText("失败原因：" + msg.obj)
                         .show();
-            }else if (msg.what == IMPORT_SUCCESS){
+            } else if (msg.what == IMPORT_SUCCESS) {
+                if (mProgressDialog !=null && mProgressDialog.isShowing()){
+                    mProgressDialog.dismiss();
+                }
                 new MySweetAlertDialog(activity, MySweetAlertDialog.TEXT_SUCCESS)
                         .setTitleText("导入完成")
                         .setContentText(String.valueOf(msg.obj))
                         .show();
 
                 updateListFromDB();
-            } else if (msg.what == EXPORT_SUCCESS){
+            } else if (msg.what == EXPORT_SUCCESS) {
+                if (mProgressDialog !=null && mProgressDialog.isShowing()){
+                    mProgressDialog.dismiss();
+                }
                 new MySweetAlertDialog(activity, MySweetAlertDialog.TEXT_SUCCESS)
                         .setTitleText("导出成功")
                         .setContentText(String.valueOf(msg.obj))
@@ -685,10 +705,9 @@ public class WhitelistManagerActivity extends BaseActivity implements EventAdapt
     };
 
 
-
     @Override
     public void call(String key, Object val) {
-        switch (key){
+        switch (key) {
             case EventAdapter.UPDATE_WHITELIST:
                 Message msg = new Message();
                 msg.what = UPDATE_WHITELIST;

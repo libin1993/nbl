@@ -319,7 +319,7 @@ public class LTE_PT_PARAM {
                         continue;
                     }
 
-                    listUeid.add(new UeidBean(tmpImsi, "未获取", tmpTmsi, band, tmpRptTime, longitude, latitude));
+//                    listUeid.add(new UeidBean(tmpImsi, "未获取", tmpTmsi, band, tmpRptTime, longitude, latitude));
 //                        UtilBaseLog.printLog(splitUeid[0]+"  "+splitUeid[1]+"  "+splitUeid[2]+"  "+splitUeid[3]+"  "+splitUeid[4]+"  "+
 //                                splitUeid[5]);
 
@@ -743,8 +743,8 @@ public class LTE_PT_PARAM {
                             continue;
                         }
 
-                        listRpt.add(new UeidBean(tmpImsi, "", "", "",
-                                DateUtils.convert2String(new Date(), DateUtils.LOCAL_DATE), "", ""));
+//                        listRpt.add(new UeidBean(tmpImsi, "", "", "",
+//                                DateUtils.convert2String(new Date(), DateUtils.LOCAL_DATE), "", ""));
 
 //                        if (!CacheManager.removeExistUeidInRealtimeList(tmpImsi)) {
 //                            UCSIDBManager.saveUeidToDB(tmpImsi, ImsiMsisdnConvert.getMsisdnFromLocal(tmpImsi), "",
@@ -796,9 +796,9 @@ public class LTE_PT_PARAM {
 //                                new Date().getTime(), "", "");
 //                    }
 
-                    EventAdapter.call(EventAdapter.UEID_RPT,
-                            Arrays.asList(new UeidBean(imsi, "", "", "",
-                                    DateUtils.convert2String(new Date(), DateUtils.LOCAL_DATE), "", "")));
+//                    EventAdapter.call(EventAdapter.UEID_RPT,
+//                            Arrays.asList(new UeidBean(imsi, "", "", "",
+//                                    DateUtils.convert2String(new Date(), DateUtils.LOCAL_DATE), "", "")));
                 }
             } else if (CacheManager.currentWorkMode.equals("2")) {
                 if (CacheManager.getLocState()) {

@@ -189,7 +189,7 @@ public class LocationFragment extends BaseFragment implements EventAdapter.Event
 
     void startLoc() {
         if (!CacheManager.getLocState()) {
-            ProtocolManager.exchangeFcn(CacheManager.getCurrentLoction().getImsi());
+            ProtocolManager.exchangeFcn(CacheManager.getCurrentLoction().getImsi(),CacheManager.getCurrentLoction().getFcn());
             isStart = true;
 
             startSpeechBroadcastLoop();

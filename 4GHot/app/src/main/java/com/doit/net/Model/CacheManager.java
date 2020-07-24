@@ -135,12 +135,13 @@ public class CacheManager {
         hasPressStartButton = flag;
     }
 
-    public static void updateLoc(String imsi) {
+    public static void updateLoc(String imsi,String fcn) {
         if (currentLoction == null) {
             currentLoction = new LocationBean();
         }
         PrefManage.setImsi(imsi);
         currentLoction.setImsi(imsi);
+        currentLoction.setFcn(fcn);
     }
 
     public static void setCurrentBlackList() {

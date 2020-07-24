@@ -22,14 +22,15 @@ public class AddToLocationListener implements View.OnClickListener
     private int position;
     private Context mContext;
     private String imsi;
-    private String remark;
+
 //    private DBBlackInfo blackInfo;
     private String lastLocOperator; //上次定位号码制式
+    private String fcn="";
 
-    public AddToLocationListener(int position, Context mContext,String imsi,String remark) {
+    public AddToLocationListener(int position, Context mContext,String imsi,String fcn) {
         this.position = position;
         this.mContext = mContext;
-        this.remark = remark;
+        this.fcn = fcn;
         this.imsi = imsi;
     }
 
@@ -37,7 +38,6 @@ public class AddToLocationListener implements View.OnClickListener
     public AddToLocationListener(int position, Context mContext, DBBlackInfo blackInfo){
         this.position = position;
         this.mContext = mContext;
-        this.remark = blackInfo.getRemark();
         this.imsi = blackInfo.getImsi();
 
     }
@@ -54,15 +54,15 @@ public class AddToLocationListener implements View.OnClickListener
                     return;
                 }else{
                     EventAdapter.call(EventAdapter.SHOW_PROGRESS,8000);  //防止快速频繁更换定位目标
-                    ProtocolManager.exchangeFcn(imsi);
-                    CacheManager.updateLoc(imsi);
+                    ProtocolManager.exchangeFcn(imsi,fcn);
+                    CacheManager.updateLoc(imsi,fcn);
                     ProtocolManager.openAllRf();
                     CacheManager.startLoc(imsi);
                     ToastUtils.showMessage("开始新的搜寻");
                 }
             }else{
-                ProtocolManager.exchangeFcn(imsi);
-                CacheManager.updateLoc(imsi);
+                ProtocolManager.exchangeFcn(imsi,fcn);
+                CacheManager.updateLoc(imsi,fcn);
                 ProtocolManager.openAllRf();
                 CacheManager.startLoc(imsi);
                 ToastUtils.showMessage("搜寻开始");

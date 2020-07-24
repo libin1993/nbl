@@ -7,6 +7,15 @@ public class LocationBean {
 
     private String imsi = "";
     private boolean isStart = false;
+    private String fcn;
+
+    public String getFcn() {
+        return fcn;
+    }
+
+    public void setFcn(String fcn) {
+        this.fcn = fcn;
+    }
 
     public String getImsi() {
         return imsi;

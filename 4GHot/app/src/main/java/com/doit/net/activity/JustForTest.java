@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.doit.net.Model.CacheManager;
+import com.doit.net.Model.UCSIDBManager;
+import com.doit.net.Model.WhiteListInfo;
 import com.doit.net.Protocol.ProtocolManager;
 import com.doit.net.base.BaseActivity;
 import com.doit.net.Event.EventAdapter;
@@ -15,6 +17,12 @@ import com.doit.net.Protocol.LTE_PT_SYSTEM;
 import com.doit.net.Utils.Cellular;
 import com.doit.net.Utils.ToastUtils;
 import com.doit.net.ucsi.R;
+
+import org.xutils.DbManager;
+import org.xutils.ex.DbException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.doit.net.Event.EventAdapter.GET_NAME_LIST;
 import static com.doit.net.Event.EventAdapter.UPDATE_TMEPRATURE;
@@ -32,6 +40,7 @@ public class JustForTest extends BaseActivity implements EventAdapter.EventCall 
     private TextView tvTemperature;
     private TextView tvArfcns;
     private TextView tvNameList;
+    private Button btnImportWhitelist;
 
 
     @Override
@@ -51,6 +60,7 @@ public class JustForTest extends BaseActivity implements EventAdapter.EventCall 
         tvTemperature = findViewById(R.id.tvTemperature);
         tvArfcns = findViewById(R.id.tvArfcns);
         tvNameList = findViewById(R.id.tv_name_list);
+        btnImportWhitelist = findViewById(R.id.btn_import_whitelist);
 
         initView();
 
@@ -133,6 +143,31 @@ public class JustForTest extends BaseActivity implements EventAdapter.EventCall 
 //                }
 
 //                ProtocolManager.getNetworkParams();
+            }
+        });
+
+        btnImportWhitelist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                List<WhiteListInfo> list = new ArrayList<>();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        long a = 100000000000000L;
+                        long b = 10000000000L;
+                        for (int i = 0; i < 30000; i++) {
+                            list.add(new WhiteListInfo(String.valueOf(++a),String.valueOf(++b),""));
+                        }
+
+                        DbManager dbManager = UCSIDBManager.getDbManager();
+                        try {
+                            dbManager.save(list);
+                        } catch (DbException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
             }
         });
     }

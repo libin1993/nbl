@@ -9,7 +9,15 @@ public class ReportBean {
     private String ip;
     private String imsi;
     private String rssi;
+    private String fcn;
 
+    public String getFcn() {
+        return fcn;
+    }
+
+    public void setFcn(String fcn) {
+        this.fcn = fcn;
+    }
 
     public String getImsi() {
         return imsi;

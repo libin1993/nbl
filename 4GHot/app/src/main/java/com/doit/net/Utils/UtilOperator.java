@@ -6,6 +6,7 @@ import com.doit.net.bean.LteChannelCfg;
 import com.doit.net.Protocol.ProtocolManager;
 import com.doit.net.Model.CacheManager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -81,25 +82,26 @@ public class UtilOperator {
 
     /**
      * @param imsi
-     * @param fcn
-     * @return 设置对应制式频点
+     * @param defaultFcn  默认频点
+     * @param fcn  采号上报的频点
+     * @return 设置对应制式频点，将采号上报的频点放在第一个
      * <p>
      * 移动：1200- 1400      37550 - 41589
      * 联通：1401-1750      201 - 600
      * 电信：1751- 1950    1- 200
      */
-    public static String getFcn(String imsi, String fcn) {
-        if (TextUtils.isEmpty(fcn)){
+    public static String getFcn(String imsi, String defaultFcn,String fcn) {
+        if (TextUtils.isEmpty(defaultFcn)){
             return "";
         }
-        String tempFcn = "";
-        String[] fcnArr = fcn.split(",");
+        List<String>  tempFcn = new ArrayList<>();
+        String[] fcnArr = defaultFcn.split(",");
         switch (getOperatorName(imsi)) {
             case "CTJ":
                 for (int i = 0; i < fcnArr.length; i++) {
                     int intFcn = Integer.parseInt(fcnArr[i]);
                     if ((intFcn >= 1200 && intFcn <= 1400) || (intFcn >= 37550 && intFcn <= 41589)) {
-                        tempFcn += intFcn + ",";
+                        tempFcn.add(intFcn+"");
                     }
                 }
                 break;
@@ -107,7 +109,7 @@ public class UtilOperator {
                 for (int i = 0; i < fcnArr.length; i++) {
                     int intFcn = Integer.parseInt(fcnArr[i]);
                     if ((intFcn >= 1401 && intFcn <= 1750) || (intFcn >= 201 && intFcn <= 600)) {
-                        tempFcn += intFcn + ",";
+                        tempFcn.add(intFcn+"");
                     }
                 }
                 break;
@@ -115,21 +117,35 @@ public class UtilOperator {
                 for (int i = 0; i < fcnArr.length; i++) {
                     int intFcn = Integer.parseInt(fcnArr[i]);
                     if ((intFcn >= 1751 && intFcn <= 1950) || (intFcn >= 1 && intFcn <= 200)) {
-                        tempFcn += intFcn + ",";
+                        tempFcn.add(intFcn+"");
                     }
                 }
                 break;
-            default:
-                tempFcn = fcn+",";
-                break;
         }
 
-
-        if (TextUtils.isEmpty(tempFcn)){
+        if (tempFcn.size() == 0){
             return "";
         }
 
-        return tempFcn.substring(0,tempFcn.length()-1);
+        if (!TextUtils.isEmpty(fcn)){
+            int index = tempFcn.indexOf(fcn);
+            if (index >1){
+                tempFcn.remove(index);
+                tempFcn.add(0,fcn);
+            }
+        }
+
+
+        StringBuilder selectFcn= new StringBuilder();
+        for (int i = 0; i < tempFcn.size(); i++) {
+            if (i == tempFcn.size() - 1){
+                selectFcn.append(tempFcn.get(i));
+            }else {
+                selectFcn.append(tempFcn.get(i)).append(",");
+            }
+        }
+
+        return selectFcn.toString();
 
     }
 

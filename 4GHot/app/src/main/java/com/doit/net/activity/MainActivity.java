@@ -957,9 +957,9 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
             if (!hasSetDefaultParam && CacheManager.deviceList.size() > 1) {
                 hasSetDefaultParam = true;
 
+                ProtocolManager.setActiveMode();
 
                 if (!CacheManager.getLocState()){
-                    ProtocolManager.setActiveMode();
                     ProtocolManager.clearImsi();
                     ProtocolManager.setDefaultFcn();
                 }

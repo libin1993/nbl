@@ -127,6 +127,15 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
     @ViewInject(R.id.tvTest)
     private LSettingItem just4Test;
 
+    @ViewInject(R.id.ll_divider_user)
+    private LinearLayout llDividerUser;
+
+    @ViewInject(R.id.ll_divider_black_box)
+    private LinearLayout llDividerBlackBox;
+
+    @ViewInject(R.id.ll_divider_history)
+    private LinearLayout llDividerHistory;
+
     private ListView lvPackageList;
     private LinearLayout layoutUpgradePackage;
     private PopupWindow mPopupWindow;
@@ -140,7 +149,6 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
 
     private long fileSize; //升级包大小
 
-//    private MySweetAlertDialog mProgressDialog;
 
 
     //handler消息
@@ -158,6 +166,7 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
         View rootView = inflater.inflate(R.layout.doit_layout_app, container, false);
 
         EventAdapter.register(EventAdapter.UPGRADE_STATUS, this);
+
 
         return rootView;
     }
@@ -293,26 +302,24 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
             tvSupportVoice.setRightText("不支持");
         }
 
-
-//        initProgressDialog();
         tvVersion.setRightText(VersionManage.getVersionName(getContext()));
 
         if (AccountManage.getCurrentPerLevel() >= AccountManage.PERMISSION_LEVEL2) {
             btUserManage.setVisibility(View.VISIBLE);
             btClearUeid.setVisibility(View.VISIBLE);
+            btBlackBox.setVisibility(View.VISIBLE);
+
+            llDividerUser.setVisibility(View.VISIBLE);
+            llDividerBlackBox.setVisibility(View.VISIBLE);
+            llDividerHistory.setVisibility(View.VISIBLE);
         }
 
         if (AccountManage.getCurrentPerLevel() >= AccountManage.PERMISSION_LEVEL3) {
-            just4Test.setVisibility(View.GONE);
+            just4Test.setVisibility(View.VISIBLE);
             tvSystemSetting.setVisibility(View.VISIBLE);
         }
     }
 
-//    private void initProgressDialog() {
-//        mProgressDialog = new MySweetAlertDialog(getContext(), MySweetAlertDialog.PROGRESS_TYPE);
-//        mProgressDialog.setTitleText("升级包正在加载，请耐心等待...");
-//        mProgressDialog.setCancelable(false);
-//    }
 
     private void showDeviceInfoDialog() {
         if (!CacheManager.checkDevice(getContext()))
@@ -487,9 +494,8 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
         mPwProgress = new PopupWindow(dialogView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         //设置Popup具体参数
-        mPwProgress.setOutsideTouchable(true);//非popup区域可触摸
+        mPwProgress.setOutsideTouchable(false);//非popup区域可触摸
         mPwProgress.setTouchable(true);//popup区域可触摸
-        mPwProgress.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
         mPwProgress.showAtLocation(getActivity().getWindow().getDecorView(), Gravity.CENTER, 0, 0);
 
         pbFirstEquip = dialogView.findViewById(R.id.pb_first_equip);
@@ -499,7 +505,6 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
         pbSecondEquip = dialogView.findViewById(R.id.pb_second_equip);
         tvSecondIp = dialogView.findViewById(R.id.tv_second_ip);
         tvSecondProgress = dialogView.findViewById(R.id.tv_second_progress);
-
 
         tvFirstIp.setText(CacheManager.deviceList.get(0).getIp());
         tvSecondIp.setText(CacheManager.deviceList.get(1).getIp());
@@ -541,9 +546,6 @@ public class AppFragment extends BaseFragment implements EventAdapter.EventCall 
                     ToastUtils.showMessageLong("升级包加载成功，设备即将重启");
                 }
 
-//                if (mProgressDialog != null) {
-//                    mProgressDialog.dismiss();
-//                }
             }
         }
     };

@@ -166,16 +166,20 @@ public class ProtocolManager {
     /**
      * @param imsi 修改频点
      */
-    public static  void exchangeFcn(String imsi){
-        String fddFcn = UtilOperator.getFcn(imsi,CacheManager.fcnMap.get(NetConfig.FDD_IP));
-        String tddFcn = UtilOperator.getFcn(imsi,CacheManager.fcnMap.get(NetConfig.TDD_IP));
+    public static  void exchangeFcn(String imsi,String fcn){
+        String fddFcn = UtilOperator.getFcn(imsi,CacheManager.fcnMap.get(NetConfig.FDD_IP),fcn);
+        String tddFcn = UtilOperator.getFcn(imsi,CacheManager.fcnMap.get(NetConfig.TDD_IP),fcn);
 
         if (!TextUtils.isEmpty(fddFcn)){
             setFcn(NetConfig.FDD_IP,fddFcn,"10");
+        }else {
+            ProtocolManager.setFcn(NetConfig.FDD_IP, CacheManager.fcnMap.get(NetConfig.FDD_IP), "10"); //停止定位，恢复默认频点
         }
 
         if (!TextUtils.isEmpty(tddFcn)){
            setFcn(NetConfig.TDD_IP,tddFcn,"10");
+        }else {
+            ProtocolManager.setFcn(NetConfig.TDD_IP, CacheManager.fcnMap.get(NetConfig.TDD_IP), "10");
         }
 
     }
@@ -544,13 +548,13 @@ public class ProtocolManager {
         }
 
         LogUtils.log("设置定位名单：" + imsi);
-//        LTESendManager.sendData(LTEMsgCode.Type.APP_RPT,LTEMsgCode.SendCode.SET_LOCATION_IMSI,imsi);
+
         LTESendManager.sendData(LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_BLACKLIST, "BLACKLIST:" + imsi + "\r\n");
     }
 
 
     public static void setActiveMode() {
-        LogUtils.log("设置定位模式");
+        LogUtils.log("设置定位模式：吸附定位");
         LTESendManager.sendData(LTEMsgCode.Type.APP_RPT, LTEMsgCode.SendCode.SET_LOCATION_MODE, "2");
     }
 

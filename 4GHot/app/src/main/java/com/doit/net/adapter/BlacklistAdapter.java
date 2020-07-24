@@ -127,7 +127,8 @@ public class BlacklistAdapter extends BaseSwipeAdapter {
         convertView.findViewById(R.id.ivModify).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ModifyNamelistInfoDialog modifyNamelistDialog = new ModifyNamelistInfoDialog(mContext, resp.getName(), resp.getImsi(),resp.getRemark());
+                ModifyNamelistInfoDialog modifyNamelistDialog = new ModifyNamelistInfoDialog(mContext,
+                        resp.getName(), resp.getImsi(),resp.getRemark());
                 modifyNamelistDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialog) {

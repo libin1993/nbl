@@ -33,17 +33,22 @@ public class DBUeidInfo {
     @Column(name = "location")  //归属地
     private String location = "";
 
+    //协议外
+    @Column(name = "fcn")  //下行频点
+    private String fcn = "";
+
 
     public DBUeidInfo() {
     }
 
-    public DBUeidInfo(String imsi, String msisdn, String tmsi, long createDate, String longitude, String latitude) {
+    public DBUeidInfo(String imsi, String msisdn, String tmsi, long createDate, String longitude, String latitude,String fcn) {
         this.imsi = imsi;
         this.msisdn = msisdn;
         this.tmsi = tmsi;
         this.createDate = createDate;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.fcn = fcn;
     }
 
     public int getId() {
@@ -108,5 +113,13 @@ public class DBUeidInfo {
     }
     public void setMsisdn(String msisdn) {
         this.msisdn = msisdn;
+    }
+
+    public String getFcn() {
+        return fcn;
+    }
+
+    public void setFcn(String fcn) {
+        this.fcn = fcn;
     }
 }

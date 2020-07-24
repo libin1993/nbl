@@ -252,6 +252,7 @@ public class LTEDataParse {
 
         String imsi = null;
         String rssi = null;
+        String ulFcn = null;
         for (String s : split) {
             String[] split1 = s.split(":");
             switch (split1[0]) {
@@ -261,13 +262,24 @@ public class LTEDataParse {
                 case "RSSI":
                     rssi = TextUtils.isEmpty(split1[1]) ? null : split1[1];
                     break;
+                case "ULFCN":
+                    ulFcn = TextUtils.isEmpty(split1[1]) ? null : split1[1];
+                    break;
             }
         }
 
-        if (!TextUtils.isEmpty(imsi) && !TextUtils.isEmpty(rssi)) {
+        if (!TextUtils.isEmpty(imsi) && !TextUtils.isEmpty(rssi) && !TextUtils.isEmpty(ulFcn)) {
             ReportBean reportBean = new ReportBean();
             reportBean.setImsi(imsi);
             reportBean.setRssi(rssi);
+            //fdd下行频点 = 上行频点-18000 ，tdd下行频点 = 上行频点
+            int fcn = Integer.parseInt(ulFcn);
+            if (fcn < 30000) {
+                fcn = fcn - 18000;
+            }
+
+            reportBean.setFcn(fcn + "");
+
             EventAdapter.call(EventAdapter.SHIELD_RPT, reportBean);
         }
 
@@ -317,8 +329,8 @@ public class LTEDataParse {
                     break;
                 case "POLLFCN":
                     lteChannelCfg.setFcn(split1[1]);
-                    if (CacheManager.fcnMap.size() <2){     //保存初始轮询频点
-                        CacheManager.fcnMap.put(lteChannelCfg.getIp(),split1[1]);
+                    if (CacheManager.fcnMap.size() < 2) {     //保存初始轮询频点
+                        CacheManager.fcnMap.put(lteChannelCfg.getIp(), split1[1]);
                     }
                     break;
                 case "POLLTMR":
@@ -516,7 +528,7 @@ public class LTEDataParse {
             return;
         }
 
-        if (CacheManager.getLocState()){   //当前正在定位则不设置频点
+        if (CacheManager.getLocState()) {   //当前正在定位则不设置频点
             return;
         }
 
@@ -532,9 +544,9 @@ public class LTEDataParse {
                 String[] split2 = s1.split(":");
                 if ("EARFCN".equals(split2[0])) {
                     int fcn = Integer.parseInt(split2[1]);
-                    if (fcn >=37750 && fcn<=41589) {     //b38、b39、b40、b41
+                    if (fcn >= 37750 && fcn <= 41589) {     //b38、b39、b40、b41
                         tddFcn.add(fcn);
-                    } else if ((fcn >= 0 && fcn <= 599) || (fcn >= 1200 && fcn <= 1949)){   //b1、b3
+                    } else if ((fcn >= 0 && fcn <= 599) || (fcn >= 1200 && fcn <= 1949)) {   //b1、b3
                         fddFcn.add(fcn);
                     }
                 }

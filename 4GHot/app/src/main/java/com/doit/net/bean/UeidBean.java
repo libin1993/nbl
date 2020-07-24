@@ -11,6 +11,7 @@ public class UeidBean {
     private String rptTime;
     private String longitude;
     private String latitude;
+    private String fcn;
 
     //为管控而加
     private int rptTimes = 1; //上报次数累积
@@ -20,7 +21,7 @@ public class UeidBean {
 
     }
 
-    public UeidBean(String imsi, String number, String tmsi, String band, String rptTime, String longitude, String latitude) {
+    public UeidBean(String imsi, String number, String tmsi, String band, String rptTime, String longitude, String latitude,String fcn) {
         this.imsi = imsi;
         this.number = number;
         this.tmsi = tmsi;
@@ -28,6 +29,7 @@ public class UeidBean {
         this.rptTime = rptTime;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.fcn = fcn;
     }
 
 
@@ -100,5 +102,13 @@ public class UeidBean {
 
     public void setSrsp(String srsp) {
         this.srsp = srsp;
+    }
+
+    public String getFcn() {
+        return fcn;
+    }
+
+    public void setFcn(String fcn) {
+        this.fcn = fcn;
     }
 }
