@@ -189,7 +189,7 @@ public class AccountManage {
             public void run() {
                 try {
                     FTPManager.getInstance().connect();
-                    FTPManager.getInstance().uploadFile(LOCAL_FTP_ACCOUNT_PATH, ACCOUNT_FILE_NAME);
+                    FTPManager.getInstance().uploadFile(false,LOCAL_FTP_ACCOUNT_PATH, ACCOUNT_FILE_NAME);
                     namelistFile.delete();
                 } catch (Exception e) {
                     e.printStackTrace();

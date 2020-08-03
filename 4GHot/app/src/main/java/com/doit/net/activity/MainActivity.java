@@ -1011,7 +1011,7 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
                         boolean isFinish = FileUtils.getInstance().stringToFile(licence,
                                 FileUtils.ROOT_PATH + LicenceUtils.LICENCE_FILE_NAME);
                         if (isFinish) {
-                            boolean isUploaded = FTPManager.getInstance().uploadFile(FileUtils.ROOT_PATH,
+                            boolean isUploaded = FTPManager.getInstance().uploadFile(false,FileUtils.ROOT_PATH,
                                     LicenceUtils.LICENCE_FILE_NAME);
                             if (isUploaded) {
                                 FileUtils.getInstance().deleteFile(FileUtils.ROOT_PATH

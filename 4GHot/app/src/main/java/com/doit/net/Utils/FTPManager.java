@@ -126,7 +126,7 @@ public class FTPManager {
 
 
     // 实现上传文件的功能
-    public synchronized boolean uploadFile(String path, String updateFileName)
+    public synchronized boolean uploadFile(boolean isAppend,String path, String updateFileName)
             throws Exception {
         String localPath = path + updateFileName;
         // 上传文件之前，先判断本地文件是否存在
@@ -143,11 +143,16 @@ public class FTPManager {
         FTPFile[] files = ftpClient.listFiles(fileName);
 
         long serverSize = 0;
-        if (files.length == 0) {
-            serverSize = 0;
-        } else {
-            serverSize = files[0].getSize(); // 服务器文件的长度
+        if (files.length != 0) {
+            if (isAppend){
+                serverSize = files[0].getSize(); // 服务器文件的长度
+            }else {
+                LogUtils.log("非断点续传，删除文件");
+                ftpClient.deleteFile(fileName);
+
+            }
         }
+
         if (localSize <= serverSize) {
             if (ftpClient.deleteFile(fileName)) {
                 LogUtils.log("服务器文件存在,删除文件,开始重新上传");

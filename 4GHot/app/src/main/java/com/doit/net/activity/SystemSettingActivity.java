@@ -132,7 +132,7 @@ public class SystemSettingActivity extends BaseActivity {
             public void run() {
                 try {
                     FTPManager.getInstance().connect();
-                    if (FTPManager.getInstance().uploadFile(accountFullPath, accountFileName)){
+                    if (FTPManager.getInstance().uploadFile(false,accountFullPath, accountFileName)){
                         ToastUtils.showMessage( "生成管理员账号成功");
                     }else {
                         ToastUtils.showMessage("生成管理员账号出错");
